@@ -1,0 +1,14 @@
+database:
+  driver: mysql
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  #  dbname: YEVER
+  dbname: SWTAC
+  password: root1234
+  type: mysql
+
+sqlite:
+  file: './datasource/sqlite/SWTAC.db'
+server:
+  addr: 0.0.0.0:8088
