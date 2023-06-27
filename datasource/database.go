@@ -35,7 +35,6 @@ func NewClient() (*ent.Client, error) {
 
 	var client *ent.Client
 	var err error
-	//drv, err := sql.Open("mysql", "root:root1234@tcp(127.0.0.1:3306)/terminal?charset=utf8&parseTime=true")
 	switch dfg.Type {
 	case "sqlite3":
 		client, err = ent.Open(dfg.Type, fmt.Sprintf("file:%s?_busy_timeout=100000&_fk=1", dfg.DbName))

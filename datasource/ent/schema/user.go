@@ -2,6 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -10,6 +12,12 @@ import (
 // User holds the schema definition for the User entity.
 type User struct {
 	ent.Schema
+}
+
+func (User) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "users"},
+	}
 }
 
 func (User) MiXin() []ent.Mixin {
@@ -21,13 +29,13 @@ func (User) MiXin() []ent.Mixin {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()),
-		field.String("name"),
+		field.UUID("id", uuid.UUID{}).Default(uuid.New).Immutable(),
+		field.String("name").Default(""),
 		field.String("nickname").
 			Unique(),
-		field.Int("age"),
-		field.String("city"),
-		field.String("introduction"),
+		field.Int("age").Positive(),
+		field.String("city").Optional(),
+		field.String("introduction").Optional(),
 		field.String("avatar"),
 		field.String("email"),
 		field.String("phone"),
