@@ -25,7 +25,7 @@ func main() {
 	e.IPExtractor = echo.ExtractIPDirect()
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 	e.IPExtractor = echo.ExtractIPFromRealIPHeader()
-	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(50)))
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(30)))
 
 	//CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
