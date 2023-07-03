@@ -20,11 +20,11 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
+	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
 	e.IPExtractor = echo.ExtractIPDirect()
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 	e.IPExtractor = echo.ExtractIPFromRealIPHeader()
-	e.Use(middleware.Logger())
 	//CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
