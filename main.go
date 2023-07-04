@@ -40,7 +40,7 @@ func main() {
 
 	client, err := datasource.NewClient()
 	if err != nil {
-		log.Fatal("opening ent client", zap.Error(err))
+		zapLogger.Fatal("opening ent client", zap.Error(err))
 		return
 	}
 	defer func(client *ent.Client) {
