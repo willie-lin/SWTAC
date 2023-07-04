@@ -4,6 +4,7 @@ import (
 	"SWTAC/config"
 	"SWTAC/datasource"
 	"SWTAC/datasource/ent"
+	"SWTAC/log"
 	"context"
 	"fmt"
 	"github.com/bykof/gostradamus"
@@ -16,12 +17,14 @@ import (
 func main() {
 
 	fmt.Println("Hello, world!!!")
-	log, _ := zap.NewDevelopment()
+
+	zapLogger, _ := zap.NewProduction()
 	e := echo.New()
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
+	e.Use(log.ZapLogger(zapLogger))
 	e.IPExtractor = echo.ExtractIPDirect()
 	e.IPExtractor = echo.ExtractIPFromXFFHeader()
 	e.IPExtractor = echo.ExtractIPFromRealIPHeader()
