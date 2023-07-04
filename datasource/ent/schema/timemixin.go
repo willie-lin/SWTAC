@@ -10,7 +10,7 @@ import (
 // TimeMixin implements the ent.Mixin for sharing
 // time fields with package schemas.
 type TimeMixin struct {
-	mixin.Time
+	mixin.Schema
 }
 
 func (TimeMixin) Fields() []ent.Field {

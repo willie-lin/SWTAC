@@ -1,18 +1,56 @@
 package schema
 
-import "github.com/facebook/ent"
+import (
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
+)
 
 // Permission holds the schema definition for the Permission entity.
 type Permission struct {
 	ent.Schema
 }
 
+func (Permission) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "permission"},
+	}
+}
+
+func (Permission) MiXin() []ent.Mixin {
+	return []ent.Mixin{
+		TimeMixin{},
+		EditMixin{},
+	}
+}
+
 // Fields of the Permission.
 func (Permission) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.Int("id").Unique(),
+		field.Int("parent_id"),
+		field.String("code"),
+		field.String("name"),
+		field.String("intro"),
+		field.Int("category"),
+		field.Int("url"),
+	}
 }
 
 // Edges of the Permission.
 func (Permission) Edges() []ent.Edge {
 	return nil
+}
+
+func (Permission) Index() []ent.Index {
+	return []ent.Index{
+
+		// 非唯一的普通索引
+		//index.Fields("age"),
+		// 唯一索引
+		index.Fields("parent_id", "code").Unique(),
+	}
+
 }
