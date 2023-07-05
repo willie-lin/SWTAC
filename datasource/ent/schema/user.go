@@ -16,7 +16,7 @@ type User struct {
 
 func (User) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "users"},
+		entsql.Annotation{Table: "user"},
 	}
 }
 
@@ -47,8 +47,9 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user_groups", UserGroup.Type).Ref("users"),
-		edge.To("roles", Role.Type),
+		edge.From("user_group", UserGroup.Type).Ref("user"),
+		edge.To("role", Role.Type),
+		edge.To("account", Account.Type),
 	}
 }
 

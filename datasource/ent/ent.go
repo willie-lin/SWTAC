@@ -3,7 +3,12 @@
 package ent
 
 import (
+	"SWTAC/datasource/ent/account"
+	"SWTAC/datasource/ent/group"
+	"SWTAC/datasource/ent/permission"
+	"SWTAC/datasource/ent/role"
 	"SWTAC/datasource/ent/user"
+	"SWTAC/datasource/ent/usergroup"
 	"context"
 	"errors"
 	"fmt"
@@ -73,7 +78,12 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			account.Table:    account.ValidColumn,
+			group.Table:      group.ValidColumn,
+			permission.Table: permission.ValidColumn,
+			role.Table:       role.ValidColumn,
+			user.Table:       user.ValidColumn,
+			usergroup.Table:  usergroup.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

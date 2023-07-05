@@ -13,7 +13,7 @@ type Group struct {
 
 func (Group) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "groups"},
+		entsql.Annotation{Table: "group"},
 	}
 }
 
