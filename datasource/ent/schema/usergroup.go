@@ -42,6 +42,7 @@ func (UserGroup) Fields() []ent.Field {
 func (UserGroup) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("users", User.Type),
+		edge.To("roles", Role.Type),
 	}
 }
 
