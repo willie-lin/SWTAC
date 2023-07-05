@@ -48,8 +48,8 @@ type UserEdges struct {
 	UserGroup []*UserGroup `json:"user_group,omitempty"`
 	// Role holds the value of the role edge.
 	Role []*Role `json:"role,omitempty"`
-	// Account holds the value of the account edge.
-	Account []*Account `json:"account,omitempty"`
+	// Accounts holds the value of the accounts edge.
+	Accounts []*Account `json:"accounts,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -73,13 +73,13 @@ func (e UserEdges) RoleOrErr() ([]*Role, error) {
 	return nil, &NotLoadedError{edge: "role"}
 }
 
-// AccountOrErr returns the Account value or an error if the edge
+// AccountsOrErr returns the Accounts value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) AccountOrErr() ([]*Account, error) {
+func (e UserEdges) AccountsOrErr() ([]*Account, error) {
 	if e.loadedTypes[2] {
-		return e.Account, nil
+		return e.Accounts, nil
 	}
-	return nil, &NotLoadedError{edge: "account"}
+	return nil, &NotLoadedError{edge: "accounts"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -195,9 +195,9 @@ func (u *User) QueryRole() *RoleQuery {
 	return NewUserClient(u.config).QueryRole(u)
 }
 
-// QueryAccount queries the "account" edge of the User entity.
-func (u *User) QueryAccount() *AccountQuery {
-	return NewUserClient(u.config).QueryAccount(u)
+// QueryAccounts queries the "accounts" edge of the User entity.
+func (u *User) QueryAccounts() *AccountQuery {
+	return NewUserClient(u.config).QueryAccounts(u)
 }
 
 // Update returns a builder for updating this User.

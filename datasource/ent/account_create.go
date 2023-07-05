@@ -38,19 +38,23 @@ func (ac *AccountCreate) SetID(i int) *AccountCreate {
 	return ac
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
-func (ac *AccountCreate) AddUserIDs(ids ...int) *AccountCreate {
-	ac.mutation.AddUserIDs(ids...)
+// SetUserID sets the "user" edge to the User entity by ID.
+func (ac *AccountCreate) SetUserID(id int) *AccountCreate {
+	ac.mutation.SetUserID(id)
 	return ac
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (ac *AccountCreate) AddUser(u ...*User) *AccountCreate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
+func (ac *AccountCreate) SetNillableUserID(id *int) *AccountCreate {
+	if id != nil {
+		ac = ac.SetUserID(*id)
 	}
-	return ac.AddUserIDs(ids...)
+	return ac
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (ac *AccountCreate) SetUser(u *User) *AccountCreate {
+	return ac.SetUserID(u.ID)
 }
 
 // Mutation returns the AccountMutation object of the builder.
@@ -135,10 +139,10 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	}
 	if nodes := ac.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   account.UserTable,
-			Columns: account.UserPrimaryKey,
+			Columns: []string{account.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -147,6 +151,7 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.user_accounts = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

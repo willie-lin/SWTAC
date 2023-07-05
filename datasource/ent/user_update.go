@@ -162,14 +162,14 @@ func (uu *UserUpdate) AddRole(r ...*Role) *UserUpdate {
 	return uu.AddRoleIDs(ids...)
 }
 
-// AddAccountIDs adds the "account" edge to the Account entity by IDs.
+// AddAccountIDs adds the "accounts" edge to the Account entity by IDs.
 func (uu *UserUpdate) AddAccountIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddAccountIDs(ids...)
 	return uu
 }
 
-// AddAccount adds the "account" edges to the Account entity.
-func (uu *UserUpdate) AddAccount(a ...*Account) *UserUpdate {
+// AddAccounts adds the "accounts" edges to the Account entity.
+func (uu *UserUpdate) AddAccounts(a ...*Account) *UserUpdate {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
@@ -224,20 +224,20 @@ func (uu *UserUpdate) RemoveRole(r ...*Role) *UserUpdate {
 	return uu.RemoveRoleIDs(ids...)
 }
 
-// ClearAccount clears all "account" edges to the Account entity.
-func (uu *UserUpdate) ClearAccount() *UserUpdate {
-	uu.mutation.ClearAccount()
+// ClearAccounts clears all "accounts" edges to the Account entity.
+func (uu *UserUpdate) ClearAccounts() *UserUpdate {
+	uu.mutation.ClearAccounts()
 	return uu
 }
 
-// RemoveAccountIDs removes the "account" edge to Account entities by IDs.
+// RemoveAccountIDs removes the "accounts" edge to Account entities by IDs.
 func (uu *UserUpdate) RemoveAccountIDs(ids ...int) *UserUpdate {
 	uu.mutation.RemoveAccountIDs(ids...)
 	return uu
 }
 
-// RemoveAccount removes "account" edges to Account entities.
-func (uu *UserUpdate) RemoveAccount(a ...*Account) *UserUpdate {
+// RemoveAccounts removes "accounts" edges to Account entities.
+func (uu *UserUpdate) RemoveAccounts(a ...*Account) *UserUpdate {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
@@ -426,12 +426,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.AccountCleared() {
+	if uu.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AccountTable,
-			Columns: user.AccountPrimaryKey,
+			Table:   user.AccountsTable,
+			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
@@ -439,12 +439,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedAccountIDs(); len(nodes) > 0 && !uu.mutation.AccountCleared() {
+	if nodes := uu.mutation.RemovedAccountsIDs(); len(nodes) > 0 && !uu.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AccountTable,
-			Columns: user.AccountPrimaryKey,
+			Table:   user.AccountsTable,
+			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
@@ -455,12 +455,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.AccountIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.AccountsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AccountTable,
-			Columns: user.AccountPrimaryKey,
+			Table:   user.AccountsTable,
+			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
@@ -623,14 +623,14 @@ func (uuo *UserUpdateOne) AddRole(r ...*Role) *UserUpdateOne {
 	return uuo.AddRoleIDs(ids...)
 }
 
-// AddAccountIDs adds the "account" edge to the Account entity by IDs.
+// AddAccountIDs adds the "accounts" edge to the Account entity by IDs.
 func (uuo *UserUpdateOne) AddAccountIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddAccountIDs(ids...)
 	return uuo
 }
 
-// AddAccount adds the "account" edges to the Account entity.
-func (uuo *UserUpdateOne) AddAccount(a ...*Account) *UserUpdateOne {
+// AddAccounts adds the "accounts" edges to the Account entity.
+func (uuo *UserUpdateOne) AddAccounts(a ...*Account) *UserUpdateOne {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
@@ -685,20 +685,20 @@ func (uuo *UserUpdateOne) RemoveRole(r ...*Role) *UserUpdateOne {
 	return uuo.RemoveRoleIDs(ids...)
 }
 
-// ClearAccount clears all "account" edges to the Account entity.
-func (uuo *UserUpdateOne) ClearAccount() *UserUpdateOne {
-	uuo.mutation.ClearAccount()
+// ClearAccounts clears all "accounts" edges to the Account entity.
+func (uuo *UserUpdateOne) ClearAccounts() *UserUpdateOne {
+	uuo.mutation.ClearAccounts()
 	return uuo
 }
 
-// RemoveAccountIDs removes the "account" edge to Account entities by IDs.
+// RemoveAccountIDs removes the "accounts" edge to Account entities by IDs.
 func (uuo *UserUpdateOne) RemoveAccountIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.RemoveAccountIDs(ids...)
 	return uuo
 }
 
-// RemoveAccount removes "account" edges to Account entities.
-func (uuo *UserUpdateOne) RemoveAccount(a ...*Account) *UserUpdateOne {
+// RemoveAccounts removes "accounts" edges to Account entities.
+func (uuo *UserUpdateOne) RemoveAccounts(a ...*Account) *UserUpdateOne {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
@@ -917,12 +917,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.AccountCleared() {
+	if uuo.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AccountTable,
-			Columns: user.AccountPrimaryKey,
+			Table:   user.AccountsTable,
+			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
@@ -930,12 +930,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedAccountIDs(); len(nodes) > 0 && !uuo.mutation.AccountCleared() {
+	if nodes := uuo.mutation.RemovedAccountsIDs(); len(nodes) > 0 && !uuo.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AccountTable,
-			Columns: user.AccountPrimaryKey,
+			Table:   user.AccountsTable,
+			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
@@ -946,12 +946,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.AccountIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.AccountsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AccountTable,
-			Columns: user.AccountPrimaryKey,
+			Table:   user.AccountsTable,
+			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),

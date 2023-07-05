@@ -27,7 +27,7 @@ type UserQuery struct {
 	predicates    []predicate.User
 	withUserGroup *UserGroupQuery
 	withRole      *RoleQuery
-	withAccount   *AccountQuery
+	withAccounts  *AccountQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -108,8 +108,8 @@ func (uq *UserQuery) QueryRole() *RoleQuery {
 	return query
 }
 
-// QueryAccount chains the current query on the "account" edge.
-func (uq *UserQuery) QueryAccount() *AccountQuery {
+// QueryAccounts chains the current query on the "accounts" edge.
+func (uq *UserQuery) QueryAccounts() *AccountQuery {
 	query := (&AccountClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
@@ -122,7 +122,7 @@ func (uq *UserQuery) QueryAccount() *AccountQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(account.Table, account.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.AccountTable, user.AccountPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AccountsTable, user.AccountsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -324,7 +324,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		predicates:    append([]predicate.User{}, uq.predicates...),
 		withUserGroup: uq.withUserGroup.Clone(),
 		withRole:      uq.withRole.Clone(),
-		withAccount:   uq.withAccount.Clone(),
+		withAccounts:  uq.withAccounts.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -353,14 +353,14 @@ func (uq *UserQuery) WithRole(opts ...func(*RoleQuery)) *UserQuery {
 	return uq
 }
 
-// WithAccount tells the query-builder to eager-load the nodes that are connected to
-// the "account" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithAccount(opts ...func(*AccountQuery)) *UserQuery {
+// WithAccounts tells the query-builder to eager-load the nodes that are connected to
+// the "accounts" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithAccounts(opts ...func(*AccountQuery)) *UserQuery {
 	query := (&AccountClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withAccount = query
+	uq.withAccounts = query
 	return uq
 }
 
@@ -445,7 +445,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		loadedTypes = [3]bool{
 			uq.withUserGroup != nil,
 			uq.withRole != nil,
-			uq.withAccount != nil,
+			uq.withAccounts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -480,10 +480,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := uq.withAccount; query != nil {
-		if err := uq.loadAccount(ctx, query, nodes,
-			func(n *User) { n.Edges.Account = []*Account{} },
-			func(n *User, e *Account) { n.Edges.Account = append(n.Edges.Account, e) }); err != nil {
+	if query := uq.withAccounts; query != nil {
+		if err := uq.loadAccounts(ctx, query, nodes,
+			func(n *User) { n.Edges.Accounts = []*Account{} },
+			func(n *User, e *Account) { n.Edges.Accounts = append(n.Edges.Accounts, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -612,64 +612,34 @@ func (uq *UserQuery) loadRole(ctx context.Context, query *RoleQuery, nodes []*Us
 	}
 	return nil
 }
-func (uq *UserQuery) loadAccount(ctx context.Context, query *AccountQuery, nodes []*User, init func(*User), assign func(*User, *Account)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*User)
-	nids := make(map[int]map[*User]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
+func (uq *UserQuery) loadAccounts(ctx context.Context, query *AccountQuery, nodes []*User, init func(*User), assign func(*User, *Account)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 		if init != nil {
-			init(node)
+			init(nodes[i])
 		}
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(user.AccountTable)
-		s.Join(joinT).On(s.C(account.FieldID), joinT.C(user.AccountPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(user.AccountPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(user.AccountPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*User]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Account](ctx, query, qr, query.inters)
+	query.withFKs = true
+	query.Where(predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.AccountsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		fk := n.user_accounts
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_accounts" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected "account" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_accounts" returned %v for node %v`, *fk, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
+		assign(node, n)
 	}
 	return nil
 }

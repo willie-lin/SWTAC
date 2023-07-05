@@ -338,7 +338,7 @@ func (c *AccountClient) QueryUser(a *Account) *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(account.Table, account.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, account.UserTable, account.UserPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, account.UserTable, account.UserColumn),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -914,15 +914,15 @@ func (c *UserClient) QueryRole(u *User) *RoleQuery {
 	return query
 }
 
-// QueryAccount queries the account edge of a User.
-func (c *UserClient) QueryAccount(u *User) *AccountQuery {
+// QueryAccounts queries the accounts edge of a User.
+func (c *UserClient) QueryAccounts(u *User) *AccountQuery {
 	query := (&AccountClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(account.Table, account.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.AccountTable, user.AccountPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AccountsTable, user.AccountsColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

@@ -16,7 +16,7 @@ type Account struct {
 
 func (Account) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "account"},
+		entsql.Annotation{Table: "accounts"},
 	}
 }
 
@@ -41,7 +41,9 @@ func (Account) Fields() []ent.Field {
 func (Account) Edges() []ent.Edge {
 	return []ent.Edge{
 		//edge.To("user", User.Type),
-		edge.From("user", User.Type).Ref("account"),
+		edge.From("user", User.Type).
+			Ref("accounts").
+			Unique(),
 	}
 }
 
@@ -51,6 +53,7 @@ func (Account) Indexes() []ent.Index {
 		//index.Fields("field1", "field2"),
 		// 唯一约束索引
 		index.Fields("id").
+			Edges("user").
 			Unique(),
 	}
 }

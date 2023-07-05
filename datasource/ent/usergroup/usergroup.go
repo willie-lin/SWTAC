@@ -30,7 +30,7 @@ const (
 	UserTable = "user_group_user"
 	// UserInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "user"
+	UserInverseTable = "users"
 	// RoleTable is the table that holds the role relation/edge. The primary key declared below.
 	RoleTable = "user_group_role"
 	// RoleInverseTable is the table name for the Role entity.

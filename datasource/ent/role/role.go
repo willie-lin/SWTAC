@@ -32,7 +32,7 @@ const (
 	UserTable = "user_role"
 	// UserInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "user"
+	UserInverseTable = "users"
 	// PermissionTable is the table that holds the permission relation/edge. The primary key declared below.
 	PermissionTable = "role_permission"
 	// PermissionInverseTable is the table name for the Permission entity.

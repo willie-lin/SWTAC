@@ -134,14 +134,14 @@ func (uc *UserCreate) AddRole(r ...*Role) *UserCreate {
 	return uc.AddRoleIDs(ids...)
 }
 
-// AddAccountIDs adds the "account" edge to the Account entity by IDs.
+// AddAccountIDs adds the "accounts" edge to the Account entity by IDs.
 func (uc *UserCreate) AddAccountIDs(ids ...int) *UserCreate {
 	uc.mutation.AddAccountIDs(ids...)
 	return uc
 }
 
-// AddAccount adds the "account" edges to the Account entity.
-func (uc *UserCreate) AddAccount(a ...*Account) *UserCreate {
+// AddAccounts adds the "accounts" edges to the Account entity.
+func (uc *UserCreate) AddAccounts(a ...*Account) *UserCreate {
 	ids := make([]int, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
@@ -316,12 +316,12 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uc.mutation.AccountIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.AccountsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.AccountTable,
-			Columns: user.AccountPrimaryKey,
+			Table:   user.AccountsTable,
+			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),

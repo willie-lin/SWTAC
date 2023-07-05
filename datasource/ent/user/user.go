@@ -36,10 +36,10 @@ const (
 	EdgeUserGroup = "user_group"
 	// EdgeRole holds the string denoting the role edge name in mutations.
 	EdgeRole = "role"
-	// EdgeAccount holds the string denoting the account edge name in mutations.
-	EdgeAccount = "account"
+	// EdgeAccounts holds the string denoting the accounts edge name in mutations.
+	EdgeAccounts = "accounts"
 	// Table holds the table name of the user in the database.
-	Table = "user"
+	Table = "users"
 	// UserGroupTable is the table that holds the user_group relation/edge. The primary key declared below.
 	UserGroupTable = "user_group_user"
 	// UserGroupInverseTable is the table name for the UserGroup entity.
@@ -50,11 +50,13 @@ const (
 	// RoleInverseTable is the table name for the Role entity.
 	// It exists in this package in order to avoid circular dependency with the "role" package.
 	RoleInverseTable = "role"
-	// AccountTable is the table that holds the account relation/edge. The primary key declared below.
-	AccountTable = "user_account"
-	// AccountInverseTable is the table name for the Account entity.
+	// AccountsTable is the table that holds the accounts relation/edge.
+	AccountsTable = "accounts"
+	// AccountsInverseTable is the table name for the Account entity.
 	// It exists in this package in order to avoid circular dependency with the "account" package.
-	AccountInverseTable = "account"
+	AccountsInverseTable = "accounts"
+	// AccountsColumn is the table column denoting the accounts relation/edge.
+	AccountsColumn = "user_accounts"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -79,9 +81,6 @@ var (
 	// RolePrimaryKey and RoleColumn2 are the table columns denoting the
 	// primary key for the role relation (M2M).
 	RolePrimaryKey = []string{"user_id", "role_id"}
-	// AccountPrimaryKey and AccountColumn2 are the table columns denoting the
-	// primary key for the account relation (M2M).
-	AccountPrimaryKey = []string{"user_id", "account_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -185,17 +184,17 @@ func ByRole(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByAccountCount orders the results by account count.
-func ByAccountCount(opts ...sql.OrderTermOption) OrderOption {
+// ByAccountsCount orders the results by accounts count.
+func ByAccountsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newAccountStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newAccountsStep(), opts...)
 	}
 }
 
-// ByAccount orders the results by account terms.
-func ByAccount(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByAccounts orders the results by accounts terms.
+func ByAccounts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAccountStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newAccountsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newUserGroupStep() *sqlgraph.Step {
@@ -212,10 +211,10 @@ func newRoleStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2M, false, RoleTable, RolePrimaryKey...),
 	)
 }
-func newAccountStep() *sqlgraph.Step {
+func newAccountsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(AccountInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, AccountTable, AccountPrimaryKey...),
+		sqlgraph.To(AccountsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AccountsTable, AccountsColumn),
 	)
 }
