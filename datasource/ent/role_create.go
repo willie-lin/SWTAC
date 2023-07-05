@@ -52,14 +52,14 @@ func (rc *RoleCreate) SetID(i int) *RoleCreate {
 	return rc
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
+// AddUserIDs adds the "users" edge to the User entity by IDs.
 func (rc *RoleCreate) AddUserIDs(ids ...int) *RoleCreate {
 	rc.mutation.AddUserIDs(ids...)
 	return rc
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (rc *RoleCreate) AddUser(u ...*User) *RoleCreate {
+// AddUsers adds the "users" edges to the User entity.
+func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -67,14 +67,14 @@ func (rc *RoleCreate) AddUser(u ...*User) *RoleCreate {
 	return rc.AddUserIDs(ids...)
 }
 
-// AddPermissionIDs adds the "permission" edge to the Permission entity by IDs.
+// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
 func (rc *RoleCreate) AddPermissionIDs(ids ...int) *RoleCreate {
 	rc.mutation.AddPermissionIDs(ids...)
 	return rc
 }
 
-// AddPermission adds the "permission" edges to the Permission entity.
-func (rc *RoleCreate) AddPermission(p ...*Permission) *RoleCreate {
+// AddPermissions adds the "permissions" edges to the Permission entity.
+func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
 	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
@@ -82,14 +82,14 @@ func (rc *RoleCreate) AddPermission(p ...*Permission) *RoleCreate {
 	return rc.AddPermissionIDs(ids...)
 }
 
-// AddUserGroupIDs adds the "user_group" edge to the UserGroup entity by IDs.
+// AddUserGroupIDs adds the "user_groups" edge to the UserGroup entity by IDs.
 func (rc *RoleCreate) AddUserGroupIDs(ids ...int) *RoleCreate {
 	rc.mutation.AddUserGroupIDs(ids...)
 	return rc
 }
 
-// AddUserGroup adds the "user_group" edges to the UserGroup entity.
-func (rc *RoleCreate) AddUserGroup(u ...*UserGroup) *RoleCreate {
+// AddUserGroups adds the "user_groups" edges to the UserGroup entity.
+func (rc *RoleCreate) AddUserGroups(u ...*UserGroup) *RoleCreate {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -191,12 +191,12 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_spec.SetField(role.FieldIntro, field.TypeString, value)
 		_node.Intro = value
 	}
-	if nodes := rc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := rc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   role.UserTable,
-			Columns: role.UserPrimaryKey,
+			Table:   role.UsersTable,
+			Columns: role.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -207,12 +207,12 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := rc.mutation.PermissionIDs(); len(nodes) > 0 {
+	if nodes := rc.mutation.PermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   role.PermissionTable,
-			Columns: role.PermissionPrimaryKey,
+			Table:   role.PermissionsTable,
+			Columns: role.PermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
@@ -223,12 +223,12 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := rc.mutation.UserGroupIDs(); len(nodes) > 0 {
+	if nodes := rc.mutation.UserGroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   role.UserGroupTable,
-			Columns: role.UserGroupPrimaryKey,
+			Table:   role.UserGroupsTable,
+			Columns: role.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),

@@ -53,14 +53,14 @@ func (ugu *UserGroupUpdate) SetIntro(s string) *UserGroupUpdate {
 	return ugu
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
+// AddUserIDs adds the "users" edge to the User entity by IDs.
 func (ugu *UserGroupUpdate) AddUserIDs(ids ...int) *UserGroupUpdate {
 	ugu.mutation.AddUserIDs(ids...)
 	return ugu
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (ugu *UserGroupUpdate) AddUser(u ...*User) *UserGroupUpdate {
+// AddUsers adds the "users" edges to the User entity.
+func (ugu *UserGroupUpdate) AddUsers(u ...*User) *UserGroupUpdate {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -68,14 +68,14 @@ func (ugu *UserGroupUpdate) AddUser(u ...*User) *UserGroupUpdate {
 	return ugu.AddUserIDs(ids...)
 }
 
-// AddRoleIDs adds the "role" edge to the Role entity by IDs.
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
 func (ugu *UserGroupUpdate) AddRoleIDs(ids ...int) *UserGroupUpdate {
 	ugu.mutation.AddRoleIDs(ids...)
 	return ugu
 }
 
-// AddRole adds the "role" edges to the Role entity.
-func (ugu *UserGroupUpdate) AddRole(r ...*Role) *UserGroupUpdate {
+// AddRoles adds the "roles" edges to the Role entity.
+func (ugu *UserGroupUpdate) AddRoles(r ...*Role) *UserGroupUpdate {
 	ids := make([]int, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
@@ -88,20 +88,20 @@ func (ugu *UserGroupUpdate) Mutation() *UserGroupMutation {
 	return ugu.mutation
 }
 
-// ClearUser clears all "user" edges to the User entity.
-func (ugu *UserGroupUpdate) ClearUser() *UserGroupUpdate {
-	ugu.mutation.ClearUser()
+// ClearUsers clears all "users" edges to the User entity.
+func (ugu *UserGroupUpdate) ClearUsers() *UserGroupUpdate {
+	ugu.mutation.ClearUsers()
 	return ugu
 }
 
-// RemoveUserIDs removes the "user" edge to User entities by IDs.
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
 func (ugu *UserGroupUpdate) RemoveUserIDs(ids ...int) *UserGroupUpdate {
 	ugu.mutation.RemoveUserIDs(ids...)
 	return ugu
 }
 
-// RemoveUser removes "user" edges to User entities.
-func (ugu *UserGroupUpdate) RemoveUser(u ...*User) *UserGroupUpdate {
+// RemoveUsers removes "users" edges to User entities.
+func (ugu *UserGroupUpdate) RemoveUsers(u ...*User) *UserGroupUpdate {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -109,20 +109,20 @@ func (ugu *UserGroupUpdate) RemoveUser(u ...*User) *UserGroupUpdate {
 	return ugu.RemoveUserIDs(ids...)
 }
 
-// ClearRole clears all "role" edges to the Role entity.
-func (ugu *UserGroupUpdate) ClearRole() *UserGroupUpdate {
-	ugu.mutation.ClearRole()
+// ClearRoles clears all "roles" edges to the Role entity.
+func (ugu *UserGroupUpdate) ClearRoles() *UserGroupUpdate {
+	ugu.mutation.ClearRoles()
 	return ugu
 }
 
-// RemoveRoleIDs removes the "role" edge to Role entities by IDs.
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
 func (ugu *UserGroupUpdate) RemoveRoleIDs(ids ...int) *UserGroupUpdate {
 	ugu.mutation.RemoveRoleIDs(ids...)
 	return ugu
 }
 
-// RemoveRole removes "role" edges to Role entities.
-func (ugu *UserGroupUpdate) RemoveRole(r ...*Role) *UserGroupUpdate {
+// RemoveRoles removes "roles" edges to Role entities.
+func (ugu *UserGroupUpdate) RemoveRoles(r ...*Role) *UserGroupUpdate {
 	ids := make([]int, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
@@ -178,12 +178,12 @@ func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ugu.mutation.Intro(); ok {
 		_spec.SetField(usergroup.FieldIntro, field.TypeString, value)
 	}
-	if ugu.mutation.UserCleared() {
+	if ugu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.UserTable,
-			Columns: usergroup.UserPrimaryKey,
+			Table:   usergroup.UsersTable,
+			Columns: usergroup.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -191,12 +191,12 @@ func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ugu.mutation.RemovedUserIDs(); len(nodes) > 0 && !ugu.mutation.UserCleared() {
+	if nodes := ugu.mutation.RemovedUsersIDs(); len(nodes) > 0 && !ugu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.UserTable,
-			Columns: usergroup.UserPrimaryKey,
+			Table:   usergroup.UsersTable,
+			Columns: usergroup.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -207,12 +207,12 @@ func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ugu.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := ugu.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.UserTable,
-			Columns: usergroup.UserPrimaryKey,
+			Table:   usergroup.UsersTable,
+			Columns: usergroup.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -223,12 +223,12 @@ func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ugu.mutation.RoleCleared() {
+	if ugu.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.RoleTable,
-			Columns: usergroup.RolePrimaryKey,
+			Table:   usergroup.RolesTable,
+			Columns: usergroup.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
@@ -236,12 +236,12 @@ func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ugu.mutation.RemovedRoleIDs(); len(nodes) > 0 && !ugu.mutation.RoleCleared() {
+	if nodes := ugu.mutation.RemovedRolesIDs(); len(nodes) > 0 && !ugu.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.RoleTable,
-			Columns: usergroup.RolePrimaryKey,
+			Table:   usergroup.RolesTable,
+			Columns: usergroup.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
@@ -252,12 +252,12 @@ func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ugu.mutation.RoleIDs(); len(nodes) > 0 {
+	if nodes := ugu.mutation.RolesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.RoleTable,
-			Columns: usergroup.RolePrimaryKey,
+			Table:   usergroup.RolesTable,
+			Columns: usergroup.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
@@ -312,14 +312,14 @@ func (uguo *UserGroupUpdateOne) SetIntro(s string) *UserGroupUpdateOne {
 	return uguo
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
+// AddUserIDs adds the "users" edge to the User entity by IDs.
 func (uguo *UserGroupUpdateOne) AddUserIDs(ids ...int) *UserGroupUpdateOne {
 	uguo.mutation.AddUserIDs(ids...)
 	return uguo
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (uguo *UserGroupUpdateOne) AddUser(u ...*User) *UserGroupUpdateOne {
+// AddUsers adds the "users" edges to the User entity.
+func (uguo *UserGroupUpdateOne) AddUsers(u ...*User) *UserGroupUpdateOne {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -327,14 +327,14 @@ func (uguo *UserGroupUpdateOne) AddUser(u ...*User) *UserGroupUpdateOne {
 	return uguo.AddUserIDs(ids...)
 }
 
-// AddRoleIDs adds the "role" edge to the Role entity by IDs.
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
 func (uguo *UserGroupUpdateOne) AddRoleIDs(ids ...int) *UserGroupUpdateOne {
 	uguo.mutation.AddRoleIDs(ids...)
 	return uguo
 }
 
-// AddRole adds the "role" edges to the Role entity.
-func (uguo *UserGroupUpdateOne) AddRole(r ...*Role) *UserGroupUpdateOne {
+// AddRoles adds the "roles" edges to the Role entity.
+func (uguo *UserGroupUpdateOne) AddRoles(r ...*Role) *UserGroupUpdateOne {
 	ids := make([]int, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
@@ -347,20 +347,20 @@ func (uguo *UserGroupUpdateOne) Mutation() *UserGroupMutation {
 	return uguo.mutation
 }
 
-// ClearUser clears all "user" edges to the User entity.
-func (uguo *UserGroupUpdateOne) ClearUser() *UserGroupUpdateOne {
-	uguo.mutation.ClearUser()
+// ClearUsers clears all "users" edges to the User entity.
+func (uguo *UserGroupUpdateOne) ClearUsers() *UserGroupUpdateOne {
+	uguo.mutation.ClearUsers()
 	return uguo
 }
 
-// RemoveUserIDs removes the "user" edge to User entities by IDs.
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
 func (uguo *UserGroupUpdateOne) RemoveUserIDs(ids ...int) *UserGroupUpdateOne {
 	uguo.mutation.RemoveUserIDs(ids...)
 	return uguo
 }
 
-// RemoveUser removes "user" edges to User entities.
-func (uguo *UserGroupUpdateOne) RemoveUser(u ...*User) *UserGroupUpdateOne {
+// RemoveUsers removes "users" edges to User entities.
+func (uguo *UserGroupUpdateOne) RemoveUsers(u ...*User) *UserGroupUpdateOne {
 	ids := make([]int, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
@@ -368,20 +368,20 @@ func (uguo *UserGroupUpdateOne) RemoveUser(u ...*User) *UserGroupUpdateOne {
 	return uguo.RemoveUserIDs(ids...)
 }
 
-// ClearRole clears all "role" edges to the Role entity.
-func (uguo *UserGroupUpdateOne) ClearRole() *UserGroupUpdateOne {
-	uguo.mutation.ClearRole()
+// ClearRoles clears all "roles" edges to the Role entity.
+func (uguo *UserGroupUpdateOne) ClearRoles() *UserGroupUpdateOne {
+	uguo.mutation.ClearRoles()
 	return uguo
 }
 
-// RemoveRoleIDs removes the "role" edge to Role entities by IDs.
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
 func (uguo *UserGroupUpdateOne) RemoveRoleIDs(ids ...int) *UserGroupUpdateOne {
 	uguo.mutation.RemoveRoleIDs(ids...)
 	return uguo
 }
 
-// RemoveRole removes "role" edges to Role entities.
-func (uguo *UserGroupUpdateOne) RemoveRole(r ...*Role) *UserGroupUpdateOne {
+// RemoveRoles removes "roles" edges to Role entities.
+func (uguo *UserGroupUpdateOne) RemoveRoles(r ...*Role) *UserGroupUpdateOne {
 	ids := make([]int, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
@@ -467,12 +467,12 @@ func (uguo *UserGroupUpdateOne) sqlSave(ctx context.Context) (_node *UserGroup, 
 	if value, ok := uguo.mutation.Intro(); ok {
 		_spec.SetField(usergroup.FieldIntro, field.TypeString, value)
 	}
-	if uguo.mutation.UserCleared() {
+	if uguo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.UserTable,
-			Columns: usergroup.UserPrimaryKey,
+			Table:   usergroup.UsersTable,
+			Columns: usergroup.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -480,12 +480,12 @@ func (uguo *UserGroupUpdateOne) sqlSave(ctx context.Context) (_node *UserGroup, 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uguo.mutation.RemovedUserIDs(); len(nodes) > 0 && !uguo.mutation.UserCleared() {
+	if nodes := uguo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !uguo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.UserTable,
-			Columns: usergroup.UserPrimaryKey,
+			Table:   usergroup.UsersTable,
+			Columns: usergroup.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -496,12 +496,12 @@ func (uguo *UserGroupUpdateOne) sqlSave(ctx context.Context) (_node *UserGroup, 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uguo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := uguo.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.UserTable,
-			Columns: usergroup.UserPrimaryKey,
+			Table:   usergroup.UsersTable,
+			Columns: usergroup.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -512,12 +512,12 @@ func (uguo *UserGroupUpdateOne) sqlSave(ctx context.Context) (_node *UserGroup, 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uguo.mutation.RoleCleared() {
+	if uguo.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.RoleTable,
-			Columns: usergroup.RolePrimaryKey,
+			Table:   usergroup.RolesTable,
+			Columns: usergroup.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
@@ -525,12 +525,12 @@ func (uguo *UserGroupUpdateOne) sqlSave(ctx context.Context) (_node *UserGroup, 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uguo.mutation.RemovedRoleIDs(); len(nodes) > 0 && !uguo.mutation.RoleCleared() {
+	if nodes := uguo.mutation.RemovedRolesIDs(); len(nodes) > 0 && !uguo.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.RoleTable,
-			Columns: usergroup.RolePrimaryKey,
+			Table:   usergroup.RolesTable,
+			Columns: usergroup.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
@@ -541,12 +541,12 @@ func (uguo *UserGroupUpdateOne) sqlSave(ctx context.Context) (_node *UserGroup, 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uguo.mutation.RoleIDs(); len(nodes) > 0 {
+	if nodes := uguo.mutation.RolesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
-			Table:   usergroup.RoleTable,
-			Columns: usergroup.RolePrimaryKey,
+			Table:   usergroup.RolesTable,
+			Columns: usergroup.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),

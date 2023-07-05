@@ -47,8 +47,8 @@ var (
 		Columns:    GroupColumns,
 		PrimaryKey: []*schema.Column{GroupColumns[0]},
 	}
-	// PermissionColumns holds the columns for the "permission" table.
-	PermissionColumns = []*schema.Column{
+	// PermissionsColumns holds the columns for the "permissions" table.
+	PermissionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "parent_id", Type: field.TypeInt},
 		{Name: "code", Type: field.TypeString},
@@ -57,25 +57,25 @@ var (
 		{Name: "category", Type: field.TypeInt},
 		{Name: "url", Type: field.TypeInt},
 	}
-	// PermissionTable holds the schema information for the "permission" table.
-	PermissionTable = &schema.Table{
-		Name:       "permission",
-		Columns:    PermissionColumns,
-		PrimaryKey: []*schema.Column{PermissionColumns[0]},
+	// PermissionsTable holds the schema information for the "permissions" table.
+	PermissionsTable = &schema.Table{
+		Name:       "permissions",
+		Columns:    PermissionsColumns,
+		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
 	}
-	// RoleColumns holds the columns for the "role" table.
-	RoleColumns = []*schema.Column{
+	// RolesColumns holds the columns for the "roles" table.
+	RolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "parent_id", Type: field.TypeInt},
 		{Name: "code", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
 		{Name: "intro", Type: field.TypeString},
 	}
-	// RoleTable holds the schema information for the "role" table.
-	RoleTable = &schema.Table{
-		Name:       "role",
-		Columns:    RoleColumns,
-		PrimaryKey: []*schema.Column{RoleColumns[0]},
+	// RolesTable holds the schema information for the "roles" table.
+	RolesTable = &schema.Table{
+		Name:       "roles",
+		Columns:    RolesColumns,
+		PrimaryKey: []*schema.Column{RolesColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -97,116 +97,116 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
-	// UserGroupColumns holds the columns for the "user_group" table.
-	UserGroupColumns = []*schema.Column{
+	// UserGroupsColumns holds the columns for the "user_groups" table.
+	UserGroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "parent_id", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
 		{Name: "code", Type: field.TypeString},
 		{Name: "intro", Type: field.TypeString},
 	}
-	// UserGroupTable holds the schema information for the "user_group" table.
-	UserGroupTable = &schema.Table{
-		Name:       "user_group",
-		Columns:    UserGroupColumns,
-		PrimaryKey: []*schema.Column{UserGroupColumns[0]},
+	// UserGroupsTable holds the schema information for the "user_groups" table.
+	UserGroupsTable = &schema.Table{
+		Name:       "user_groups",
+		Columns:    UserGroupsColumns,
+		PrimaryKey: []*schema.Column{UserGroupsColumns[0]},
 	}
-	// RolePermissionColumns holds the columns for the "role_permission" table.
-	RolePermissionColumns = []*schema.Column{
+	// RolePermissionsColumns holds the columns for the "role_permissions" table.
+	RolePermissionsColumns = []*schema.Column{
 		{Name: "role_id", Type: field.TypeInt},
 		{Name: "permission_id", Type: field.TypeInt},
 	}
-	// RolePermissionTable holds the schema information for the "role_permission" table.
-	RolePermissionTable = &schema.Table{
-		Name:       "role_permission",
-		Columns:    RolePermissionColumns,
-		PrimaryKey: []*schema.Column{RolePermissionColumns[0], RolePermissionColumns[1]},
+	// RolePermissionsTable holds the schema information for the "role_permissions" table.
+	RolePermissionsTable = &schema.Table{
+		Name:       "role_permissions",
+		Columns:    RolePermissionsColumns,
+		PrimaryKey: []*schema.Column{RolePermissionsColumns[0], RolePermissionsColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "role_permission_role_id",
-				Columns:    []*schema.Column{RolePermissionColumns[0]},
-				RefColumns: []*schema.Column{RoleColumns[0]},
+				Symbol:     "role_permissions_role_id",
+				Columns:    []*schema.Column{RolePermissionsColumns[0]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "role_permission_permission_id",
-				Columns:    []*schema.Column{RolePermissionColumns[1]},
-				RefColumns: []*schema.Column{PermissionColumns[0]},
+				Symbol:     "role_permissions_permission_id",
+				Columns:    []*schema.Column{RolePermissionsColumns[1]},
+				RefColumns: []*schema.Column{PermissionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
 	}
-	// UserRoleColumns holds the columns for the "user_role" table.
-	UserRoleColumns = []*schema.Column{
+	// UserRolesColumns holds the columns for the "user_roles" table.
+	UserRolesColumns = []*schema.Column{
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "role_id", Type: field.TypeInt},
 	}
-	// UserRoleTable holds the schema information for the "user_role" table.
-	UserRoleTable = &schema.Table{
-		Name:       "user_role",
-		Columns:    UserRoleColumns,
-		PrimaryKey: []*schema.Column{UserRoleColumns[0], UserRoleColumns[1]},
+	// UserRolesTable holds the schema information for the "user_roles" table.
+	UserRolesTable = &schema.Table{
+		Name:       "user_roles",
+		Columns:    UserRolesColumns,
+		PrimaryKey: []*schema.Column{UserRolesColumns[0], UserRolesColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "user_role_user_id",
-				Columns:    []*schema.Column{UserRoleColumns[0]},
+				Symbol:     "user_roles_user_id",
+				Columns:    []*schema.Column{UserRolesColumns[0]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "user_role_role_id",
-				Columns:    []*schema.Column{UserRoleColumns[1]},
-				RefColumns: []*schema.Column{RoleColumns[0]},
+				Symbol:     "user_roles_role_id",
+				Columns:    []*schema.Column{UserRolesColumns[1]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
 	}
-	// UserGroupUserColumns holds the columns for the "user_group_user" table.
-	UserGroupUserColumns = []*schema.Column{
+	// UserGroupUsersColumns holds the columns for the "user_group_users" table.
+	UserGroupUsersColumns = []*schema.Column{
 		{Name: "user_group_id", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeInt},
 	}
-	// UserGroupUserTable holds the schema information for the "user_group_user" table.
-	UserGroupUserTable = &schema.Table{
-		Name:       "user_group_user",
-		Columns:    UserGroupUserColumns,
-		PrimaryKey: []*schema.Column{UserGroupUserColumns[0], UserGroupUserColumns[1]},
+	// UserGroupUsersTable holds the schema information for the "user_group_users" table.
+	UserGroupUsersTable = &schema.Table{
+		Name:       "user_group_users",
+		Columns:    UserGroupUsersColumns,
+		PrimaryKey: []*schema.Column{UserGroupUsersColumns[0], UserGroupUsersColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "user_group_user_user_group_id",
-				Columns:    []*schema.Column{UserGroupUserColumns[0]},
-				RefColumns: []*schema.Column{UserGroupColumns[0]},
+				Symbol:     "user_group_users_user_group_id",
+				Columns:    []*schema.Column{UserGroupUsersColumns[0]},
+				RefColumns: []*schema.Column{UserGroupsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "user_group_user_user_id",
-				Columns:    []*schema.Column{UserGroupUserColumns[1]},
+				Symbol:     "user_group_users_user_id",
+				Columns:    []*schema.Column{UserGroupUsersColumns[1]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
 	}
-	// UserGroupRoleColumns holds the columns for the "user_group_role" table.
-	UserGroupRoleColumns = []*schema.Column{
+	// UserGroupRolesColumns holds the columns for the "user_group_roles" table.
+	UserGroupRolesColumns = []*schema.Column{
 		{Name: "user_group_id", Type: field.TypeInt},
 		{Name: "role_id", Type: field.TypeInt},
 	}
-	// UserGroupRoleTable holds the schema information for the "user_group_role" table.
-	UserGroupRoleTable = &schema.Table{
-		Name:       "user_group_role",
-		Columns:    UserGroupRoleColumns,
-		PrimaryKey: []*schema.Column{UserGroupRoleColumns[0], UserGroupRoleColumns[1]},
+	// UserGroupRolesTable holds the schema information for the "user_group_roles" table.
+	UserGroupRolesTable = &schema.Table{
+		Name:       "user_group_roles",
+		Columns:    UserGroupRolesColumns,
+		PrimaryKey: []*schema.Column{UserGroupRolesColumns[0], UserGroupRolesColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "user_group_role_user_group_id",
-				Columns:    []*schema.Column{UserGroupRoleColumns[0]},
-				RefColumns: []*schema.Column{UserGroupColumns[0]},
+				Symbol:     "user_group_roles_user_group_id",
+				Columns:    []*schema.Column{UserGroupRolesColumns[0]},
+				RefColumns: []*schema.Column{UserGroupsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "user_group_role_role_id",
-				Columns:    []*schema.Column{UserGroupRoleColumns[1]},
-				RefColumns: []*schema.Column{RoleColumns[0]},
+				Symbol:     "user_group_roles_role_id",
+				Columns:    []*schema.Column{UserGroupRolesColumns[1]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -215,14 +215,14 @@ var (
 	Tables = []*schema.Table{
 		AccountsTable,
 		GroupTable,
-		PermissionTable,
-		RoleTable,
+		PermissionsTable,
+		RolesTable,
 		UsersTable,
-		UserGroupTable,
-		RolePermissionTable,
-		UserRoleTable,
-		UserGroupUserTable,
-		UserGroupRoleTable,
+		UserGroupsTable,
+		RolePermissionsTable,
+		UserRolesTable,
+		UserGroupUsersTable,
+		UserGroupRolesTable,
 	}
 )
 
@@ -234,24 +234,24 @@ func init() {
 	GroupTable.Annotation = &entsql.Annotation{
 		Table: "group",
 	}
-	PermissionTable.Annotation = &entsql.Annotation{
-		Table: "permission",
+	PermissionsTable.Annotation = &entsql.Annotation{
+		Table: "permissions",
 	}
-	RoleTable.Annotation = &entsql.Annotation{
-		Table: "role",
+	RolesTable.Annotation = &entsql.Annotation{
+		Table: "roles",
 	}
 	UsersTable.Annotation = &entsql.Annotation{
 		Table: "users",
 	}
-	UserGroupTable.Annotation = &entsql.Annotation{
-		Table: "user_group",
+	UserGroupsTable.Annotation = &entsql.Annotation{
+		Table: "user_groups",
 	}
-	RolePermissionTable.ForeignKeys[0].RefTable = RoleTable
-	RolePermissionTable.ForeignKeys[1].RefTable = PermissionTable
-	UserRoleTable.ForeignKeys[0].RefTable = UsersTable
-	UserRoleTable.ForeignKeys[1].RefTable = RoleTable
-	UserGroupUserTable.ForeignKeys[0].RefTable = UserGroupTable
-	UserGroupUserTable.ForeignKeys[1].RefTable = UsersTable
-	UserGroupRoleTable.ForeignKeys[0].RefTable = UserGroupTable
-	UserGroupRoleTable.ForeignKeys[1].RefTable = RoleTable
+	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
+	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
+	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
+	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
+	UserGroupUsersTable.ForeignKeys[0].RefTable = UserGroupsTable
+	UserGroupUsersTable.ForeignKeys[1].RefTable = UsersTable
+	UserGroupRolesTable.ForeignKeys[0].RefTable = UserGroupsTable
+	UserGroupRolesTable.ForeignKeys[1].RefTable = RolesTable
 }

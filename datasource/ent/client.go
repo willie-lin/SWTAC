@@ -582,15 +582,15 @@ func (c *PermissionClient) GetX(ctx context.Context, id int) *Permission {
 	return obj
 }
 
-// QueryRole queries the role edge of a Permission.
-func (c *PermissionClient) QueryRole(pe *Permission) *RoleQuery {
+// QueryRoles queries the roles edge of a Permission.
+func (c *PermissionClient) QueryRoles(pe *Permission) *RoleQuery {
 	query := (&RoleClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pe.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(permission.Table, permission.FieldID, id),
 			sqlgraph.To(role.Table, role.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, permission.RoleTable, permission.RolePrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, permission.RolesTable, permission.RolesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(pe.driver.Dialect(), step)
 		return fromV, nil
@@ -716,15 +716,15 @@ func (c *RoleClient) GetX(ctx context.Context, id int) *Role {
 	return obj
 }
 
-// QueryUser queries the user edge of a Role.
-func (c *RoleClient) QueryUser(r *Role) *UserQuery {
+// QueryUsers queries the users edge of a Role.
+func (c *RoleClient) QueryUsers(r *Role) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := r.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(role.Table, role.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, role.UserTable, role.UserPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, role.UsersTable, role.UsersPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
 		return fromV, nil
@@ -732,15 +732,15 @@ func (c *RoleClient) QueryUser(r *Role) *UserQuery {
 	return query
 }
 
-// QueryPermission queries the permission edge of a Role.
-func (c *RoleClient) QueryPermission(r *Role) *PermissionQuery {
+// QueryPermissions queries the permissions edge of a Role.
+func (c *RoleClient) QueryPermissions(r *Role) *PermissionQuery {
 	query := (&PermissionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := r.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(role.Table, role.FieldID, id),
 			sqlgraph.To(permission.Table, permission.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, role.PermissionTable, role.PermissionPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, role.PermissionsTable, role.PermissionsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
 		return fromV, nil
@@ -748,15 +748,15 @@ func (c *RoleClient) QueryPermission(r *Role) *PermissionQuery {
 	return query
 }
 
-// QueryUserGroup queries the user_group edge of a Role.
-func (c *RoleClient) QueryUserGroup(r *Role) *UserGroupQuery {
+// QueryUserGroups queries the user_groups edge of a Role.
+func (c *RoleClient) QueryUserGroups(r *Role) *UserGroupQuery {
 	query := (&UserGroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := r.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(role.Table, role.FieldID, id),
 			sqlgraph.To(usergroup.Table, usergroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, role.UserGroupTable, role.UserGroupPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, role.UserGroupsTable, role.UserGroupsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
 		return fromV, nil
@@ -882,15 +882,15 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 	return obj
 }
 
-// QueryUserGroup queries the user_group edge of a User.
-func (c *UserClient) QueryUserGroup(u *User) *UserGroupQuery {
+// QueryUserGroups queries the user_groups edge of a User.
+func (c *UserClient) QueryUserGroups(u *User) *UserGroupQuery {
 	query := (&UserGroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(usergroup.Table, usergroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, user.UserGroupTable, user.UserGroupPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.UserGroupsTable, user.UserGroupsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil
@@ -898,15 +898,15 @@ func (c *UserClient) QueryUserGroup(u *User) *UserGroupQuery {
 	return query
 }
 
-// QueryRole queries the role edge of a User.
-func (c *UserClient) QueryRole(u *User) *RoleQuery {
+// QueryRoles queries the roles edge of a User.
+func (c *UserClient) QueryRoles(u *User) *RoleQuery {
 	query := (&RoleClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(role.Table, role.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, user.RoleTable, user.RolePrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.RolesTable, user.RolesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil
@@ -1048,15 +1048,15 @@ func (c *UserGroupClient) GetX(ctx context.Context, id int) *UserGroup {
 	return obj
 }
 
-// QueryUser queries the user edge of a UserGroup.
-func (c *UserGroupClient) QueryUser(ug *UserGroup) *UserQuery {
+// QueryUsers queries the users edge of a UserGroup.
+func (c *UserGroupClient) QueryUsers(ug *UserGroup) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ug.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(usergroup.Table, usergroup.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, usergroup.UserTable, usergroup.UserPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, usergroup.UsersTable, usergroup.UsersPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(ug.driver.Dialect(), step)
 		return fromV, nil
@@ -1064,15 +1064,15 @@ func (c *UserGroupClient) QueryUser(ug *UserGroup) *UserQuery {
 	return query
 }
 
-// QueryRole queries the role edge of a UserGroup.
-func (c *UserGroupClient) QueryRole(ug *UserGroup) *RoleQuery {
+// QueryRoles queries the roles edge of a UserGroup.
+func (c *UserGroupClient) QueryRoles(ug *UserGroup) *RoleQuery {
 	query := (&RoleClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ug.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(usergroup.Table, usergroup.FieldID, id),
 			sqlgraph.To(role.Table, role.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, usergroup.RoleTable, usergroup.RolePrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, usergroup.RolesTable, usergroup.RolesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(ug.driver.Dialect(), step)
 		return fromV, nil

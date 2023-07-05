@@ -16,7 +16,7 @@ type Permission struct {
 
 func (Permission) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "permission"},
+		entsql.Annotation{Table: "permissions"},
 	}
 }
 
@@ -44,7 +44,7 @@ func (Permission) Fields() []ent.Field {
 func (Permission) Edges() []ent.Edge {
 	return []ent.Edge{
 		//edge.From("roles", Role.Type).Ref("roles"),
-		edge.From("role", Role.Type).Ref("permission"),
+		edge.From("roles", Role.Type).Ref("permissions"),
 		//edge.To("permissions", Permission.Type),
 		//edge.To("roles", Role.Type),
 	}

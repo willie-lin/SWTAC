@@ -20,29 +20,29 @@ const (
 	FieldName = "name"
 	// FieldIntro holds the string denoting the intro field in the database.
 	FieldIntro = "intro"
-	// EdgeUser holds the string denoting the user edge name in mutations.
-	EdgeUser = "user"
-	// EdgePermission holds the string denoting the permission edge name in mutations.
-	EdgePermission = "permission"
-	// EdgeUserGroup holds the string denoting the user_group edge name in mutations.
-	EdgeUserGroup = "user_group"
+	// EdgeUsers holds the string denoting the users edge name in mutations.
+	EdgeUsers = "users"
+	// EdgePermissions holds the string denoting the permissions edge name in mutations.
+	EdgePermissions = "permissions"
+	// EdgeUserGroups holds the string denoting the user_groups edge name in mutations.
+	EdgeUserGroups = "user_groups"
 	// Table holds the table name of the role in the database.
-	Table = "role"
-	// UserTable is the table that holds the user relation/edge. The primary key declared below.
-	UserTable = "user_role"
-	// UserInverseTable is the table name for the User entity.
+	Table = "roles"
+	// UsersTable is the table that holds the users relation/edge. The primary key declared below.
+	UsersTable = "user_roles"
+	// UsersInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "users"
-	// PermissionTable is the table that holds the permission relation/edge. The primary key declared below.
-	PermissionTable = "role_permission"
-	// PermissionInverseTable is the table name for the Permission entity.
+	UsersInverseTable = "users"
+	// PermissionsTable is the table that holds the permissions relation/edge. The primary key declared below.
+	PermissionsTable = "role_permissions"
+	// PermissionsInverseTable is the table name for the Permission entity.
 	// It exists in this package in order to avoid circular dependency with the "permission" package.
-	PermissionInverseTable = "permission"
-	// UserGroupTable is the table that holds the user_group relation/edge. The primary key declared below.
-	UserGroupTable = "user_group_role"
-	// UserGroupInverseTable is the table name for the UserGroup entity.
+	PermissionsInverseTable = "permissions"
+	// UserGroupsTable is the table that holds the user_groups relation/edge. The primary key declared below.
+	UserGroupsTable = "user_group_roles"
+	// UserGroupsInverseTable is the table name for the UserGroup entity.
 	// It exists in this package in order to avoid circular dependency with the "usergroup" package.
-	UserGroupInverseTable = "user_group"
+	UserGroupsInverseTable = "user_groups"
 )
 
 // Columns holds all SQL columns for role fields.
@@ -55,15 +55,15 @@ var Columns = []string{
 }
 
 var (
-	// UserPrimaryKey and UserColumn2 are the table columns denoting the
-	// primary key for the user relation (M2M).
-	UserPrimaryKey = []string{"user_id", "role_id"}
-	// PermissionPrimaryKey and PermissionColumn2 are the table columns denoting the
-	// primary key for the permission relation (M2M).
-	PermissionPrimaryKey = []string{"role_id", "permission_id"}
-	// UserGroupPrimaryKey and UserGroupColumn2 are the table columns denoting the
-	// primary key for the user_group relation (M2M).
-	UserGroupPrimaryKey = []string{"user_group_id", "role_id"}
+	// UsersPrimaryKey and UsersColumn2 are the table columns denoting the
+	// primary key for the users relation (M2M).
+	UsersPrimaryKey = []string{"user_id", "role_id"}
+	// PermissionsPrimaryKey and PermissionsColumn2 are the table columns denoting the
+	// primary key for the permissions relation (M2M).
+	PermissionsPrimaryKey = []string{"role_id", "permission_id"}
+	// UserGroupsPrimaryKey and UserGroupsColumn2 are the table columns denoting the
+	// primary key for the user_groups relation (M2M).
+	UserGroupsPrimaryKey = []string{"user_group_id", "role_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -104,65 +104,65 @@ func ByIntro(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIntro, opts...).ToFunc()
 }
 
-// ByUserCount orders the results by user count.
-func ByUserCount(opts ...sql.OrderTermOption) OrderOption {
+// ByUsersCount orders the results by users count.
+func ByUsersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newUsersStep(), opts...)
 	}
 }
 
-// ByUser orders the results by user terms.
-func ByUser(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByUsers orders the results by users terms.
+func ByUsers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newUsersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
-// ByPermissionCount orders the results by permission count.
-func ByPermissionCount(opts ...sql.OrderTermOption) OrderOption {
+// ByPermissionsCount orders the results by permissions count.
+func ByPermissionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPermissionStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newPermissionsStep(), opts...)
 	}
 }
 
-// ByPermission orders the results by permission terms.
-func ByPermission(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByPermissions orders the results by permissions terms.
+func ByPermissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPermissionStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newPermissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
-// ByUserGroupCount orders the results by user_group count.
-func ByUserGroupCount(opts ...sql.OrderTermOption) OrderOption {
+// ByUserGroupsCount orders the results by user_groups count.
+func ByUserGroupsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserGroupStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newUserGroupsStep(), opts...)
 	}
 }
 
-// ByUserGroup orders the results by user_group terms.
-func ByUserGroup(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByUserGroups orders the results by user_groups terms.
+func ByUserGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserGroupStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newUserGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newUserStep() *sqlgraph.Step {
+func newUsersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, UserTable, UserPrimaryKey...),
+		sqlgraph.To(UsersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
 	)
 }
-func newPermissionStep() *sqlgraph.Step {
+func newPermissionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PermissionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, PermissionTable, PermissionPrimaryKey...),
+		sqlgraph.To(PermissionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
 	)
 }
-func newUserGroupStep() *sqlgraph.Step {
+func newUserGroupsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserGroupInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, UserGroupTable, UserGroupPrimaryKey...),
+		sqlgraph.To(UserGroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, UserGroupsTable, UserGroupsPrimaryKey...),
 	)
 }

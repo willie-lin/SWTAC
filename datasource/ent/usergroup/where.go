@@ -334,21 +334,21 @@ func IntroContainsFold(v string) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldContainsFold(FieldIntro, v))
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.UserGroup {
+// HasUsers applies the HasEdge predicate on the "users" edge.
+func HasUsers() predicate.UserGroup {
 	return predicate.UserGroup(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, UserTable, UserPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, UsersTable, UsersPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.UserGroup {
+// HasUsersWith applies the HasEdge predicate on the "users" edge with a given conditions (other predicates).
+func HasUsersWith(preds ...predicate.User) predicate.UserGroup {
 	return predicate.UserGroup(func(s *sql.Selector) {
-		step := newUserStep()
+		step := newUsersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -357,21 +357,21 @@ func HasUserWith(preds ...predicate.User) predicate.UserGroup {
 	})
 }
 
-// HasRole applies the HasEdge predicate on the "role" edge.
-func HasRole() predicate.UserGroup {
+// HasRoles applies the HasEdge predicate on the "roles" edge.
+func HasRoles() predicate.UserGroup {
 	return predicate.UserGroup(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, RoleTable, RolePrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, RolesTable, RolesPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasRoleWith applies the HasEdge predicate on the "role" edge with a given conditions (other predicates).
-func HasRoleWith(preds ...predicate.Role) predicate.UserGroup {
+// HasRolesWith applies the HasEdge predicate on the "roles" edge with a given conditions (other predicates).
+func HasRolesWith(preds ...predicate.Role) predicate.UserGroup {
 	return predicate.UserGroup(func(s *sql.Selector) {
-		step := newRoleStep()
+		step := newRolesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

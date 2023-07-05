@@ -16,7 +16,7 @@ type Role struct {
 
 func (Role) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "role"},
+		entsql.Annotation{Table: "roles"},
 	}
 }
 
@@ -45,9 +45,9 @@ func (Role) Fields() []ent.Field {
 // Edges of the Role.
 func (Role) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", User.Type).Ref("role"),
-		edge.To("permission", Permission.Type),
-		edge.From("user_group", UserGroup.Type).Ref("role"),
+		edge.From("users", User.Type).Ref("roles"),
+		edge.To("permissions", Permission.Type),
+		edge.From("user_groups", UserGroup.Type).Ref("roles"),
 	}
 }
 

@@ -24,15 +24,15 @@ const (
 	FieldCategory = "category"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
-	// EdgeRole holds the string denoting the role edge name in mutations.
-	EdgeRole = "role"
+	// EdgeRoles holds the string denoting the roles edge name in mutations.
+	EdgeRoles = "roles"
 	// Table holds the table name of the permission in the database.
-	Table = "permission"
-	// RoleTable is the table that holds the role relation/edge. The primary key declared below.
-	RoleTable = "role_permission"
-	// RoleInverseTable is the table name for the Role entity.
+	Table = "permissions"
+	// RolesTable is the table that holds the roles relation/edge. The primary key declared below.
+	RolesTable = "role_permissions"
+	// RolesInverseTable is the table name for the Role entity.
 	// It exists in this package in order to avoid circular dependency with the "role" package.
-	RoleInverseTable = "role"
+	RolesInverseTable = "roles"
 )
 
 // Columns holds all SQL columns for permission fields.
@@ -47,9 +47,9 @@ var Columns = []string{
 }
 
 var (
-	// RolePrimaryKey and RoleColumn2 are the table columns denoting the
-	// primary key for the role relation (M2M).
-	RolePrimaryKey = []string{"role_id", "permission_id"}
+	// RolesPrimaryKey and RolesColumn2 are the table columns denoting the
+	// primary key for the roles relation (M2M).
+	RolesPrimaryKey = []string{"role_id", "permission_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -100,23 +100,23 @@ func ByURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldURL, opts...).ToFunc()
 }
 
-// ByRoleCount orders the results by role count.
-func ByRoleCount(opts ...sql.OrderTermOption) OrderOption {
+// ByRolesCount orders the results by roles count.
+func ByRolesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newRoleStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newRolesStep(), opts...)
 	}
 }
 
-// ByRole orders the results by role terms.
-func ByRole(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByRoles orders the results by roles terms.
+func ByRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRoleStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newRolesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newRoleStep() *sqlgraph.Step {
+func newRolesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RoleInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, RoleTable, RolePrimaryKey...),
+		sqlgraph.To(RolesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, RolesTable, RolesPrimaryKey...),
 	)
 }

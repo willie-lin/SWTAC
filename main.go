@@ -4,6 +4,7 @@ import (
 	"SWTAC/config"
 	"SWTAC/datasource"
 	"SWTAC/datasource/ent"
+	"SWTAC/handler"
 	"SWTAC/log"
 	"context"
 	"fmt"
@@ -67,6 +68,9 @@ func main() {
 	e.GET("/hello", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "hello world!!!")
 	})
+
+	e.POST("/user", handler.CreateUser(client))
+	e.GET("/users", handler.GetAllUsers(client))
 
 	e.Logger.Fatal(e.Start(":2023"))
 

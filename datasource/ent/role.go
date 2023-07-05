@@ -32,42 +32,42 @@ type Role struct {
 
 // RoleEdges holds the relations/edges for other nodes in the graph.
 type RoleEdges struct {
-	// User holds the value of the user edge.
-	User []*User `json:"user,omitempty"`
-	// Permission holds the value of the permission edge.
-	Permission []*Permission `json:"permission,omitempty"`
-	// UserGroup holds the value of the user_group edge.
-	UserGroup []*UserGroup `json:"user_group,omitempty"`
+	// Users holds the value of the users edge.
+	Users []*User `json:"users,omitempty"`
+	// Permissions holds the value of the permissions edge.
+	Permissions []*Permission `json:"permissions,omitempty"`
+	// UserGroups holds the value of the user_groups edge.
+	UserGroups []*UserGroup `json:"user_groups,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
 }
 
-// UserOrErr returns the User value or an error if the edge
+// UsersOrErr returns the Users value or an error if the edge
 // was not loaded in eager-loading.
-func (e RoleEdges) UserOrErr() ([]*User, error) {
+func (e RoleEdges) UsersOrErr() ([]*User, error) {
 	if e.loadedTypes[0] {
-		return e.User, nil
+		return e.Users, nil
 	}
-	return nil, &NotLoadedError{edge: "user"}
+	return nil, &NotLoadedError{edge: "users"}
 }
 
-// PermissionOrErr returns the Permission value or an error if the edge
+// PermissionsOrErr returns the Permissions value or an error if the edge
 // was not loaded in eager-loading.
-func (e RoleEdges) PermissionOrErr() ([]*Permission, error) {
+func (e RoleEdges) PermissionsOrErr() ([]*Permission, error) {
 	if e.loadedTypes[1] {
-		return e.Permission, nil
+		return e.Permissions, nil
 	}
-	return nil, &NotLoadedError{edge: "permission"}
+	return nil, &NotLoadedError{edge: "permissions"}
 }
 
-// UserGroupOrErr returns the UserGroup value or an error if the edge
+// UserGroupsOrErr returns the UserGroups value or an error if the edge
 // was not loaded in eager-loading.
-func (e RoleEdges) UserGroupOrErr() ([]*UserGroup, error) {
+func (e RoleEdges) UserGroupsOrErr() ([]*UserGroup, error) {
 	if e.loadedTypes[2] {
-		return e.UserGroup, nil
+		return e.UserGroups, nil
 	}
-	return nil, &NotLoadedError{edge: "user_group"}
+	return nil, &NotLoadedError{edge: "user_groups"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -137,19 +137,19 @@ func (r *Role) Value(name string) (ent.Value, error) {
 	return r.selectValues.Get(name)
 }
 
-// QueryUser queries the "user" edge of the Role entity.
-func (r *Role) QueryUser() *UserQuery {
-	return NewRoleClient(r.config).QueryUser(r)
+// QueryUsers queries the "users" edge of the Role entity.
+func (r *Role) QueryUsers() *UserQuery {
+	return NewRoleClient(r.config).QueryUsers(r)
 }
 
-// QueryPermission queries the "permission" edge of the Role entity.
-func (r *Role) QueryPermission() *PermissionQuery {
-	return NewRoleClient(r.config).QueryPermission(r)
+// QueryPermissions queries the "permissions" edge of the Role entity.
+func (r *Role) QueryPermissions() *PermissionQuery {
+	return NewRoleClient(r.config).QueryPermissions(r)
 }
 
-// QueryUserGroup queries the "user_group" edge of the Role entity.
-func (r *Role) QueryUserGroup() *UserGroupQuery {
-	return NewRoleClient(r.config).QueryUserGroup(r)
+// QueryUserGroups queries the "user_groups" edge of the Role entity.
+func (r *Role) QueryUserGroups() *UserGroupQuery {
+	return NewRoleClient(r.config).QueryUserGroups(r)
 }
 
 // Update returns a builder for updating this Role.

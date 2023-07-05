@@ -44,10 +44,10 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// UserGroup holds the value of the user_group edge.
-	UserGroup []*UserGroup `json:"user_group,omitempty"`
-	// Role holds the value of the role edge.
-	Role []*Role `json:"role,omitempty"`
+	// UserGroups holds the value of the user_groups edge.
+	UserGroups []*UserGroup `json:"user_groups,omitempty"`
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
 	// Accounts holds the value of the accounts edge.
 	Accounts []*Account `json:"accounts,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -55,22 +55,22 @@ type UserEdges struct {
 	loadedTypes [3]bool
 }
 
-// UserGroupOrErr returns the UserGroup value or an error if the edge
+// UserGroupsOrErr returns the UserGroups value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) UserGroupOrErr() ([]*UserGroup, error) {
+func (e UserEdges) UserGroupsOrErr() ([]*UserGroup, error) {
 	if e.loadedTypes[0] {
-		return e.UserGroup, nil
+		return e.UserGroups, nil
 	}
-	return nil, &NotLoadedError{edge: "user_group"}
+	return nil, &NotLoadedError{edge: "user_groups"}
 }
 
-// RoleOrErr returns the Role value or an error if the edge
+// RolesOrErr returns the Roles value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) RoleOrErr() ([]*Role, error) {
+func (e UserEdges) RolesOrErr() ([]*Role, error) {
 	if e.loadedTypes[1] {
-		return e.Role, nil
+		return e.Roles, nil
 	}
-	return nil, &NotLoadedError{edge: "role"}
+	return nil, &NotLoadedError{edge: "roles"}
 }
 
 // AccountsOrErr returns the Accounts value or an error if the edge
@@ -185,14 +185,14 @@ func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
 }
 
-// QueryUserGroup queries the "user_group" edge of the User entity.
-func (u *User) QueryUserGroup() *UserGroupQuery {
-	return NewUserClient(u.config).QueryUserGroup(u)
+// QueryUserGroups queries the "user_groups" edge of the User entity.
+func (u *User) QueryUserGroups() *UserGroupQuery {
+	return NewUserClient(u.config).QueryUserGroups(u)
 }
 
-// QueryRole queries the "role" edge of the User entity.
-func (u *User) QueryRole() *RoleQuery {
-	return NewUserClient(u.config).QueryRole(u)
+// QueryRoles queries the "roles" edge of the User entity.
+func (u *User) QueryRoles() *RoleQuery {
+	return NewUserClient(u.config).QueryRoles(u)
 }
 
 // QueryAccounts queries the "accounts" edge of the User entity.

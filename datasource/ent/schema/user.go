@@ -20,13 +20,6 @@ func (User) Annotations() []schema.Annotation {
 	}
 }
 
-func (User) MiXin() []ent.Mixin {
-	return []ent.Mixin{
-		TimeMixin{},
-		EditMixin{},
-	}
-}
-
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
@@ -41,19 +34,28 @@ func (User) Fields() []ent.Field {
 		field.String("phone"),
 		field.String("password").Sensitive(),
 		field.Int("state"),
+		//// Immutable 函数告诉我们，生下来后你的出生年月就定了，不能改变。你明明是半老徐娘就不能说自己芳龄十八。
+		//field.Time("created_at").Immutable().Default(time.Now),
+		//field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user_group", UserGroup.Type).Ref("user"),
-		edge.To("role", Role.Type),
+		edge.From("user_groups", UserGroup.Type).Ref("users"),
+		edge.To("roles", Role.Type),
 		edge.To("accounts", Account.Type),
 	}
 }
 
-// Index
+// MiXin Mixin User
+func (User) MiXin() []ent.Mixin {
+	return []ent.Mixin{
+		TimeMixin{},
+		EditMixin{},
+	}
+}
 
 func (User) Index() []ent.Index {
 	return []ent.Index{

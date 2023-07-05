@@ -309,21 +309,21 @@ func IntroContainsFold(v string) predicate.Role {
 	return predicate.Role(sql.FieldContainsFold(FieldIntro, v))
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.Role {
+// HasUsers applies the HasEdge predicate on the "users" edge.
+func HasUsers() predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, UserTable, UserPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.Role {
+// HasUsersWith applies the HasEdge predicate on the "users" edge with a given conditions (other predicates).
+func HasUsersWith(preds ...predicate.User) predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
-		step := newUserStep()
+		step := newUsersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -332,21 +332,21 @@ func HasUserWith(preds ...predicate.User) predicate.Role {
 	})
 }
 
-// HasPermission applies the HasEdge predicate on the "permission" edge.
-func HasPermission() predicate.Role {
+// HasPermissions applies the HasEdge predicate on the "permissions" edge.
+func HasPermissions() predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, PermissionTable, PermissionPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPermissionWith applies the HasEdge predicate on the "permission" edge with a given conditions (other predicates).
-func HasPermissionWith(preds ...predicate.Permission) predicate.Role {
+// HasPermissionsWith applies the HasEdge predicate on the "permissions" edge with a given conditions (other predicates).
+func HasPermissionsWith(preds ...predicate.Permission) predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
-		step := newPermissionStep()
+		step := newPermissionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -355,21 +355,21 @@ func HasPermissionWith(preds ...predicate.Permission) predicate.Role {
 	})
 }
 
-// HasUserGroup applies the HasEdge predicate on the "user_group" edge.
-func HasUserGroup() predicate.Role {
+// HasUserGroups applies the HasEdge predicate on the "user_groups" edge.
+func HasUserGroups() predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, UserGroupTable, UserGroupPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, UserGroupsTable, UserGroupsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserGroupWith applies the HasEdge predicate on the "user_group" edge with a given conditions (other predicates).
-func HasUserGroupWith(preds ...predicate.UserGroup) predicate.Role {
+// HasUserGroupsWith applies the HasEdge predicate on the "user_groups" edge with a given conditions (other predicates).
+func HasUserGroupsWith(preds ...predicate.UserGroup) predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
-		step := newUserGroupStep()
+		step := newUserGroupsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
