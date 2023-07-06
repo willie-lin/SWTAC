@@ -20,6 +20,14 @@ func (User) Annotations() []schema.Annotation {
 	}
 }
 
+// MiXin Mixin User
+func (User) MiXin() []ent.Mixin {
+	return []ent.Mixin{
+		TimeMixin{},
+		EditMixin{},
+	}
+}
+
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
@@ -46,14 +54,6 @@ func (User) Edges() []ent.Edge {
 		edge.From("user_groups", UserGroup.Type).Ref("users"),
 		edge.To("roles", Role.Type),
 		edge.To("accounts", Account.Type),
-	}
-}
-
-// MiXin Mixin User
-func (User) MiXin() []ent.Mixin {
-	return []ent.Mixin{
-		TimeMixin{},
-		EditMixin{},
 	}
 }
 
