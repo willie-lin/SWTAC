@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -25,6 +26,37 @@ type AccountUpdate struct {
 // Where appends a list predicates to the AccountUpdate builder.
 func (au *AccountUpdate) Where(ps ...predicate.Account) *AccountUpdate {
 	au.mutation.Where(ps...)
+	return au
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (au *AccountUpdate) SetUpdatedAt(t time.Time) *AccountUpdate {
+	au.mutation.SetUpdatedAt(t)
+	return au
+}
+
+// SetCreator sets the "creator" field.
+func (au *AccountUpdate) SetCreator(s string) *AccountUpdate {
+	au.mutation.SetCreator(s)
+	return au
+}
+
+// SetEditor sets the "editor" field.
+func (au *AccountUpdate) SetEditor(s string) *AccountUpdate {
+	au.mutation.SetEditor(s)
+	return au
+}
+
+// SetDeleted sets the "deleted" field.
+func (au *AccountUpdate) SetDeleted(f float64) *AccountUpdate {
+	au.mutation.ResetDeleted()
+	au.mutation.SetDeleted(f)
+	return au
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (au *AccountUpdate) AddDeleted(f float64) *AccountUpdate {
+	au.mutation.AddDeleted(f)
 	return au
 }
 
@@ -72,6 +104,7 @@ func (au *AccountUpdate) ClearUser() *AccountUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (au *AccountUpdate) Save(ctx context.Context) (int, error) {
+	au.defaults()
 	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
 }
 
@@ -97,6 +130,14 @@ func (au *AccountUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (au *AccountUpdate) defaults() {
+	if _, ok := au.mutation.UpdatedAt(); !ok {
+		v := account.UpdateDefaultUpdatedAt()
+		au.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(account.Table, account.Columns, sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt))
 	if ps := au.mutation.predicates; len(ps) > 0 {
@@ -105,6 +146,21 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := au.mutation.UpdatedAt(); ok {
+		_spec.SetField(account.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := au.mutation.Creator(); ok {
+		_spec.SetField(account.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := au.mutation.Editor(); ok {
+		_spec.SetField(account.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := au.mutation.Deleted(); ok {
+		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := au.mutation.AddedDeleted(); ok {
+		_spec.AddField(account.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := au.mutation.OpenCode(); ok {
 		_spec.SetField(account.FieldOpenCode, field.TypeString, value)
@@ -159,6 +215,37 @@ type AccountUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *AccountMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (auo *AccountUpdateOne) SetUpdatedAt(t time.Time) *AccountUpdateOne {
+	auo.mutation.SetUpdatedAt(t)
+	return auo
+}
+
+// SetCreator sets the "creator" field.
+func (auo *AccountUpdateOne) SetCreator(s string) *AccountUpdateOne {
+	auo.mutation.SetCreator(s)
+	return auo
+}
+
+// SetEditor sets the "editor" field.
+func (auo *AccountUpdateOne) SetEditor(s string) *AccountUpdateOne {
+	auo.mutation.SetEditor(s)
+	return auo
+}
+
+// SetDeleted sets the "deleted" field.
+func (auo *AccountUpdateOne) SetDeleted(f float64) *AccountUpdateOne {
+	auo.mutation.ResetDeleted()
+	auo.mutation.SetDeleted(f)
+	return auo
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (auo *AccountUpdateOne) AddDeleted(f float64) *AccountUpdateOne {
+	auo.mutation.AddDeleted(f)
+	return auo
 }
 
 // SetOpenCode sets the "open_code" field.
@@ -218,6 +305,7 @@ func (auo *AccountUpdateOne) Select(field string, fields ...string) *AccountUpda
 
 // Save executes the query and returns the updated Account entity.
 func (auo *AccountUpdateOne) Save(ctx context.Context) (*Account, error) {
+	auo.defaults()
 	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
 }
 
@@ -240,6 +328,14 @@ func (auo *AccountUpdateOne) Exec(ctx context.Context) error {
 func (auo *AccountUpdateOne) ExecX(ctx context.Context) {
 	if err := auo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (auo *AccountUpdateOne) defaults() {
+	if _, ok := auo.mutation.UpdatedAt(); !ok {
+		v := account.UpdateDefaultUpdatedAt()
+		auo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -268,6 +364,21 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := auo.mutation.UpdatedAt(); ok {
+		_spec.SetField(account.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := auo.mutation.Creator(); ok {
+		_spec.SetField(account.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := auo.mutation.Editor(); ok {
+		_spec.SetField(account.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := auo.mutation.Deleted(); ok {
+		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := auo.mutation.AddedDeleted(); ok {
+		_spec.AddField(account.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := auo.mutation.OpenCode(); ok {
 		_spec.SetField(account.FieldOpenCode, field.TypeString, value)

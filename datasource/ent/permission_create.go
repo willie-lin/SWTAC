@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +19,52 @@ type PermissionCreate struct {
 	config
 	mutation *PermissionMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (pc *PermissionCreate) SetCreatedAt(t time.Time) *PermissionCreate {
+	pc.mutation.SetCreatedAt(t)
+	return pc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableCreatedAt(t *time.Time) *PermissionCreate {
+	if t != nil {
+		pc.SetCreatedAt(*t)
+	}
+	return pc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (pc *PermissionCreate) SetUpdatedAt(t time.Time) *PermissionCreate {
+	pc.mutation.SetUpdatedAt(t)
+	return pc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableUpdatedAt(t *time.Time) *PermissionCreate {
+	if t != nil {
+		pc.SetUpdatedAt(*t)
+	}
+	return pc
+}
+
+// SetCreator sets the "creator" field.
+func (pc *PermissionCreate) SetCreator(s string) *PermissionCreate {
+	pc.mutation.SetCreator(s)
+	return pc
+}
+
+// SetEditor sets the "editor" field.
+func (pc *PermissionCreate) SetEditor(s string) *PermissionCreate {
+	pc.mutation.SetEditor(s)
+	return pc
+}
+
+// SetDeleted sets the "deleted" field.
+func (pc *PermissionCreate) SetDeleted(f float64) *PermissionCreate {
+	pc.mutation.SetDeleted(f)
+	return pc
 }
 
 // SetParentID sets the "parent_id" field.
@@ -84,6 +131,7 @@ func (pc *PermissionCreate) Mutation() *PermissionMutation {
 
 // Save creates the Permission in the database.
 func (pc *PermissionCreate) Save(ctx context.Context) (*Permission, error) {
+	pc.defaults()
 	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
@@ -109,8 +157,35 @@ func (pc *PermissionCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pc *PermissionCreate) defaults() {
+	if _, ok := pc.mutation.CreatedAt(); !ok {
+		v := permission.DefaultCreatedAt()
+		pc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := pc.mutation.UpdatedAt(); !ok {
+		v := permission.DefaultUpdatedAt()
+		pc.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (pc *PermissionCreate) check() error {
+	if _, ok := pc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Permission.created_at"`)}
+	}
+	if _, ok := pc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Permission.updated_at"`)}
+	}
+	if _, ok := pc.mutation.Creator(); !ok {
+		return &ValidationError{Name: "creator", err: errors.New(`ent: missing required field "Permission.creator"`)}
+	}
+	if _, ok := pc.mutation.Editor(); !ok {
+		return &ValidationError{Name: "editor", err: errors.New(`ent: missing required field "Permission.editor"`)}
+	}
+	if _, ok := pc.mutation.Deleted(); !ok {
+		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Permission.deleted"`)}
+	}
 	if _, ok := pc.mutation.ParentID(); !ok {
 		return &ValidationError{Name: "parent_id", err: errors.New(`ent: missing required field "Permission.parent_id"`)}
 	}
@@ -160,6 +235,26 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 	if id, ok := pc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := pc.mutation.CreatedAt(); ok {
+		_spec.SetField(permission.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := pc.mutation.UpdatedAt(); ok {
+		_spec.SetField(permission.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := pc.mutation.Creator(); ok {
+		_spec.SetField(permission.FieldCreator, field.TypeString, value)
+		_node.Creator = value
+	}
+	if value, ok := pc.mutation.Editor(); ok {
+		_spec.SetField(permission.FieldEditor, field.TypeString, value)
+		_node.Editor = value
+	}
+	if value, ok := pc.mutation.Deleted(); ok {
+		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
+		_node.Deleted = value
 	}
 	if value, ok := pc.mutation.ParentID(); ok {
 		_spec.SetField(permission.FieldParentID, field.TypeInt, value)
@@ -218,6 +313,7 @@ func (pcb *PermissionCreateBulk) Save(ctx context.Context) ([]*Permission, error
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PermissionMutation)
 				if !ok {

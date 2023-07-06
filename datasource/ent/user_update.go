@@ -11,6 +11,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,6 +28,37 @@ type UserUpdate struct {
 // Where appends a list predicates to the UserUpdate builder.
 func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	uu.mutation.Where(ps...)
+	return uu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
+	uu.mutation.SetUpdatedAt(t)
+	return uu
+}
+
+// SetCreator sets the "creator" field.
+func (uu *UserUpdate) SetCreator(s string) *UserUpdate {
+	uu.mutation.SetCreator(s)
+	return uu
+}
+
+// SetEditor sets the "editor" field.
+func (uu *UserUpdate) SetEditor(s string) *UserUpdate {
+	uu.mutation.SetEditor(s)
+	return uu
+}
+
+// SetDeleted sets the "deleted" field.
+func (uu *UserUpdate) SetDeleted(f float64) *UserUpdate {
+	uu.mutation.ResetDeleted()
+	uu.mutation.SetDeleted(f)
+	return uu
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (uu *UserUpdate) AddDeleted(f float64) *UserUpdate {
+	uu.mutation.AddDeleted(f)
 	return uu
 }
 
@@ -247,6 +279,7 @@ func (uu *UserUpdate) RemoveAccounts(a ...*Account) *UserUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
+	uu.defaults()
 	return withHooks(ctx, uu.sqlSave, uu.mutation, uu.hooks)
 }
 
@@ -272,6 +305,14 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (uu *UserUpdate) defaults() {
+	if _, ok := uu.mutation.UpdatedAt(); !ok {
+		v := user.UpdateDefaultUpdatedAt()
+		uu.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (uu *UserUpdate) check() error {
 	if v, ok := uu.mutation.Age(); ok {
@@ -293,6 +334,21 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uu.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uu.mutation.Creator(); ok {
+		_spec.SetField(user.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.Editor(); ok {
+		_spec.SetField(user.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.Deleted(); ok {
+		_spec.SetField(user.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := uu.mutation.AddedDeleted(); ok {
+		_spec.AddField(user.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := uu.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
@@ -489,6 +545,37 @@ type UserUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *UserMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetUpdatedAt(t)
+	return uuo
+}
+
+// SetCreator sets the "creator" field.
+func (uuo *UserUpdateOne) SetCreator(s string) *UserUpdateOne {
+	uuo.mutation.SetCreator(s)
+	return uuo
+}
+
+// SetEditor sets the "editor" field.
+func (uuo *UserUpdateOne) SetEditor(s string) *UserUpdateOne {
+	uuo.mutation.SetEditor(s)
+	return uuo
+}
+
+// SetDeleted sets the "deleted" field.
+func (uuo *UserUpdateOne) SetDeleted(f float64) *UserUpdateOne {
+	uuo.mutation.ResetDeleted()
+	uuo.mutation.SetDeleted(f)
+	return uuo
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (uuo *UserUpdateOne) AddDeleted(f float64) *UserUpdateOne {
+	uuo.mutation.AddDeleted(f)
+	return uuo
 }
 
 // SetUsername sets the "username" field.
@@ -721,6 +808,7 @@ func (uuo *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne 
 
 // Save executes the query and returns the updated User entity.
 func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
+	uuo.defaults()
 	return withHooks(ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
 }
 
@@ -743,6 +831,14 @@ func (uuo *UserUpdateOne) Exec(ctx context.Context) error {
 func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 	if err := uuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (uuo *UserUpdateOne) defaults() {
+	if _, ok := uuo.mutation.UpdatedAt(); !ok {
+		v := user.UpdateDefaultUpdatedAt()
+		uuo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -784,6 +880,21 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uuo.mutation.Creator(); ok {
+		_spec.SetField(user.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.Editor(); ok {
+		_spec.SetField(user.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.Deleted(); ok {
+		_spec.SetField(user.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := uuo.mutation.AddedDeleted(); ok {
+		_spec.AddField(user.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := uuo.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)

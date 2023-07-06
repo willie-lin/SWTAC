@@ -298,12 +298,12 @@ func (aq *AccountQuery) WithUser(opts ...func(*UserQuery)) *AccountQuery {
 // Example:
 //
 //	var v []struct {
-//		OpenCode string `json:"open_code,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Account.Query().
-//		GroupBy(account.FieldOpenCode).
+//		GroupBy(account.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (aq *AccountQuery) GroupBy(field string, fields ...string) *AccountGroupBy {
@@ -321,11 +321,11 @@ func (aq *AccountQuery) GroupBy(field string, fields ...string) *AccountGroupBy 
 // Example:
 //
 //	var v []struct {
-//		OpenCode string `json:"open_code,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
 //	client.Account.Query().
-//		Select(account.FieldOpenCode).
+//		Select(account.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (aq *AccountQuery) Select(fields ...string) *AccountSelect {
 	aq.ctx.Fields = append(aq.ctx.Fields, fields...)

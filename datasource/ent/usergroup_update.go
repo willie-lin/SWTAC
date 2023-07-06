@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -26,6 +27,37 @@ type UserGroupUpdate struct {
 // Where appends a list predicates to the UserGroupUpdate builder.
 func (ugu *UserGroupUpdate) Where(ps ...predicate.UserGroup) *UserGroupUpdate {
 	ugu.mutation.Where(ps...)
+	return ugu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ugu *UserGroupUpdate) SetUpdatedAt(t time.Time) *UserGroupUpdate {
+	ugu.mutation.SetUpdatedAt(t)
+	return ugu
+}
+
+// SetCreator sets the "creator" field.
+func (ugu *UserGroupUpdate) SetCreator(s string) *UserGroupUpdate {
+	ugu.mutation.SetCreator(s)
+	return ugu
+}
+
+// SetEditor sets the "editor" field.
+func (ugu *UserGroupUpdate) SetEditor(s string) *UserGroupUpdate {
+	ugu.mutation.SetEditor(s)
+	return ugu
+}
+
+// SetDeleted sets the "deleted" field.
+func (ugu *UserGroupUpdate) SetDeleted(f float64) *UserGroupUpdate {
+	ugu.mutation.ResetDeleted()
+	ugu.mutation.SetDeleted(f)
+	return ugu
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (ugu *UserGroupUpdate) AddDeleted(f float64) *UserGroupUpdate {
+	ugu.mutation.AddDeleted(f)
 	return ugu
 }
 
@@ -132,6 +164,7 @@ func (ugu *UserGroupUpdate) RemoveRoles(r ...*Role) *UserGroupUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (ugu *UserGroupUpdate) Save(ctx context.Context) (int, error) {
+	ugu.defaults()
 	return withHooks(ctx, ugu.sqlSave, ugu.mutation, ugu.hooks)
 }
 
@@ -157,6 +190,14 @@ func (ugu *UserGroupUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ugu *UserGroupUpdate) defaults() {
+	if _, ok := ugu.mutation.UpdatedAt(); !ok {
+		v := usergroup.UpdateDefaultUpdatedAt()
+		ugu.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(usergroup.Table, usergroup.Columns, sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt))
 	if ps := ugu.mutation.predicates; len(ps) > 0 {
@@ -165,6 +206,21 @@ func (ugu *UserGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := ugu.mutation.UpdatedAt(); ok {
+		_spec.SetField(usergroup.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := ugu.mutation.Creator(); ok {
+		_spec.SetField(usergroup.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := ugu.mutation.Editor(); ok {
+		_spec.SetField(usergroup.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := ugu.mutation.Deleted(); ok {
+		_spec.SetField(usergroup.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := ugu.mutation.AddedDeleted(); ok {
+		_spec.AddField(usergroup.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := ugu.mutation.ParentID(); ok {
 		_spec.SetField(usergroup.FieldParentID, field.TypeString, value)
@@ -288,6 +344,37 @@ type UserGroupUpdateOne struct {
 	mutation *UserGroupMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (uguo *UserGroupUpdateOne) SetUpdatedAt(t time.Time) *UserGroupUpdateOne {
+	uguo.mutation.SetUpdatedAt(t)
+	return uguo
+}
+
+// SetCreator sets the "creator" field.
+func (uguo *UserGroupUpdateOne) SetCreator(s string) *UserGroupUpdateOne {
+	uguo.mutation.SetCreator(s)
+	return uguo
+}
+
+// SetEditor sets the "editor" field.
+func (uguo *UserGroupUpdateOne) SetEditor(s string) *UserGroupUpdateOne {
+	uguo.mutation.SetEditor(s)
+	return uguo
+}
+
+// SetDeleted sets the "deleted" field.
+func (uguo *UserGroupUpdateOne) SetDeleted(f float64) *UserGroupUpdateOne {
+	uguo.mutation.ResetDeleted()
+	uguo.mutation.SetDeleted(f)
+	return uguo
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (uguo *UserGroupUpdateOne) AddDeleted(f float64) *UserGroupUpdateOne {
+	uguo.mutation.AddDeleted(f)
+	return uguo
+}
+
 // SetParentID sets the "parent_id" field.
 func (uguo *UserGroupUpdateOne) SetParentID(s string) *UserGroupUpdateOne {
 	uguo.mutation.SetParentID(s)
@@ -404,6 +491,7 @@ func (uguo *UserGroupUpdateOne) Select(field string, fields ...string) *UserGrou
 
 // Save executes the query and returns the updated UserGroup entity.
 func (uguo *UserGroupUpdateOne) Save(ctx context.Context) (*UserGroup, error) {
+	uguo.defaults()
 	return withHooks(ctx, uguo.sqlSave, uguo.mutation, uguo.hooks)
 }
 
@@ -426,6 +514,14 @@ func (uguo *UserGroupUpdateOne) Exec(ctx context.Context) error {
 func (uguo *UserGroupUpdateOne) ExecX(ctx context.Context) {
 	if err := uguo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (uguo *UserGroupUpdateOne) defaults() {
+	if _, ok := uguo.mutation.UpdatedAt(); !ok {
+		v := usergroup.UpdateDefaultUpdatedAt()
+		uguo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -454,6 +550,21 @@ func (uguo *UserGroupUpdateOne) sqlSave(ctx context.Context) (_node *UserGroup, 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uguo.mutation.UpdatedAt(); ok {
+		_spec.SetField(usergroup.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uguo.mutation.Creator(); ok {
+		_spec.SetField(usergroup.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := uguo.mutation.Editor(); ok {
+		_spec.SetField(usergroup.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := uguo.mutation.Deleted(); ok {
+		_spec.SetField(usergroup.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := uguo.mutation.AddedDeleted(); ok {
+		_spec.AddField(usergroup.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := uguo.mutation.ParentID(); ok {
 		_spec.SetField(usergroup.FieldParentID, field.TypeString, value)

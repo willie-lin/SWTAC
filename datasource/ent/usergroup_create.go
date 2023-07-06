@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -19,6 +20,52 @@ type UserGroupCreate struct {
 	config
 	mutation *UserGroupMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (ugc *UserGroupCreate) SetCreatedAt(t time.Time) *UserGroupCreate {
+	ugc.mutation.SetCreatedAt(t)
+	return ugc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (ugc *UserGroupCreate) SetNillableCreatedAt(t *time.Time) *UserGroupCreate {
+	if t != nil {
+		ugc.SetCreatedAt(*t)
+	}
+	return ugc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ugc *UserGroupCreate) SetUpdatedAt(t time.Time) *UserGroupCreate {
+	ugc.mutation.SetUpdatedAt(t)
+	return ugc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (ugc *UserGroupCreate) SetNillableUpdatedAt(t *time.Time) *UserGroupCreate {
+	if t != nil {
+		ugc.SetUpdatedAt(*t)
+	}
+	return ugc
+}
+
+// SetCreator sets the "creator" field.
+func (ugc *UserGroupCreate) SetCreator(s string) *UserGroupCreate {
+	ugc.mutation.SetCreator(s)
+	return ugc
+}
+
+// SetEditor sets the "editor" field.
+func (ugc *UserGroupCreate) SetEditor(s string) *UserGroupCreate {
+	ugc.mutation.SetEditor(s)
+	return ugc
+}
+
+// SetDeleted sets the "deleted" field.
+func (ugc *UserGroupCreate) SetDeleted(f float64) *UserGroupCreate {
+	ugc.mutation.SetDeleted(f)
+	return ugc
 }
 
 // SetParentID sets the "parent_id" field.
@@ -88,6 +135,7 @@ func (ugc *UserGroupCreate) Mutation() *UserGroupMutation {
 
 // Save creates the UserGroup in the database.
 func (ugc *UserGroupCreate) Save(ctx context.Context) (*UserGroup, error) {
+	ugc.defaults()
 	return withHooks(ctx, ugc.sqlSave, ugc.mutation, ugc.hooks)
 }
 
@@ -113,8 +161,35 @@ func (ugc *UserGroupCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ugc *UserGroupCreate) defaults() {
+	if _, ok := ugc.mutation.CreatedAt(); !ok {
+		v := usergroup.DefaultCreatedAt()
+		ugc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := ugc.mutation.UpdatedAt(); !ok {
+		v := usergroup.DefaultUpdatedAt()
+		ugc.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ugc *UserGroupCreate) check() error {
+	if _, ok := ugc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "UserGroup.created_at"`)}
+	}
+	if _, ok := ugc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "UserGroup.updated_at"`)}
+	}
+	if _, ok := ugc.mutation.Creator(); !ok {
+		return &ValidationError{Name: "creator", err: errors.New(`ent: missing required field "UserGroup.creator"`)}
+	}
+	if _, ok := ugc.mutation.Editor(); !ok {
+		return &ValidationError{Name: "editor", err: errors.New(`ent: missing required field "UserGroup.editor"`)}
+	}
+	if _, ok := ugc.mutation.Deleted(); !ok {
+		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "UserGroup.deleted"`)}
+	}
 	if _, ok := ugc.mutation.ParentID(); !ok {
 		return &ValidationError{Name: "parent_id", err: errors.New(`ent: missing required field "UserGroup.parent_id"`)}
 	}
@@ -158,6 +233,26 @@ func (ugc *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
 	if id, ok := ugc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := ugc.mutation.CreatedAt(); ok {
+		_spec.SetField(usergroup.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := ugc.mutation.UpdatedAt(); ok {
+		_spec.SetField(usergroup.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := ugc.mutation.Creator(); ok {
+		_spec.SetField(usergroup.FieldCreator, field.TypeString, value)
+		_node.Creator = value
+	}
+	if value, ok := ugc.mutation.Editor(); ok {
+		_spec.SetField(usergroup.FieldEditor, field.TypeString, value)
+		_node.Editor = value
+	}
+	if value, ok := ugc.mutation.Deleted(); ok {
+		_spec.SetField(usergroup.FieldDeleted, field.TypeFloat64, value)
+		_node.Deleted = value
 	}
 	if value, ok := ugc.mutation.ParentID(); ok {
 		_spec.SetField(usergroup.FieldParentID, field.TypeString, value)
@@ -224,6 +319,7 @@ func (ugcb *UserGroupCreateBulk) Save(ctx context.Context) ([]*UserGroup, error)
 	for i := range ugcb.builders {
 		func(i int, root context.Context) {
 			builder := ugcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserGroupMutation)
 				if !ok {

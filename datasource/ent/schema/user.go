@@ -20,8 +20,8 @@ func (User) Annotations() []schema.Annotation {
 	}
 }
 
-// MiXin Mixin User
-func (User) MiXin() []ent.Mixin {
+// Mixin MiXin Mixin User
+func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 		EditMixin{},

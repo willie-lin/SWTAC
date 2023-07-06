@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -25,6 +26,37 @@ type PermissionUpdate struct {
 // Where appends a list predicates to the PermissionUpdate builder.
 func (pu *PermissionUpdate) Where(ps ...predicate.Permission) *PermissionUpdate {
 	pu.mutation.Where(ps...)
+	return pu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (pu *PermissionUpdate) SetUpdatedAt(t time.Time) *PermissionUpdate {
+	pu.mutation.SetUpdatedAt(t)
+	return pu
+}
+
+// SetCreator sets the "creator" field.
+func (pu *PermissionUpdate) SetCreator(s string) *PermissionUpdate {
+	pu.mutation.SetCreator(s)
+	return pu
+}
+
+// SetEditor sets the "editor" field.
+func (pu *PermissionUpdate) SetEditor(s string) *PermissionUpdate {
+	pu.mutation.SetEditor(s)
+	return pu
+}
+
+// SetDeleted sets the "deleted" field.
+func (pu *PermissionUpdate) SetDeleted(f float64) *PermissionUpdate {
+	pu.mutation.ResetDeleted()
+	pu.mutation.SetDeleted(f)
+	return pu
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (pu *PermissionUpdate) AddDeleted(f float64) *PermissionUpdate {
+	pu.mutation.AddDeleted(f)
 	return pu
 }
 
@@ -128,6 +160,7 @@ func (pu *PermissionUpdate) RemoveRoles(r ...*Role) *PermissionUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (pu *PermissionUpdate) Save(ctx context.Context) (int, error) {
+	pu.defaults()
 	return withHooks(ctx, pu.sqlSave, pu.mutation, pu.hooks)
 }
 
@@ -153,6 +186,14 @@ func (pu *PermissionUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pu *PermissionUpdate) defaults() {
+	if _, ok := pu.mutation.UpdatedAt(); !ok {
+		v := permission.UpdateDefaultUpdatedAt()
+		pu.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(permission.Table, permission.Columns, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
@@ -161,6 +202,21 @@ func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := pu.mutation.UpdatedAt(); ok {
+		_spec.SetField(permission.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := pu.mutation.Creator(); ok {
+		_spec.SetField(permission.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Editor(); ok {
+		_spec.SetField(permission.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Deleted(); ok {
+		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := pu.mutation.AddedDeleted(); ok {
+		_spec.AddField(permission.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := pu.mutation.ParentID(); ok {
 		_spec.SetField(permission.FieldParentID, field.TypeInt, value)
@@ -252,6 +308,37 @@ type PermissionUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PermissionMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (puo *PermissionUpdateOne) SetUpdatedAt(t time.Time) *PermissionUpdateOne {
+	puo.mutation.SetUpdatedAt(t)
+	return puo
+}
+
+// SetCreator sets the "creator" field.
+func (puo *PermissionUpdateOne) SetCreator(s string) *PermissionUpdateOne {
+	puo.mutation.SetCreator(s)
+	return puo
+}
+
+// SetEditor sets the "editor" field.
+func (puo *PermissionUpdateOne) SetEditor(s string) *PermissionUpdateOne {
+	puo.mutation.SetEditor(s)
+	return puo
+}
+
+// SetDeleted sets the "deleted" field.
+func (puo *PermissionUpdateOne) SetDeleted(f float64) *PermissionUpdateOne {
+	puo.mutation.ResetDeleted()
+	puo.mutation.SetDeleted(f)
+	return puo
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (puo *PermissionUpdateOne) AddDeleted(f float64) *PermissionUpdateOne {
+	puo.mutation.AddDeleted(f)
+	return puo
 }
 
 // SetParentID sets the "parent_id" field.
@@ -367,6 +454,7 @@ func (puo *PermissionUpdateOne) Select(field string, fields ...string) *Permissi
 
 // Save executes the query and returns the updated Permission entity.
 func (puo *PermissionUpdateOne) Save(ctx context.Context) (*Permission, error) {
+	puo.defaults()
 	return withHooks(ctx, puo.sqlSave, puo.mutation, puo.hooks)
 }
 
@@ -389,6 +477,14 @@ func (puo *PermissionUpdateOne) Exec(ctx context.Context) error {
 func (puo *PermissionUpdateOne) ExecX(ctx context.Context) {
 	if err := puo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (puo *PermissionUpdateOne) defaults() {
+	if _, ok := puo.mutation.UpdatedAt(); !ok {
+		v := permission.UpdateDefaultUpdatedAt()
+		puo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -417,6 +513,21 @@ func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission,
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := puo.mutation.UpdatedAt(); ok {
+		_spec.SetField(permission.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := puo.mutation.Creator(); ok {
+		_spec.SetField(permission.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Editor(); ok {
+		_spec.SetField(permission.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Deleted(); ok {
+		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := puo.mutation.AddedDeleted(); ok {
+		_spec.AddField(permission.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := puo.mutation.ParentID(); ok {
 		_spec.SetField(permission.FieldParentID, field.TypeInt, value)

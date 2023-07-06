@@ -17,7 +17,7 @@ func (Group) Annotations() []schema.Annotation {
 	}
 }
 
-func (Group) MiXin() []ent.Mixin {
+func (Group) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 	}

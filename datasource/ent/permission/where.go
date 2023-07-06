@@ -4,6 +4,7 @@ package permission
 
 import (
 	"SWTAC/datasource/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -54,6 +55,31 @@ func IDLTE(id int) predicate.Permission {
 	return predicate.Permission(sql.FieldLTE(FieldID, id))
 }
 
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// Creator applies equality check predicate on the "creator" field. It's identical to CreatorEQ.
+func Creator(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldCreator, v))
+}
+
+// Editor applies equality check predicate on the "editor" field. It's identical to EditorEQ.
+func Editor(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldEditor, v))
+}
+
+// Deleted applies equality check predicate on the "deleted" field. It's identical to DeletedEQ.
+func Deleted(v float64) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldDeleted, v))
+}
+
 // ParentID applies equality check predicate on the "parent_id" field. It's identical to ParentIDEQ.
 func ParentID(v int) predicate.Permission {
 	return predicate.Permission(sql.FieldEQ(FieldParentID, v))
@@ -82,6 +108,256 @@ func Category(v int) predicate.Permission {
 // URL applies equality check predicate on the "url" field. It's identical to URLEQ.
 func URL(v int) predicate.Permission {
 	return predicate.Permission(sql.FieldEQ(FieldURL, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.Permission {
+	return predicate.Permission(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// CreatorEQ applies the EQ predicate on the "creator" field.
+func CreatorEQ(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldCreator, v))
+}
+
+// CreatorNEQ applies the NEQ predicate on the "creator" field.
+func CreatorNEQ(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldNEQ(FieldCreator, v))
+}
+
+// CreatorIn applies the In predicate on the "creator" field.
+func CreatorIn(vs ...string) predicate.Permission {
+	return predicate.Permission(sql.FieldIn(FieldCreator, vs...))
+}
+
+// CreatorNotIn applies the NotIn predicate on the "creator" field.
+func CreatorNotIn(vs ...string) predicate.Permission {
+	return predicate.Permission(sql.FieldNotIn(FieldCreator, vs...))
+}
+
+// CreatorGT applies the GT predicate on the "creator" field.
+func CreatorGT(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldGT(FieldCreator, v))
+}
+
+// CreatorGTE applies the GTE predicate on the "creator" field.
+func CreatorGTE(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldGTE(FieldCreator, v))
+}
+
+// CreatorLT applies the LT predicate on the "creator" field.
+func CreatorLT(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldLT(FieldCreator, v))
+}
+
+// CreatorLTE applies the LTE predicate on the "creator" field.
+func CreatorLTE(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldLTE(FieldCreator, v))
+}
+
+// CreatorContains applies the Contains predicate on the "creator" field.
+func CreatorContains(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldContains(FieldCreator, v))
+}
+
+// CreatorHasPrefix applies the HasPrefix predicate on the "creator" field.
+func CreatorHasPrefix(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldHasPrefix(FieldCreator, v))
+}
+
+// CreatorHasSuffix applies the HasSuffix predicate on the "creator" field.
+func CreatorHasSuffix(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldHasSuffix(FieldCreator, v))
+}
+
+// CreatorEqualFold applies the EqualFold predicate on the "creator" field.
+func CreatorEqualFold(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldEqualFold(FieldCreator, v))
+}
+
+// CreatorContainsFold applies the ContainsFold predicate on the "creator" field.
+func CreatorContainsFold(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldContainsFold(FieldCreator, v))
+}
+
+// EditorEQ applies the EQ predicate on the "editor" field.
+func EditorEQ(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldEditor, v))
+}
+
+// EditorNEQ applies the NEQ predicate on the "editor" field.
+func EditorNEQ(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldNEQ(FieldEditor, v))
+}
+
+// EditorIn applies the In predicate on the "editor" field.
+func EditorIn(vs ...string) predicate.Permission {
+	return predicate.Permission(sql.FieldIn(FieldEditor, vs...))
+}
+
+// EditorNotIn applies the NotIn predicate on the "editor" field.
+func EditorNotIn(vs ...string) predicate.Permission {
+	return predicate.Permission(sql.FieldNotIn(FieldEditor, vs...))
+}
+
+// EditorGT applies the GT predicate on the "editor" field.
+func EditorGT(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldGT(FieldEditor, v))
+}
+
+// EditorGTE applies the GTE predicate on the "editor" field.
+func EditorGTE(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldGTE(FieldEditor, v))
+}
+
+// EditorLT applies the LT predicate on the "editor" field.
+func EditorLT(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldLT(FieldEditor, v))
+}
+
+// EditorLTE applies the LTE predicate on the "editor" field.
+func EditorLTE(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldLTE(FieldEditor, v))
+}
+
+// EditorContains applies the Contains predicate on the "editor" field.
+func EditorContains(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldContains(FieldEditor, v))
+}
+
+// EditorHasPrefix applies the HasPrefix predicate on the "editor" field.
+func EditorHasPrefix(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldHasPrefix(FieldEditor, v))
+}
+
+// EditorHasSuffix applies the HasSuffix predicate on the "editor" field.
+func EditorHasSuffix(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldHasSuffix(FieldEditor, v))
+}
+
+// EditorEqualFold applies the EqualFold predicate on the "editor" field.
+func EditorEqualFold(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldEqualFold(FieldEditor, v))
+}
+
+// EditorContainsFold applies the ContainsFold predicate on the "editor" field.
+func EditorContainsFold(v string) predicate.Permission {
+	return predicate.Permission(sql.FieldContainsFold(FieldEditor, v))
+}
+
+// DeletedEQ applies the EQ predicate on the "deleted" field.
+func DeletedEQ(v float64) predicate.Permission {
+	return predicate.Permission(sql.FieldEQ(FieldDeleted, v))
+}
+
+// DeletedNEQ applies the NEQ predicate on the "deleted" field.
+func DeletedNEQ(v float64) predicate.Permission {
+	return predicate.Permission(sql.FieldNEQ(FieldDeleted, v))
+}
+
+// DeletedIn applies the In predicate on the "deleted" field.
+func DeletedIn(vs ...float64) predicate.Permission {
+	return predicate.Permission(sql.FieldIn(FieldDeleted, vs...))
+}
+
+// DeletedNotIn applies the NotIn predicate on the "deleted" field.
+func DeletedNotIn(vs ...float64) predicate.Permission {
+	return predicate.Permission(sql.FieldNotIn(FieldDeleted, vs...))
+}
+
+// DeletedGT applies the GT predicate on the "deleted" field.
+func DeletedGT(v float64) predicate.Permission {
+	return predicate.Permission(sql.FieldGT(FieldDeleted, v))
+}
+
+// DeletedGTE applies the GTE predicate on the "deleted" field.
+func DeletedGTE(v float64) predicate.Permission {
+	return predicate.Permission(sql.FieldGTE(FieldDeleted, v))
+}
+
+// DeletedLT applies the LT predicate on the "deleted" field.
+func DeletedLT(v float64) predicate.Permission {
+	return predicate.Permission(sql.FieldLT(FieldDeleted, v))
+}
+
+// DeletedLTE applies the LTE predicate on the "deleted" field.
+func DeletedLTE(v float64) predicate.Permission {
+	return predicate.Permission(sql.FieldLTE(FieldDeleted, v))
 }
 
 // ParentIDEQ applies the EQ predicate on the "parent_id" field.

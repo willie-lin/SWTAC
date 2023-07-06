@@ -20,7 +20,7 @@ func (Role) Annotations() []schema.Annotation {
 	}
 }
 
-func (Role) MiXin() []ent.Mixin {
+func (Role) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 		EditMixin{},

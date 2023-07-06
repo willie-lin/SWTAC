@@ -257,6 +257,18 @@ func (gq *GroupQuery) Clone() *GroupQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Group.Query().
+//		GroupBy(group.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (gq *GroupQuery) GroupBy(field string, fields ...string) *GroupGroupBy {
 	gq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &GroupGroupBy{build: gq}
@@ -268,6 +280,16 @@ func (gq *GroupQuery) GroupBy(field string, fields ...string) *GroupGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.Group.Query().
+//		Select(group.FieldCreatedAt).
+//		Scan(ctx, &v)
 func (gq *GroupQuery) Select(fields ...string) *GroupSelect {
 	gq.ctx.Fields = append(gq.ctx.Fields, fields...)
 	sbuild := &GroupSelect{GroupQuery: gq}

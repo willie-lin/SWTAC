@@ -20,7 +20,7 @@ func (Account) Annotations() []schema.Annotation {
 	}
 }
 
-func (Account) MiXin() []ent.Mixin {
+func (Account) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 		EditMixin{},

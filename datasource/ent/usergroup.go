@@ -6,6 +6,7 @@ import (
 	"SWTAC/datasource/ent/usergroup"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -16,6 +17,16 @@ type UserGroup struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Creator holds the value of the "creator" field.
+	Creator string `json:"creator,omitempty"`
+	// Editor holds the value of the "editor" field.
+	Editor string `json:"editor,omitempty"`
+	// Deleted holds the value of the "deleted" field.
+	Deleted float64 `json:"deleted,omitempty"`
 	// ParentID holds the value of the "parent_id" field.
 	ParentID string `json:"parent_id,omitempty"`
 	// Name holds the value of the "name" field.
@@ -64,10 +75,14 @@ func (*UserGroup) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case usergroup.FieldDeleted:
+			values[i] = new(sql.NullFloat64)
 		case usergroup.FieldID:
 			values[i] = new(sql.NullInt64)
-		case usergroup.FieldParentID, usergroup.FieldName, usergroup.FieldCode, usergroup.FieldIntro:
+		case usergroup.FieldCreator, usergroup.FieldEditor, usergroup.FieldParentID, usergroup.FieldName, usergroup.FieldCode, usergroup.FieldIntro:
 			values[i] = new(sql.NullString)
+		case usergroup.FieldCreatedAt, usergroup.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -89,6 +104,36 @@ func (ug *UserGroup) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			ug.ID = int(value.Int64)
+		case usergroup.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				ug.CreatedAt = value.Time
+			}
+		case usergroup.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				ug.UpdatedAt = value.Time
+			}
+		case usergroup.FieldCreator:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field creator", values[i])
+			} else if value.Valid {
+				ug.Creator = value.String
+			}
+		case usergroup.FieldEditor:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field editor", values[i])
+			} else if value.Valid {
+				ug.Editor = value.String
+			}
+		case usergroup.FieldDeleted:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted", values[i])
+			} else if value.Valid {
+				ug.Deleted = value.Float64
+			}
 		case usergroup.FieldParentID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
@@ -159,6 +204,21 @@ func (ug *UserGroup) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserGroup(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", ug.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(ug.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(ug.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("creator=")
+	builder.WriteString(ug.Creator)
+	builder.WriteString(", ")
+	builder.WriteString("editor=")
+	builder.WriteString(ug.Editor)
+	builder.WriteString(", ")
+	builder.WriteString("deleted=")
+	builder.WriteString(fmt.Sprintf("%v", ug.Deleted))
+	builder.WriteString(", ")
 	builder.WriteString("parent_id=")
 	builder.WriteString(ug.ParentID)
 	builder.WriteString(", ")

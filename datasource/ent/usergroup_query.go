@@ -334,12 +334,12 @@ func (ugq *UserGroupQuery) WithRoles(opts ...func(*RoleQuery)) *UserGroupQuery {
 // Example:
 //
 //	var v []struct {
-//		ParentID string `json:"parent_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.UserGroup.Query().
-//		GroupBy(usergroup.FieldParentID).
+//		GroupBy(usergroup.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (ugq *UserGroupQuery) GroupBy(field string, fields ...string) *UserGroupGroupBy {
@@ -357,11 +357,11 @@ func (ugq *UserGroupQuery) GroupBy(field string, fields ...string) *UserGroupGro
 // Example:
 //
 //	var v []struct {
-//		ParentID string `json:"parent_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
 //	client.UserGroup.Query().
-//		Select(usergroup.FieldParentID).
+//		Select(usergroup.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (ugq *UserGroupQuery) Select(fields ...string) *UserGroupSelect {
 	ugq.ctx.Fields = append(ugq.ctx.Fields, fields...)

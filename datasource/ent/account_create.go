@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +19,52 @@ type AccountCreate struct {
 	config
 	mutation *AccountMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (ac *AccountCreate) SetCreatedAt(t time.Time) *AccountCreate {
+	ac.mutation.SetCreatedAt(t)
+	return ac
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableCreatedAt(t *time.Time) *AccountCreate {
+	if t != nil {
+		ac.SetCreatedAt(*t)
+	}
+	return ac
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ac *AccountCreate) SetUpdatedAt(t time.Time) *AccountCreate {
+	ac.mutation.SetUpdatedAt(t)
+	return ac
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableUpdatedAt(t *time.Time) *AccountCreate {
+	if t != nil {
+		ac.SetUpdatedAt(*t)
+	}
+	return ac
+}
+
+// SetCreator sets the "creator" field.
+func (ac *AccountCreate) SetCreator(s string) *AccountCreate {
+	ac.mutation.SetCreator(s)
+	return ac
+}
+
+// SetEditor sets the "editor" field.
+func (ac *AccountCreate) SetEditor(s string) *AccountCreate {
+	ac.mutation.SetEditor(s)
+	return ac
+}
+
+// SetDeleted sets the "deleted" field.
+func (ac *AccountCreate) SetDeleted(f float64) *AccountCreate {
+	ac.mutation.SetDeleted(f)
+	return ac
 }
 
 // SetOpenCode sets the "open_code" field.
@@ -64,6 +111,7 @@ func (ac *AccountCreate) Mutation() *AccountMutation {
 
 // Save creates the Account in the database.
 func (ac *AccountCreate) Save(ctx context.Context) (*Account, error) {
+	ac.defaults()
 	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
 }
 
@@ -89,8 +137,35 @@ func (ac *AccountCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ac *AccountCreate) defaults() {
+	if _, ok := ac.mutation.CreatedAt(); !ok {
+		v := account.DefaultCreatedAt()
+		ac.mutation.SetCreatedAt(v)
+	}
+	if _, ok := ac.mutation.UpdatedAt(); !ok {
+		v := account.DefaultUpdatedAt()
+		ac.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ac *AccountCreate) check() error {
+	if _, ok := ac.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Account.created_at"`)}
+	}
+	if _, ok := ac.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Account.updated_at"`)}
+	}
+	if _, ok := ac.mutation.Creator(); !ok {
+		return &ValidationError{Name: "creator", err: errors.New(`ent: missing required field "Account.creator"`)}
+	}
+	if _, ok := ac.mutation.Editor(); !ok {
+		return &ValidationError{Name: "editor", err: errors.New(`ent: missing required field "Account.editor"`)}
+	}
+	if _, ok := ac.mutation.Deleted(); !ok {
+		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Account.deleted"`)}
+	}
 	if _, ok := ac.mutation.OpenCode(); !ok {
 		return &ValidationError{Name: "open_code", err: errors.New(`ent: missing required field "Account.open_code"`)}
 	}
@@ -128,6 +203,26 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	if id, ok := ac.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := ac.mutation.CreatedAt(); ok {
+		_spec.SetField(account.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := ac.mutation.UpdatedAt(); ok {
+		_spec.SetField(account.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := ac.mutation.Creator(); ok {
+		_spec.SetField(account.FieldCreator, field.TypeString, value)
+		_node.Creator = value
+	}
+	if value, ok := ac.mutation.Editor(); ok {
+		_spec.SetField(account.FieldEditor, field.TypeString, value)
+		_node.Editor = value
+	}
+	if value, ok := ac.mutation.Deleted(); ok {
+		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
+		_node.Deleted = value
 	}
 	if value, ok := ac.mutation.OpenCode(); ok {
 		_spec.SetField(account.FieldOpenCode, field.TypeString, value)
@@ -171,6 +266,7 @@ func (acb *AccountCreateBulk) Save(ctx context.Context) ([]*Account, error) {
 	for i := range acb.builders {
 		func(i int, root context.Context) {
 			builder := acb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AccountMutation)
 				if !ok {

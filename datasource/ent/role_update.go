@@ -11,6 +11,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,6 +28,37 @@ type RoleUpdate struct {
 // Where appends a list predicates to the RoleUpdate builder.
 func (ru *RoleUpdate) Where(ps ...predicate.Role) *RoleUpdate {
 	ru.mutation.Where(ps...)
+	return ru
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ru *RoleUpdate) SetUpdatedAt(t time.Time) *RoleUpdate {
+	ru.mutation.SetUpdatedAt(t)
+	return ru
+}
+
+// SetCreator sets the "creator" field.
+func (ru *RoleUpdate) SetCreator(s string) *RoleUpdate {
+	ru.mutation.SetCreator(s)
+	return ru
+}
+
+// SetEditor sets the "editor" field.
+func (ru *RoleUpdate) SetEditor(s string) *RoleUpdate {
+	ru.mutation.SetEditor(s)
+	return ru
+}
+
+// SetDeleted sets the "deleted" field.
+func (ru *RoleUpdate) SetDeleted(f float64) *RoleUpdate {
+	ru.mutation.ResetDeleted()
+	ru.mutation.SetDeleted(f)
+	return ru
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (ru *RoleUpdate) AddDeleted(f float64) *RoleUpdate {
+	ru.mutation.AddDeleted(f)
 	return ru
 }
 
@@ -176,6 +208,7 @@ func (ru *RoleUpdate) RemoveUserGroups(u ...*UserGroup) *RoleUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (ru *RoleUpdate) Save(ctx context.Context) (int, error) {
+	ru.defaults()
 	return withHooks(ctx, ru.sqlSave, ru.mutation, ru.hooks)
 }
 
@@ -201,6 +234,14 @@ func (ru *RoleUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ru *RoleUpdate) defaults() {
+	if _, ok := ru.mutation.UpdatedAt(); !ok {
+		v := role.UpdateDefaultUpdatedAt()
+		ru.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
 	if ps := ru.mutation.predicates; len(ps) > 0 {
@@ -209,6 +250,21 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := ru.mutation.UpdatedAt(); ok {
+		_spec.SetField(role.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := ru.mutation.Creator(); ok {
+		_spec.SetField(role.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := ru.mutation.Editor(); ok {
+		_spec.SetField(role.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := ru.mutation.Deleted(); ok {
+		_spec.SetField(role.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := ru.mutation.AddedDeleted(); ok {
+		_spec.AddField(role.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := ru.mutation.ParentID(); ok {
 		_spec.SetField(role.FieldParentID, field.TypeInt, value)
@@ -380,6 +436,37 @@ type RoleUpdateOne struct {
 	mutation *RoleMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (ruo *RoleUpdateOne) SetUpdatedAt(t time.Time) *RoleUpdateOne {
+	ruo.mutation.SetUpdatedAt(t)
+	return ruo
+}
+
+// SetCreator sets the "creator" field.
+func (ruo *RoleUpdateOne) SetCreator(s string) *RoleUpdateOne {
+	ruo.mutation.SetCreator(s)
+	return ruo
+}
+
+// SetEditor sets the "editor" field.
+func (ruo *RoleUpdateOne) SetEditor(s string) *RoleUpdateOne {
+	ruo.mutation.SetEditor(s)
+	return ruo
+}
+
+// SetDeleted sets the "deleted" field.
+func (ruo *RoleUpdateOne) SetDeleted(f float64) *RoleUpdateOne {
+	ruo.mutation.ResetDeleted()
+	ruo.mutation.SetDeleted(f)
+	return ruo
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (ruo *RoleUpdateOne) AddDeleted(f float64) *RoleUpdateOne {
+	ruo.mutation.AddDeleted(f)
+	return ruo
+}
+
 // SetParentID sets the "parent_id" field.
 func (ruo *RoleUpdateOne) SetParentID(i int) *RoleUpdateOne {
 	ruo.mutation.ResetParentID()
@@ -539,6 +626,7 @@ func (ruo *RoleUpdateOne) Select(field string, fields ...string) *RoleUpdateOne 
 
 // Save executes the query and returns the updated Role entity.
 func (ruo *RoleUpdateOne) Save(ctx context.Context) (*Role, error) {
+	ruo.defaults()
 	return withHooks(ctx, ruo.sqlSave, ruo.mutation, ruo.hooks)
 }
 
@@ -561,6 +649,14 @@ func (ruo *RoleUpdateOne) Exec(ctx context.Context) error {
 func (ruo *RoleUpdateOne) ExecX(ctx context.Context) {
 	if err := ruo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (ruo *RoleUpdateOne) defaults() {
+	if _, ok := ruo.mutation.UpdatedAt(); !ok {
+		v := role.UpdateDefaultUpdatedAt()
+		ruo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -589,6 +685,21 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := ruo.mutation.UpdatedAt(); ok {
+		_spec.SetField(role.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := ruo.mutation.Creator(); ok {
+		_spec.SetField(role.FieldCreator, field.TypeString, value)
+	}
+	if value, ok := ruo.mutation.Editor(); ok {
+		_spec.SetField(role.FieldEditor, field.TypeString, value)
+	}
+	if value, ok := ruo.mutation.Deleted(); ok {
+		_spec.SetField(role.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := ruo.mutation.AddedDeleted(); ok {
+		_spec.AddField(role.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := ruo.mutation.ParentID(); ok {
 		_spec.SetField(role.FieldParentID, field.TypeInt, value)
