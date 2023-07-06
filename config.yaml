@@ -6,5 +6,5 @@ database:
   #  dbname: YEVER
   dbname: SWTAC
   password: root1234
-#  type: mysql
-  type: sqlite3
+  type: mysql
+#  type: sqlite3
