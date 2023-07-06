@@ -12,6 +12,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // PermissionCreate is the builder for creating a Permission entity.
@@ -55,9 +56,25 @@ func (pc *PermissionCreate) SetCreator(s string) *PermissionCreate {
 	return pc
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableCreator(s *string) *PermissionCreate {
+	if s != nil {
+		pc.SetCreator(*s)
+	}
+	return pc
+}
+
 // SetEditor sets the "editor" field.
 func (pc *PermissionCreate) SetEditor(s string) *PermissionCreate {
 	pc.mutation.SetEditor(s)
+	return pc
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableEditor(s *string) *PermissionCreate {
+	if s != nil {
+		pc.SetEditor(*s)
+	}
 	return pc
 }
 
@@ -104,20 +121,28 @@ func (pc *PermissionCreate) SetURL(i int) *PermissionCreate {
 }
 
 // SetID sets the "id" field.
-func (pc *PermissionCreate) SetID(i int) *PermissionCreate {
-	pc.mutation.SetID(i)
+func (pc *PermissionCreate) SetID(u uuid.UUID) *PermissionCreate {
+	pc.mutation.SetID(u)
+	return pc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableID(u *uuid.UUID) *PermissionCreate {
+	if u != nil {
+		pc.SetID(*u)
+	}
 	return pc
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (pc *PermissionCreate) AddRoleIDs(ids ...int) *PermissionCreate {
+func (pc *PermissionCreate) AddRoleIDs(ids ...uuid.UUID) *PermissionCreate {
 	pc.mutation.AddRoleIDs(ids...)
 	return pc
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (pc *PermissionCreate) AddRoles(r ...*Role) *PermissionCreate {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -167,6 +192,10 @@ func (pc *PermissionCreate) defaults() {
 		v := permission.DefaultUpdatedAt()
 		pc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := pc.mutation.ID(); !ok {
+		v := permission.DefaultID()
+		pc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -177,11 +206,10 @@ func (pc *PermissionCreate) check() error {
 	if _, ok := pc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Permission.updated_at"`)}
 	}
-	if _, ok := pc.mutation.Creator(); !ok {
-		return &ValidationError{Name: "creator", err: errors.New(`ent: missing required field "Permission.creator"`)}
-	}
-	if _, ok := pc.mutation.Editor(); !ok {
-		return &ValidationError{Name: "editor", err: errors.New(`ent: missing required field "Permission.editor"`)}
+	if v, ok := pc.mutation.Creator(); ok {
+		if err := permission.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Permission.creator": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Permission.deleted"`)}
@@ -218,9 +246,12 @@ func (pc *PermissionCreate) sqlSave(ctx context.Context) (*Permission, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
 	}
 	pc.mutation.id = &_node.ID
 	pc.mutation.done = true
@@ -230,11 +261,11 @@ func (pc *PermissionCreate) sqlSave(ctx context.Context) (*Permission, error) {
 func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Permission{config: pc.config}
-		_spec = sqlgraph.NewCreateSpec(permission.Table, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(permission.Table, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID))
 	)
 	if id, ok := pc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := pc.mutation.CreatedAt(); ok {
 		_spec.SetField(permission.FieldCreatedAt, field.TypeTime, value)
@@ -288,7 +319,7 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -340,10 +371,6 @@ func (pcb *PermissionCreateBulk) Save(ctx context.Context) ([]*Permission, error
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

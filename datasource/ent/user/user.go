@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -117,8 +118,14 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
+	CreatorValidator func(string) error
+	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	UsernameValidator func(string) error
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the User queries.

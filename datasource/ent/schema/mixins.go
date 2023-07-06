@@ -37,8 +37,8 @@ type EditMixin struct {
 
 func (EditMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("creator"),
-		field.String("editor"),
+		field.String("creator").Optional().NotEmpty(),
+		field.String("editor").Optional(),
 		field.Float("deleted").SchemaType(map[string]string{
 			dialect.MySQL:    "decimal(1,0)",
 			dialect.Postgres: "numeric",

@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // RoleCreate is the builder for creating a Role entity.
@@ -57,9 +58,25 @@ func (rc *RoleCreate) SetCreator(s string) *RoleCreate {
 	return rc
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableCreator(s *string) *RoleCreate {
+	if s != nil {
+		rc.SetCreator(*s)
+	}
+	return rc
+}
+
 // SetEditor sets the "editor" field.
 func (rc *RoleCreate) SetEditor(s string) *RoleCreate {
 	rc.mutation.SetEditor(s)
+	return rc
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableEditor(s *string) *RoleCreate {
+	if s != nil {
+		rc.SetEditor(*s)
+	}
 	return rc
 }
 
@@ -94,20 +111,28 @@ func (rc *RoleCreate) SetIntro(s string) *RoleCreate {
 }
 
 // SetID sets the "id" field.
-func (rc *RoleCreate) SetID(i int) *RoleCreate {
-	rc.mutation.SetID(i)
+func (rc *RoleCreate) SetID(u uuid.UUID) *RoleCreate {
+	rc.mutation.SetID(u)
+	return rc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableID(u *uuid.UUID) *RoleCreate {
+	if u != nil {
+		rc.SetID(*u)
+	}
 	return rc
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (rc *RoleCreate) AddUserIDs(ids ...int) *RoleCreate {
+func (rc *RoleCreate) AddUserIDs(ids ...uuid.UUID) *RoleCreate {
 	rc.mutation.AddUserIDs(ids...)
 	return rc
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
-	ids := make([]int, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -115,14 +140,14 @@ func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
 }
 
 // AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (rc *RoleCreate) AddPermissionIDs(ids ...int) *RoleCreate {
+func (rc *RoleCreate) AddPermissionIDs(ids ...uuid.UUID) *RoleCreate {
 	rc.mutation.AddPermissionIDs(ids...)
 	return rc
 }
 
 // AddPermissions adds the "permissions" edges to the Permission entity.
 func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
-	ids := make([]int, len(p))
+	ids := make([]uuid.UUID, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -130,14 +155,14 @@ func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
 }
 
 // AddUserGroupIDs adds the "user_groups" edge to the UserGroup entity by IDs.
-func (rc *RoleCreate) AddUserGroupIDs(ids ...int) *RoleCreate {
+func (rc *RoleCreate) AddUserGroupIDs(ids ...uuid.UUID) *RoleCreate {
 	rc.mutation.AddUserGroupIDs(ids...)
 	return rc
 }
 
 // AddUserGroups adds the "user_groups" edges to the UserGroup entity.
 func (rc *RoleCreate) AddUserGroups(u ...*UserGroup) *RoleCreate {
-	ids := make([]int, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -187,6 +212,10 @@ func (rc *RoleCreate) defaults() {
 		v := role.DefaultUpdatedAt()
 		rc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := rc.mutation.ID(); !ok {
+		v := role.DefaultID()
+		rc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -197,11 +226,10 @@ func (rc *RoleCreate) check() error {
 	if _, ok := rc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Role.updated_at"`)}
 	}
-	if _, ok := rc.mutation.Creator(); !ok {
-		return &ValidationError{Name: "creator", err: errors.New(`ent: missing required field "Role.creator"`)}
-	}
-	if _, ok := rc.mutation.Editor(); !ok {
-		return &ValidationError{Name: "editor", err: errors.New(`ent: missing required field "Role.editor"`)}
+	if v, ok := rc.mutation.Creator(); ok {
+		if err := role.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Role.creator": %w`, err)}
+		}
 	}
 	if _, ok := rc.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Role.deleted"`)}
@@ -232,9 +260,12 @@ func (rc *RoleCreate) sqlSave(ctx context.Context) (*Role, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
 	}
 	rc.mutation.id = &_node.ID
 	rc.mutation.done = true
@@ -244,11 +275,11 @@ func (rc *RoleCreate) sqlSave(ctx context.Context) (*Role, error) {
 func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Role{config: rc.config}
-		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	)
 	if id, ok := rc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := rc.mutation.CreatedAt(); ok {
 		_spec.SetField(role.FieldCreatedAt, field.TypeTime, value)
@@ -294,7 +325,7 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Columns: role.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -310,7 +341,7 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Columns: role.PermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -326,7 +357,7 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Columns: role.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -378,10 +409,6 @@ func (rcb *RoleCreateBulk) Save(ctx context.Context) ([]*Role, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

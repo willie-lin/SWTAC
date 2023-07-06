@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 )
 
 // UserGroup holds the schema definition for the UserGroup entity.
@@ -30,7 +31,8 @@ func (UserGroup) Mixin() []ent.Mixin {
 // Fields of the UserGroup.
 func (UserGroup) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		//field.Int("id").Unique(),
+		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		field.String("parent_id"),
 		field.String("name"),
 		field.String("code"),

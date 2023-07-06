@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 )
 
 // User holds the schema definition for the User entity.
@@ -31,8 +32,9 @@ func (User) Mixin() []ent.Mixin {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
-		field.String("username").Unique(),
+		//field.Int("id").Unique(),
+		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
+		field.String("username").NotEmpty().Unique().Immutable(),
 		field.String("nickname"),
 		field.String("avatar"),
 		field.Int("age").Positive(),
@@ -42,9 +44,6 @@ func (User) Fields() []ent.Field {
 		field.String("phone"),
 		field.String("password").Sensitive(),
 		field.Int("state"),
-		//// Immutable 函数告诉我们，生下来后你的出生年月就定了，不能改变。你明明是半老徐娘就不能说自己芳龄十八。
-		//field.Time("created_at").Immutable().Default(time.Now),
-		//field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}
 }
 

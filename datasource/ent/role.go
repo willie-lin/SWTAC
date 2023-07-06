@@ -10,13 +10,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Role is the model entity for the Role schema.
 type Role struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -88,12 +89,14 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case role.FieldDeleted:
 			values[i] = new(sql.NullFloat64)
-		case role.FieldID, role.FieldParentID:
+		case role.FieldParentID:
 			values[i] = new(sql.NullInt64)
 		case role.FieldCreator, role.FieldEditor, role.FieldCode, role.FieldName, role.FieldIntro:
 			values[i] = new(sql.NullString)
 		case role.FieldCreatedAt, role.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case role.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -110,11 +113,11 @@ func (r *Role) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case role.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				r.ID = *value
 			}
-			r.ID = int(value.Int64)
 		case role.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])

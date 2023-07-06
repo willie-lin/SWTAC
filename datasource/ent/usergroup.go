@@ -10,13 +10,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // UserGroup is the model entity for the UserGroup schema.
 type UserGroup struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -77,12 +78,12 @@ func (*UserGroup) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case usergroup.FieldDeleted:
 			values[i] = new(sql.NullFloat64)
-		case usergroup.FieldID:
-			values[i] = new(sql.NullInt64)
 		case usergroup.FieldCreator, usergroup.FieldEditor, usergroup.FieldParentID, usergroup.FieldName, usergroup.FieldCode, usergroup.FieldIntro:
 			values[i] = new(sql.NullString)
 		case usergroup.FieldCreatedAt, usergroup.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case usergroup.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -99,11 +100,11 @@ func (ug *UserGroup) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case usergroup.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				ug.ID = *value
 			}
-			ug.ID = int(value.Int64)
 		case usergroup.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])

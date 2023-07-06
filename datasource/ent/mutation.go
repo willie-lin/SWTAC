@@ -18,6 +18,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -42,7 +43,7 @@ type AccountMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
 	created_at    *time.Time
 	updated_at    *time.Time
 	creator       *string
@@ -52,7 +53,7 @@ type AccountMutation struct {
 	open_code     *string
 	category      *string
 	clearedFields map[string]struct{}
-	user          *int
+	user          *uuid.UUID
 	cleareduser   bool
 	done          bool
 	oldValue      func(context.Context) (*Account, error)
@@ -79,7 +80,7 @@ func newAccountMutation(c config, op Op, opts ...accountOption) *AccountMutation
 }
 
 // withAccountID sets the ID field of the mutation.
-func withAccountID(id int) accountOption {
+func withAccountID(id uuid.UUID) accountOption {
 	return func(m *AccountMutation) {
 		var (
 			err   error
@@ -131,13 +132,13 @@ func (m AccountMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Account entities.
-func (m *AccountMutation) SetID(id int) {
+func (m *AccountMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *AccountMutation) ID() (id int, exists bool) {
+func (m *AccountMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -148,12 +149,12 @@ func (m *AccountMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *AccountMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *AccountMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -266,9 +267,22 @@ func (m *AccountMutation) OldCreator(ctx context.Context) (v string, err error) 
 	return oldValue.Creator, nil
 }
 
+// ClearCreator clears the value of the "creator" field.
+func (m *AccountMutation) ClearCreator() {
+	m.creator = nil
+	m.clearedFields[account.FieldCreator] = struct{}{}
+}
+
+// CreatorCleared returns if the "creator" field was cleared in this mutation.
+func (m *AccountMutation) CreatorCleared() bool {
+	_, ok := m.clearedFields[account.FieldCreator]
+	return ok
+}
+
 // ResetCreator resets all changes to the "creator" field.
 func (m *AccountMutation) ResetCreator() {
 	m.creator = nil
+	delete(m.clearedFields, account.FieldCreator)
 }
 
 // SetEditor sets the "editor" field.
@@ -302,9 +316,22 @@ func (m *AccountMutation) OldEditor(ctx context.Context) (v string, err error) {
 	return oldValue.Editor, nil
 }
 
+// ClearEditor clears the value of the "editor" field.
+func (m *AccountMutation) ClearEditor() {
+	m.editor = nil
+	m.clearedFields[account.FieldEditor] = struct{}{}
+}
+
+// EditorCleared returns if the "editor" field was cleared in this mutation.
+func (m *AccountMutation) EditorCleared() bool {
+	_, ok := m.clearedFields[account.FieldEditor]
+	return ok
+}
+
 // ResetEditor resets all changes to the "editor" field.
 func (m *AccountMutation) ResetEditor() {
 	m.editor = nil
+	delete(m.clearedFields, account.FieldEditor)
 }
 
 // SetDeleted sets the "deleted" field.
@@ -436,7 +463,7 @@ func (m *AccountMutation) ResetCategory() {
 }
 
 // SetUserID sets the "user" edge to the User entity by id.
-func (m *AccountMutation) SetUserID(id int) {
+func (m *AccountMutation) SetUserID(id uuid.UUID) {
 	m.user = &id
 }
 
@@ -451,7 +478,7 @@ func (m *AccountMutation) UserCleared() bool {
 }
 
 // UserID returns the "user" edge ID in the mutation.
-func (m *AccountMutation) UserID() (id int, exists bool) {
+func (m *AccountMutation) UserID() (id uuid.UUID, exists bool) {
 	if m.user != nil {
 		return *m.user, true
 	}
@@ -461,7 +488,7 @@ func (m *AccountMutation) UserID() (id int, exists bool) {
 // UserIDs returns the "user" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UserID instead. It exists only for internal usage by the builders.
-func (m *AccountMutation) UserIDs() (ids []int) {
+func (m *AccountMutation) UserIDs() (ids []uuid.UUID) {
 	if id := m.user; id != nil {
 		ids = append(ids, *id)
 	}
@@ -677,7 +704,14 @@ func (m *AccountMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *AccountMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(account.FieldCreator) {
+		fields = append(fields, account.FieldCreator)
+	}
+	if m.FieldCleared(account.FieldEditor) {
+		fields = append(fields, account.FieldEditor)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -690,6 +724,14 @@ func (m *AccountMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *AccountMutation) ClearField(name string) error {
+	switch name {
+	case account.FieldCreator:
+		m.ClearCreator()
+		return nil
+	case account.FieldEditor:
+		m.ClearEditor()
+		return nil
+	}
 	return fmt.Errorf("unknown Account nullable field %s", name)
 }
 
@@ -1181,7 +1223,7 @@ type PermissionMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
 	created_at    *time.Time
 	updated_at    *time.Time
 	creator       *string
@@ -1198,8 +1240,8 @@ type PermissionMutation struct {
 	url           *int
 	addurl        *int
 	clearedFields map[string]struct{}
-	roles         map[int]struct{}
-	removedroles  map[int]struct{}
+	roles         map[uuid.UUID]struct{}
+	removedroles  map[uuid.UUID]struct{}
 	clearedroles  bool
 	done          bool
 	oldValue      func(context.Context) (*Permission, error)
@@ -1226,7 +1268,7 @@ func newPermissionMutation(c config, op Op, opts ...permissionOption) *Permissio
 }
 
 // withPermissionID sets the ID field of the mutation.
-func withPermissionID(id int) permissionOption {
+func withPermissionID(id uuid.UUID) permissionOption {
 	return func(m *PermissionMutation) {
 		var (
 			err   error
@@ -1278,13 +1320,13 @@ func (m PermissionMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Permission entities.
-func (m *PermissionMutation) SetID(id int) {
+func (m *PermissionMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *PermissionMutation) ID() (id int, exists bool) {
+func (m *PermissionMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1295,12 +1337,12 @@ func (m *PermissionMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *PermissionMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *PermissionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -1413,9 +1455,22 @@ func (m *PermissionMutation) OldCreator(ctx context.Context) (v string, err erro
 	return oldValue.Creator, nil
 }
 
+// ClearCreator clears the value of the "creator" field.
+func (m *PermissionMutation) ClearCreator() {
+	m.creator = nil
+	m.clearedFields[permission.FieldCreator] = struct{}{}
+}
+
+// CreatorCleared returns if the "creator" field was cleared in this mutation.
+func (m *PermissionMutation) CreatorCleared() bool {
+	_, ok := m.clearedFields[permission.FieldCreator]
+	return ok
+}
+
 // ResetCreator resets all changes to the "creator" field.
 func (m *PermissionMutation) ResetCreator() {
 	m.creator = nil
+	delete(m.clearedFields, permission.FieldCreator)
 }
 
 // SetEditor sets the "editor" field.
@@ -1449,9 +1504,22 @@ func (m *PermissionMutation) OldEditor(ctx context.Context) (v string, err error
 	return oldValue.Editor, nil
 }
 
+// ClearEditor clears the value of the "editor" field.
+func (m *PermissionMutation) ClearEditor() {
+	m.editor = nil
+	m.clearedFields[permission.FieldEditor] = struct{}{}
+}
+
+// EditorCleared returns if the "editor" field was cleared in this mutation.
+func (m *PermissionMutation) EditorCleared() bool {
+	_, ok := m.clearedFields[permission.FieldEditor]
+	return ok
+}
+
 // ResetEditor resets all changes to the "editor" field.
 func (m *PermissionMutation) ResetEditor() {
 	m.editor = nil
+	delete(m.clearedFields, permission.FieldEditor)
 }
 
 // SetDeleted sets the "deleted" field.
@@ -1787,9 +1855,9 @@ func (m *PermissionMutation) ResetURL() {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by ids.
-func (m *PermissionMutation) AddRoleIDs(ids ...int) {
+func (m *PermissionMutation) AddRoleIDs(ids ...uuid.UUID) {
 	if m.roles == nil {
-		m.roles = make(map[int]struct{})
+		m.roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.roles[ids[i]] = struct{}{}
@@ -1807,9 +1875,9 @@ func (m *PermissionMutation) RolesCleared() bool {
 }
 
 // RemoveRoleIDs removes the "roles" edge to the Role entity by IDs.
-func (m *PermissionMutation) RemoveRoleIDs(ids ...int) {
+func (m *PermissionMutation) RemoveRoleIDs(ids ...uuid.UUID) {
 	if m.removedroles == nil {
-		m.removedroles = make(map[int]struct{})
+		m.removedroles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.roles, ids[i])
@@ -1818,7 +1886,7 @@ func (m *PermissionMutation) RemoveRoleIDs(ids ...int) {
 }
 
 // RemovedRoles returns the removed IDs of the "roles" edge to the Role entity.
-func (m *PermissionMutation) RemovedRolesIDs() (ids []int) {
+func (m *PermissionMutation) RemovedRolesIDs() (ids []uuid.UUID) {
 	for id := range m.removedroles {
 		ids = append(ids, id)
 	}
@@ -1826,7 +1894,7 @@ func (m *PermissionMutation) RemovedRolesIDs() (ids []int) {
 }
 
 // RolesIDs returns the "roles" edge IDs in the mutation.
-func (m *PermissionMutation) RolesIDs() (ids []int) {
+func (m *PermissionMutation) RolesIDs() (ids []uuid.UUID) {
 	for id := range m.roles {
 		ids = append(ids, id)
 	}
@@ -2135,7 +2203,14 @@ func (m *PermissionMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *PermissionMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(permission.FieldCreator) {
+		fields = append(fields, permission.FieldCreator)
+	}
+	if m.FieldCleared(permission.FieldEditor) {
+		fields = append(fields, permission.FieldEditor)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2148,6 +2223,14 @@ func (m *PermissionMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *PermissionMutation) ClearField(name string) error {
+	switch name {
+	case permission.FieldCreator:
+		m.ClearCreator()
+		return nil
+	case permission.FieldEditor:
+		m.ClearEditor()
+		return nil
+	}
 	return fmt.Errorf("unknown Permission nullable field %s", name)
 }
 
@@ -2281,7 +2364,7 @@ type RoleMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
+	id                 *uuid.UUID
 	created_at         *time.Time
 	updated_at         *time.Time
 	creator            *string
@@ -2294,14 +2377,14 @@ type RoleMutation struct {
 	name               *string
 	intro              *string
 	clearedFields      map[string]struct{}
-	users              map[int]struct{}
-	removedusers       map[int]struct{}
+	users              map[uuid.UUID]struct{}
+	removedusers       map[uuid.UUID]struct{}
 	clearedusers       bool
-	permissions        map[int]struct{}
-	removedpermissions map[int]struct{}
+	permissions        map[uuid.UUID]struct{}
+	removedpermissions map[uuid.UUID]struct{}
 	clearedpermissions bool
-	user_groups        map[int]struct{}
-	removeduser_groups map[int]struct{}
+	user_groups        map[uuid.UUID]struct{}
+	removeduser_groups map[uuid.UUID]struct{}
 	cleareduser_groups bool
 	done               bool
 	oldValue           func(context.Context) (*Role, error)
@@ -2328,7 +2411,7 @@ func newRoleMutation(c config, op Op, opts ...roleOption) *RoleMutation {
 }
 
 // withRoleID sets the ID field of the mutation.
-func withRoleID(id int) roleOption {
+func withRoleID(id uuid.UUID) roleOption {
 	return func(m *RoleMutation) {
 		var (
 			err   error
@@ -2380,13 +2463,13 @@ func (m RoleMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Role entities.
-func (m *RoleMutation) SetID(id int) {
+func (m *RoleMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *RoleMutation) ID() (id int, exists bool) {
+func (m *RoleMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -2397,12 +2480,12 @@ func (m *RoleMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *RoleMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *RoleMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -2515,9 +2598,22 @@ func (m *RoleMutation) OldCreator(ctx context.Context) (v string, err error) {
 	return oldValue.Creator, nil
 }
 
+// ClearCreator clears the value of the "creator" field.
+func (m *RoleMutation) ClearCreator() {
+	m.creator = nil
+	m.clearedFields[role.FieldCreator] = struct{}{}
+}
+
+// CreatorCleared returns if the "creator" field was cleared in this mutation.
+func (m *RoleMutation) CreatorCleared() bool {
+	_, ok := m.clearedFields[role.FieldCreator]
+	return ok
+}
+
 // ResetCreator resets all changes to the "creator" field.
 func (m *RoleMutation) ResetCreator() {
 	m.creator = nil
+	delete(m.clearedFields, role.FieldCreator)
 }
 
 // SetEditor sets the "editor" field.
@@ -2551,9 +2647,22 @@ func (m *RoleMutation) OldEditor(ctx context.Context) (v string, err error) {
 	return oldValue.Editor, nil
 }
 
+// ClearEditor clears the value of the "editor" field.
+func (m *RoleMutation) ClearEditor() {
+	m.editor = nil
+	m.clearedFields[role.FieldEditor] = struct{}{}
+}
+
+// EditorCleared returns if the "editor" field was cleared in this mutation.
+func (m *RoleMutation) EditorCleared() bool {
+	_, ok := m.clearedFields[role.FieldEditor]
+	return ok
+}
+
 // ResetEditor resets all changes to the "editor" field.
 func (m *RoleMutation) ResetEditor() {
 	m.editor = nil
+	delete(m.clearedFields, role.FieldEditor)
 }
 
 // SetDeleted sets the "deleted" field.
@@ -2777,9 +2886,9 @@ func (m *RoleMutation) ResetIntro() {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
-func (m *RoleMutation) AddUserIDs(ids ...int) {
+func (m *RoleMutation) AddUserIDs(ids ...uuid.UUID) {
 	if m.users == nil {
-		m.users = make(map[int]struct{})
+		m.users = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.users[ids[i]] = struct{}{}
@@ -2797,9 +2906,9 @@ func (m *RoleMutation) UsersCleared() bool {
 }
 
 // RemoveUserIDs removes the "users" edge to the User entity by IDs.
-func (m *RoleMutation) RemoveUserIDs(ids ...int) {
+func (m *RoleMutation) RemoveUserIDs(ids ...uuid.UUID) {
 	if m.removedusers == nil {
-		m.removedusers = make(map[int]struct{})
+		m.removedusers = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.users, ids[i])
@@ -2808,7 +2917,7 @@ func (m *RoleMutation) RemoveUserIDs(ids ...int) {
 }
 
 // RemovedUsers returns the removed IDs of the "users" edge to the User entity.
-func (m *RoleMutation) RemovedUsersIDs() (ids []int) {
+func (m *RoleMutation) RemovedUsersIDs() (ids []uuid.UUID) {
 	for id := range m.removedusers {
 		ids = append(ids, id)
 	}
@@ -2816,7 +2925,7 @@ func (m *RoleMutation) RemovedUsersIDs() (ids []int) {
 }
 
 // UsersIDs returns the "users" edge IDs in the mutation.
-func (m *RoleMutation) UsersIDs() (ids []int) {
+func (m *RoleMutation) UsersIDs() (ids []uuid.UUID) {
 	for id := range m.users {
 		ids = append(ids, id)
 	}
@@ -2831,9 +2940,9 @@ func (m *RoleMutation) ResetUsers() {
 }
 
 // AddPermissionIDs adds the "permissions" edge to the Permission entity by ids.
-func (m *RoleMutation) AddPermissionIDs(ids ...int) {
+func (m *RoleMutation) AddPermissionIDs(ids ...uuid.UUID) {
 	if m.permissions == nil {
-		m.permissions = make(map[int]struct{})
+		m.permissions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.permissions[ids[i]] = struct{}{}
@@ -2851,9 +2960,9 @@ func (m *RoleMutation) PermissionsCleared() bool {
 }
 
 // RemovePermissionIDs removes the "permissions" edge to the Permission entity by IDs.
-func (m *RoleMutation) RemovePermissionIDs(ids ...int) {
+func (m *RoleMutation) RemovePermissionIDs(ids ...uuid.UUID) {
 	if m.removedpermissions == nil {
-		m.removedpermissions = make(map[int]struct{})
+		m.removedpermissions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.permissions, ids[i])
@@ -2862,7 +2971,7 @@ func (m *RoleMutation) RemovePermissionIDs(ids ...int) {
 }
 
 // RemovedPermissions returns the removed IDs of the "permissions" edge to the Permission entity.
-func (m *RoleMutation) RemovedPermissionsIDs() (ids []int) {
+func (m *RoleMutation) RemovedPermissionsIDs() (ids []uuid.UUID) {
 	for id := range m.removedpermissions {
 		ids = append(ids, id)
 	}
@@ -2870,7 +2979,7 @@ func (m *RoleMutation) RemovedPermissionsIDs() (ids []int) {
 }
 
 // PermissionsIDs returns the "permissions" edge IDs in the mutation.
-func (m *RoleMutation) PermissionsIDs() (ids []int) {
+func (m *RoleMutation) PermissionsIDs() (ids []uuid.UUID) {
 	for id := range m.permissions {
 		ids = append(ids, id)
 	}
@@ -2885,9 +2994,9 @@ func (m *RoleMutation) ResetPermissions() {
 }
 
 // AddUserGroupIDs adds the "user_groups" edge to the UserGroup entity by ids.
-func (m *RoleMutation) AddUserGroupIDs(ids ...int) {
+func (m *RoleMutation) AddUserGroupIDs(ids ...uuid.UUID) {
 	if m.user_groups == nil {
-		m.user_groups = make(map[int]struct{})
+		m.user_groups = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.user_groups[ids[i]] = struct{}{}
@@ -2905,9 +3014,9 @@ func (m *RoleMutation) UserGroupsCleared() bool {
 }
 
 // RemoveUserGroupIDs removes the "user_groups" edge to the UserGroup entity by IDs.
-func (m *RoleMutation) RemoveUserGroupIDs(ids ...int) {
+func (m *RoleMutation) RemoveUserGroupIDs(ids ...uuid.UUID) {
 	if m.removeduser_groups == nil {
-		m.removeduser_groups = make(map[int]struct{})
+		m.removeduser_groups = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.user_groups, ids[i])
@@ -2916,7 +3025,7 @@ func (m *RoleMutation) RemoveUserGroupIDs(ids ...int) {
 }
 
 // RemovedUserGroups returns the removed IDs of the "user_groups" edge to the UserGroup entity.
-func (m *RoleMutation) RemovedUserGroupsIDs() (ids []int) {
+func (m *RoleMutation) RemovedUserGroupsIDs() (ids []uuid.UUID) {
 	for id := range m.removeduser_groups {
 		ids = append(ids, id)
 	}
@@ -2924,7 +3033,7 @@ func (m *RoleMutation) RemovedUserGroupsIDs() (ids []int) {
 }
 
 // UserGroupsIDs returns the "user_groups" edge IDs in the mutation.
-func (m *RoleMutation) UserGroupsIDs() (ids []int) {
+func (m *RoleMutation) UserGroupsIDs() (ids []uuid.UUID) {
 	for id := range m.user_groups {
 		ids = append(ids, id)
 	}
@@ -3181,7 +3290,14 @@ func (m *RoleMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *RoleMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(role.FieldCreator) {
+		fields = append(fields, role.FieldCreator)
+	}
+	if m.FieldCleared(role.FieldEditor) {
+		fields = append(fields, role.FieldEditor)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3194,6 +3310,14 @@ func (m *RoleMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *RoleMutation) ClearField(name string) error {
+	switch name {
+	case role.FieldCreator:
+		m.ClearCreator()
+		return nil
+	case role.FieldEditor:
+		m.ClearEditor()
+		return nil
+	}
 	return fmt.Errorf("unknown Role nullable field %s", name)
 }
 
@@ -3373,7 +3497,7 @@ type UserMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
+	id                 *uuid.UUID
 	created_at         *time.Time
 	updated_at         *time.Time
 	creator            *string
@@ -3393,14 +3517,14 @@ type UserMutation struct {
 	state              *int
 	addstate           *int
 	clearedFields      map[string]struct{}
-	user_groups        map[int]struct{}
-	removeduser_groups map[int]struct{}
+	user_groups        map[uuid.UUID]struct{}
+	removeduser_groups map[uuid.UUID]struct{}
 	cleareduser_groups bool
-	roles              map[int]struct{}
-	removedroles       map[int]struct{}
+	roles              map[uuid.UUID]struct{}
+	removedroles       map[uuid.UUID]struct{}
 	clearedroles       bool
-	accounts           map[int]struct{}
-	removedaccounts    map[int]struct{}
+	accounts           map[uuid.UUID]struct{}
+	removedaccounts    map[uuid.UUID]struct{}
 	clearedaccounts    bool
 	done               bool
 	oldValue           func(context.Context) (*User, error)
@@ -3427,7 +3551,7 @@ func newUserMutation(c config, op Op, opts ...userOption) *UserMutation {
 }
 
 // withUserID sets the ID field of the mutation.
-func withUserID(id int) userOption {
+func withUserID(id uuid.UUID) userOption {
 	return func(m *UserMutation) {
 		var (
 			err   error
@@ -3479,13 +3603,13 @@ func (m UserMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of User entities.
-func (m *UserMutation) SetID(id int) {
+func (m *UserMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserMutation) ID() (id int, exists bool) {
+func (m *UserMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -3496,12 +3620,12 @@ func (m *UserMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *UserMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -3614,9 +3738,22 @@ func (m *UserMutation) OldCreator(ctx context.Context) (v string, err error) {
 	return oldValue.Creator, nil
 }
 
+// ClearCreator clears the value of the "creator" field.
+func (m *UserMutation) ClearCreator() {
+	m.creator = nil
+	m.clearedFields[user.FieldCreator] = struct{}{}
+}
+
+// CreatorCleared returns if the "creator" field was cleared in this mutation.
+func (m *UserMutation) CreatorCleared() bool {
+	_, ok := m.clearedFields[user.FieldCreator]
+	return ok
+}
+
 // ResetCreator resets all changes to the "creator" field.
 func (m *UserMutation) ResetCreator() {
 	m.creator = nil
+	delete(m.clearedFields, user.FieldCreator)
 }
 
 // SetEditor sets the "editor" field.
@@ -3650,9 +3787,22 @@ func (m *UserMutation) OldEditor(ctx context.Context) (v string, err error) {
 	return oldValue.Editor, nil
 }
 
+// ClearEditor clears the value of the "editor" field.
+func (m *UserMutation) ClearEditor() {
+	m.editor = nil
+	m.clearedFields[user.FieldEditor] = struct{}{}
+}
+
+// EditorCleared returns if the "editor" field was cleared in this mutation.
+func (m *UserMutation) EditorCleared() bool {
+	_, ok := m.clearedFields[user.FieldEditor]
+	return ok
+}
+
 // ResetEditor resets all changes to the "editor" field.
 func (m *UserMutation) ResetEditor() {
 	m.editor = nil
+	delete(m.clearedFields, user.FieldEditor)
 }
 
 // SetDeleted sets the "deleted" field.
@@ -4138,9 +4288,9 @@ func (m *UserMutation) ResetState() {
 }
 
 // AddUserGroupIDs adds the "user_groups" edge to the UserGroup entity by ids.
-func (m *UserMutation) AddUserGroupIDs(ids ...int) {
+func (m *UserMutation) AddUserGroupIDs(ids ...uuid.UUID) {
 	if m.user_groups == nil {
-		m.user_groups = make(map[int]struct{})
+		m.user_groups = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.user_groups[ids[i]] = struct{}{}
@@ -4158,9 +4308,9 @@ func (m *UserMutation) UserGroupsCleared() bool {
 }
 
 // RemoveUserGroupIDs removes the "user_groups" edge to the UserGroup entity by IDs.
-func (m *UserMutation) RemoveUserGroupIDs(ids ...int) {
+func (m *UserMutation) RemoveUserGroupIDs(ids ...uuid.UUID) {
 	if m.removeduser_groups == nil {
-		m.removeduser_groups = make(map[int]struct{})
+		m.removeduser_groups = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.user_groups, ids[i])
@@ -4169,7 +4319,7 @@ func (m *UserMutation) RemoveUserGroupIDs(ids ...int) {
 }
 
 // RemovedUserGroups returns the removed IDs of the "user_groups" edge to the UserGroup entity.
-func (m *UserMutation) RemovedUserGroupsIDs() (ids []int) {
+func (m *UserMutation) RemovedUserGroupsIDs() (ids []uuid.UUID) {
 	for id := range m.removeduser_groups {
 		ids = append(ids, id)
 	}
@@ -4177,7 +4327,7 @@ func (m *UserMutation) RemovedUserGroupsIDs() (ids []int) {
 }
 
 // UserGroupsIDs returns the "user_groups" edge IDs in the mutation.
-func (m *UserMutation) UserGroupsIDs() (ids []int) {
+func (m *UserMutation) UserGroupsIDs() (ids []uuid.UUID) {
 	for id := range m.user_groups {
 		ids = append(ids, id)
 	}
@@ -4192,9 +4342,9 @@ func (m *UserMutation) ResetUserGroups() {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by ids.
-func (m *UserMutation) AddRoleIDs(ids ...int) {
+func (m *UserMutation) AddRoleIDs(ids ...uuid.UUID) {
 	if m.roles == nil {
-		m.roles = make(map[int]struct{})
+		m.roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.roles[ids[i]] = struct{}{}
@@ -4212,9 +4362,9 @@ func (m *UserMutation) RolesCleared() bool {
 }
 
 // RemoveRoleIDs removes the "roles" edge to the Role entity by IDs.
-func (m *UserMutation) RemoveRoleIDs(ids ...int) {
+func (m *UserMutation) RemoveRoleIDs(ids ...uuid.UUID) {
 	if m.removedroles == nil {
-		m.removedroles = make(map[int]struct{})
+		m.removedroles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.roles, ids[i])
@@ -4223,7 +4373,7 @@ func (m *UserMutation) RemoveRoleIDs(ids ...int) {
 }
 
 // RemovedRoles returns the removed IDs of the "roles" edge to the Role entity.
-func (m *UserMutation) RemovedRolesIDs() (ids []int) {
+func (m *UserMutation) RemovedRolesIDs() (ids []uuid.UUID) {
 	for id := range m.removedroles {
 		ids = append(ids, id)
 	}
@@ -4231,7 +4381,7 @@ func (m *UserMutation) RemovedRolesIDs() (ids []int) {
 }
 
 // RolesIDs returns the "roles" edge IDs in the mutation.
-func (m *UserMutation) RolesIDs() (ids []int) {
+func (m *UserMutation) RolesIDs() (ids []uuid.UUID) {
 	for id := range m.roles {
 		ids = append(ids, id)
 	}
@@ -4246,9 +4396,9 @@ func (m *UserMutation) ResetRoles() {
 }
 
 // AddAccountIDs adds the "accounts" edge to the Account entity by ids.
-func (m *UserMutation) AddAccountIDs(ids ...int) {
+func (m *UserMutation) AddAccountIDs(ids ...uuid.UUID) {
 	if m.accounts == nil {
-		m.accounts = make(map[int]struct{})
+		m.accounts = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.accounts[ids[i]] = struct{}{}
@@ -4266,9 +4416,9 @@ func (m *UserMutation) AccountsCleared() bool {
 }
 
 // RemoveAccountIDs removes the "accounts" edge to the Account entity by IDs.
-func (m *UserMutation) RemoveAccountIDs(ids ...int) {
+func (m *UserMutation) RemoveAccountIDs(ids ...uuid.UUID) {
 	if m.removedaccounts == nil {
-		m.removedaccounts = make(map[int]struct{})
+		m.removedaccounts = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.accounts, ids[i])
@@ -4277,7 +4427,7 @@ func (m *UserMutation) RemoveAccountIDs(ids ...int) {
 }
 
 // RemovedAccounts returns the removed IDs of the "accounts" edge to the Account entity.
-func (m *UserMutation) RemovedAccountsIDs() (ids []int) {
+func (m *UserMutation) RemovedAccountsIDs() (ids []uuid.UUID) {
 	for id := range m.removedaccounts {
 		ids = append(ids, id)
 	}
@@ -4285,7 +4435,7 @@ func (m *UserMutation) RemovedAccountsIDs() (ids []int) {
 }
 
 // AccountsIDs returns the "accounts" edge IDs in the mutation.
-func (m *UserMutation) AccountsIDs() (ids []int) {
+func (m *UserMutation) AccountsIDs() (ids []uuid.UUID) {
 	for id := range m.accounts {
 		ids = append(ids, id)
 	}
@@ -4639,6 +4789,12 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(user.FieldCreator) {
+		fields = append(fields, user.FieldCreator)
+	}
+	if m.FieldCleared(user.FieldEditor) {
+		fields = append(fields, user.FieldEditor)
+	}
 	if m.FieldCleared(user.FieldCity) {
 		fields = append(fields, user.FieldCity)
 	}
@@ -4659,6 +4815,12 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
 	switch name {
+	case user.FieldCreator:
+		m.ClearCreator()
+		return nil
+	case user.FieldEditor:
+		m.ClearEditor()
+		return nil
 	case user.FieldCity:
 		m.ClearCity()
 		return nil
@@ -4863,7 +5025,7 @@ type UserGroupMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
 	created_at    *time.Time
 	updated_at    *time.Time
 	creator       *string
@@ -4875,11 +5037,11 @@ type UserGroupMutation struct {
 	code          *string
 	intro         *string
 	clearedFields map[string]struct{}
-	users         map[int]struct{}
-	removedusers  map[int]struct{}
+	users         map[uuid.UUID]struct{}
+	removedusers  map[uuid.UUID]struct{}
 	clearedusers  bool
-	roles         map[int]struct{}
-	removedroles  map[int]struct{}
+	roles         map[uuid.UUID]struct{}
+	removedroles  map[uuid.UUID]struct{}
 	clearedroles  bool
 	done          bool
 	oldValue      func(context.Context) (*UserGroup, error)
@@ -4906,7 +5068,7 @@ func newUserGroupMutation(c config, op Op, opts ...usergroupOption) *UserGroupMu
 }
 
 // withUserGroupID sets the ID field of the mutation.
-func withUserGroupID(id int) usergroupOption {
+func withUserGroupID(id uuid.UUID) usergroupOption {
 	return func(m *UserGroupMutation) {
 		var (
 			err   error
@@ -4958,13 +5120,13 @@ func (m UserGroupMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of UserGroup entities.
-func (m *UserGroupMutation) SetID(id int) {
+func (m *UserGroupMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserGroupMutation) ID() (id int, exists bool) {
+func (m *UserGroupMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -4975,12 +5137,12 @@ func (m *UserGroupMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserGroupMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *UserGroupMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -5093,9 +5255,22 @@ func (m *UserGroupMutation) OldCreator(ctx context.Context) (v string, err error
 	return oldValue.Creator, nil
 }
 
+// ClearCreator clears the value of the "creator" field.
+func (m *UserGroupMutation) ClearCreator() {
+	m.creator = nil
+	m.clearedFields[usergroup.FieldCreator] = struct{}{}
+}
+
+// CreatorCleared returns if the "creator" field was cleared in this mutation.
+func (m *UserGroupMutation) CreatorCleared() bool {
+	_, ok := m.clearedFields[usergroup.FieldCreator]
+	return ok
+}
+
 // ResetCreator resets all changes to the "creator" field.
 func (m *UserGroupMutation) ResetCreator() {
 	m.creator = nil
+	delete(m.clearedFields, usergroup.FieldCreator)
 }
 
 // SetEditor sets the "editor" field.
@@ -5129,9 +5304,22 @@ func (m *UserGroupMutation) OldEditor(ctx context.Context) (v string, err error)
 	return oldValue.Editor, nil
 }
 
+// ClearEditor clears the value of the "editor" field.
+func (m *UserGroupMutation) ClearEditor() {
+	m.editor = nil
+	m.clearedFields[usergroup.FieldEditor] = struct{}{}
+}
+
+// EditorCleared returns if the "editor" field was cleared in this mutation.
+func (m *UserGroupMutation) EditorCleared() bool {
+	_, ok := m.clearedFields[usergroup.FieldEditor]
+	return ok
+}
+
 // ResetEditor resets all changes to the "editor" field.
 func (m *UserGroupMutation) ResetEditor() {
 	m.editor = nil
+	delete(m.clearedFields, usergroup.FieldEditor)
 }
 
 // SetDeleted sets the "deleted" field.
@@ -5335,9 +5523,9 @@ func (m *UserGroupMutation) ResetIntro() {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
-func (m *UserGroupMutation) AddUserIDs(ids ...int) {
+func (m *UserGroupMutation) AddUserIDs(ids ...uuid.UUID) {
 	if m.users == nil {
-		m.users = make(map[int]struct{})
+		m.users = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.users[ids[i]] = struct{}{}
@@ -5355,9 +5543,9 @@ func (m *UserGroupMutation) UsersCleared() bool {
 }
 
 // RemoveUserIDs removes the "users" edge to the User entity by IDs.
-func (m *UserGroupMutation) RemoveUserIDs(ids ...int) {
+func (m *UserGroupMutation) RemoveUserIDs(ids ...uuid.UUID) {
 	if m.removedusers == nil {
-		m.removedusers = make(map[int]struct{})
+		m.removedusers = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.users, ids[i])
@@ -5366,7 +5554,7 @@ func (m *UserGroupMutation) RemoveUserIDs(ids ...int) {
 }
 
 // RemovedUsers returns the removed IDs of the "users" edge to the User entity.
-func (m *UserGroupMutation) RemovedUsersIDs() (ids []int) {
+func (m *UserGroupMutation) RemovedUsersIDs() (ids []uuid.UUID) {
 	for id := range m.removedusers {
 		ids = append(ids, id)
 	}
@@ -5374,7 +5562,7 @@ func (m *UserGroupMutation) RemovedUsersIDs() (ids []int) {
 }
 
 // UsersIDs returns the "users" edge IDs in the mutation.
-func (m *UserGroupMutation) UsersIDs() (ids []int) {
+func (m *UserGroupMutation) UsersIDs() (ids []uuid.UUID) {
 	for id := range m.users {
 		ids = append(ids, id)
 	}
@@ -5389,9 +5577,9 @@ func (m *UserGroupMutation) ResetUsers() {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by ids.
-func (m *UserGroupMutation) AddRoleIDs(ids ...int) {
+func (m *UserGroupMutation) AddRoleIDs(ids ...uuid.UUID) {
 	if m.roles == nil {
-		m.roles = make(map[int]struct{})
+		m.roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.roles[ids[i]] = struct{}{}
@@ -5409,9 +5597,9 @@ func (m *UserGroupMutation) RolesCleared() bool {
 }
 
 // RemoveRoleIDs removes the "roles" edge to the Role entity by IDs.
-func (m *UserGroupMutation) RemoveRoleIDs(ids ...int) {
+func (m *UserGroupMutation) RemoveRoleIDs(ids ...uuid.UUID) {
 	if m.removedroles == nil {
-		m.removedroles = make(map[int]struct{})
+		m.removedroles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.roles, ids[i])
@@ -5420,7 +5608,7 @@ func (m *UserGroupMutation) RemoveRoleIDs(ids ...int) {
 }
 
 // RemovedRoles returns the removed IDs of the "roles" edge to the Role entity.
-func (m *UserGroupMutation) RemovedRolesIDs() (ids []int) {
+func (m *UserGroupMutation) RemovedRolesIDs() (ids []uuid.UUID) {
 	for id := range m.removedroles {
 		ids = append(ids, id)
 	}
@@ -5428,7 +5616,7 @@ func (m *UserGroupMutation) RemovedRolesIDs() (ids []int) {
 }
 
 // RolesIDs returns the "roles" edge IDs in the mutation.
-func (m *UserGroupMutation) RolesIDs() (ids []int) {
+func (m *UserGroupMutation) RolesIDs() (ids []uuid.UUID) {
 	for id := range m.roles {
 		ids = append(ids, id)
 	}
@@ -5673,7 +5861,14 @@ func (m *UserGroupMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserGroupMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(usergroup.FieldCreator) {
+		fields = append(fields, usergroup.FieldCreator)
+	}
+	if m.FieldCleared(usergroup.FieldEditor) {
+		fields = append(fields, usergroup.FieldEditor)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -5686,6 +5881,14 @@ func (m *UserGroupMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserGroupMutation) ClearField(name string) error {
+	switch name {
+	case usergroup.FieldCreator:
+		m.ClearCreator()
+		return nil
+	case usergroup.FieldEditor:
+		m.ClearEditor()
+		return nil
+	}
 	return fmt.Errorf("unknown UserGroup nullable field %s", name)
 }
 

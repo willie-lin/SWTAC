@@ -11,6 +11,8 @@ import (
 	"SWTAC/datasource/ent/user"
 	"SWTAC/datasource/ent/usergroup"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -20,6 +22,8 @@ func init() {
 	accountMixin := schema.Account{}.Mixin()
 	accountMixinFields0 := accountMixin[0].Fields()
 	_ = accountMixinFields0
+	accountMixinFields1 := accountMixin[1].Fields()
+	_ = accountMixinFields1
 	accountFields := schema.Account{}.Fields()
 	_ = accountFields
 	// accountDescCreatedAt is the schema descriptor for created_at field.
@@ -32,6 +36,14 @@ func init() {
 	account.DefaultUpdatedAt = accountDescUpdatedAt.Default.(func() time.Time)
 	// account.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	account.UpdateDefaultUpdatedAt = accountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// accountDescCreator is the schema descriptor for creator field.
+	accountDescCreator := accountMixinFields1[0].Descriptor()
+	// account.CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
+	account.CreatorValidator = accountDescCreator.Validators[0].(func(string) error)
+	// accountDescID is the schema descriptor for id field.
+	accountDescID := accountFields[0].Descriptor()
+	// account.DefaultID holds the default value on creation for the id field.
+	account.DefaultID = accountDescID.Default.(func() uuid.UUID)
 	groupMixin := schema.Group{}.Mixin()
 	groupMixinFields0 := groupMixin[0].Fields()
 	_ = groupMixinFields0
@@ -50,6 +62,8 @@ func init() {
 	permissionMixin := schema.Permission{}.Mixin()
 	permissionMixinFields0 := permissionMixin[0].Fields()
 	_ = permissionMixinFields0
+	permissionMixinFields1 := permissionMixin[1].Fields()
+	_ = permissionMixinFields1
 	permissionFields := schema.Permission{}.Fields()
 	_ = permissionFields
 	// permissionDescCreatedAt is the schema descriptor for created_at field.
@@ -62,9 +76,19 @@ func init() {
 	permission.DefaultUpdatedAt = permissionDescUpdatedAt.Default.(func() time.Time)
 	// permission.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	permission.UpdateDefaultUpdatedAt = permissionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// permissionDescCreator is the schema descriptor for creator field.
+	permissionDescCreator := permissionMixinFields1[0].Descriptor()
+	// permission.CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
+	permission.CreatorValidator = permissionDescCreator.Validators[0].(func(string) error)
+	// permissionDescID is the schema descriptor for id field.
+	permissionDescID := permissionFields[0].Descriptor()
+	// permission.DefaultID holds the default value on creation for the id field.
+	permission.DefaultID = permissionDescID.Default.(func() uuid.UUID)
 	roleMixin := schema.Role{}.Mixin()
 	roleMixinFields0 := roleMixin[0].Fields()
 	_ = roleMixinFields0
+	roleMixinFields1 := roleMixin[1].Fields()
+	_ = roleMixinFields1
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
 	// roleDescCreatedAt is the schema descriptor for created_at field.
@@ -77,9 +101,19 @@ func init() {
 	role.DefaultUpdatedAt = roleDescUpdatedAt.Default.(func() time.Time)
 	// role.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	role.UpdateDefaultUpdatedAt = roleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// roleDescCreator is the schema descriptor for creator field.
+	roleDescCreator := roleMixinFields1[0].Descriptor()
+	// role.CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
+	role.CreatorValidator = roleDescCreator.Validators[0].(func(string) error)
+	// roleDescID is the schema descriptor for id field.
+	roleDescID := roleFields[0].Descriptor()
+	// role.DefaultID holds the default value on creation for the id field.
+	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0
+	userMixinFields1 := userMixin[1].Fields()
+	_ = userMixinFields1
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.
@@ -92,13 +126,27 @@ func init() {
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userDescCreator is the schema descriptor for creator field.
+	userDescCreator := userMixinFields1[0].Descriptor()
+	// user.CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
+	user.CreatorValidator = userDescCreator.Validators[0].(func(string) error)
+	// userDescUsername is the schema descriptor for username field.
+	userDescUsername := userFields[1].Descriptor()
+	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	user.UsernameValidator = userDescUsername.Validators[0].(func(string) error)
 	// userDescAge is the schema descriptor for age field.
 	userDescAge := userFields[4].Descriptor()
 	// user.AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	user.AgeValidator = userDescAge.Validators[0].(func(int) error)
+	// userDescID is the schema descriptor for id field.
+	userDescID := userFields[0].Descriptor()
+	// user.DefaultID holds the default value on creation for the id field.
+	user.DefaultID = userDescID.Default.(func() uuid.UUID)
 	usergroupMixin := schema.UserGroup{}.Mixin()
 	usergroupMixinFields0 := usergroupMixin[0].Fields()
 	_ = usergroupMixinFields0
+	usergroupMixinFields1 := usergroupMixin[1].Fields()
+	_ = usergroupMixinFields1
 	usergroupFields := schema.UserGroup{}.Fields()
 	_ = usergroupFields
 	// usergroupDescCreatedAt is the schema descriptor for created_at field.
@@ -111,4 +159,12 @@ func init() {
 	usergroup.DefaultUpdatedAt = usergroupDescUpdatedAt.Default.(func() time.Time)
 	// usergroup.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	usergroup.UpdateDefaultUpdatedAt = usergroupDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// usergroupDescCreator is the schema descriptor for creator field.
+	usergroupDescCreator := usergroupMixinFields1[0].Descriptor()
+	// usergroup.CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
+	usergroup.CreatorValidator = usergroupDescCreator.Validators[0].(func(string) error)
+	// usergroupDescID is the schema descriptor for id field.
+	usergroupDescID := usergroupFields[0].Descriptor()
+	// usergroup.DefaultID holds the default value on creation for the id field.
+	usergroup.DefaultID = usergroupDescID.Default.(func() uuid.UUID)
 }

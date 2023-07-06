@@ -8,50 +8,51 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.User {
+func ID(id uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.User {
+func IDEQ(id uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.User {
+func IDNEQ(id uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.User {
+func IDIn(ids ...uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.User {
+func IDNotIn(ids ...uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.User {
+func IDGT(id uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.User {
+func IDGTE(id uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.User {
+func IDLT(id uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.User {
+func IDLTE(id uuid.UUID) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldID, id))
 }
 
@@ -265,6 +266,16 @@ func CreatorHasSuffix(v string) predicate.User {
 	return predicate.User(sql.FieldHasSuffix(FieldCreator, v))
 }
 
+// CreatorIsNil applies the IsNil predicate on the "creator" field.
+func CreatorIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldCreator))
+}
+
+// CreatorNotNil applies the NotNil predicate on the "creator" field.
+func CreatorNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldCreator))
+}
+
 // CreatorEqualFold applies the EqualFold predicate on the "creator" field.
 func CreatorEqualFold(v string) predicate.User {
 	return predicate.User(sql.FieldEqualFold(FieldCreator, v))
@@ -328,6 +339,16 @@ func EditorHasPrefix(v string) predicate.User {
 // EditorHasSuffix applies the HasSuffix predicate on the "editor" field.
 func EditorHasSuffix(v string) predicate.User {
 	return predicate.User(sql.FieldHasSuffix(FieldEditor, v))
+}
+
+// EditorIsNil applies the IsNil predicate on the "editor" field.
+func EditorIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldEditor))
+}
+
+// EditorNotNil applies the NotNil predicate on the "editor" field.
+func EditorNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldEditor))
 }
 
 // EditorEqualFold applies the EqualFold predicate on the "editor" field.

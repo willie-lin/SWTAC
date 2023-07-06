@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // PermissionUpdate is the builder for updating Permission entities.
@@ -41,9 +42,37 @@ func (pu *PermissionUpdate) SetCreator(s string) *PermissionUpdate {
 	return pu
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (pu *PermissionUpdate) SetNillableCreator(s *string) *PermissionUpdate {
+	if s != nil {
+		pu.SetCreator(*s)
+	}
+	return pu
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (pu *PermissionUpdate) ClearCreator() *PermissionUpdate {
+	pu.mutation.ClearCreator()
+	return pu
+}
+
 // SetEditor sets the "editor" field.
 func (pu *PermissionUpdate) SetEditor(s string) *PermissionUpdate {
 	pu.mutation.SetEditor(s)
+	return pu
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (pu *PermissionUpdate) SetNillableEditor(s *string) *PermissionUpdate {
+	if s != nil {
+		pu.SetEditor(*s)
+	}
+	return pu
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (pu *PermissionUpdate) ClearEditor() *PermissionUpdate {
+	pu.mutation.ClearEditor()
 	return pu
 }
 
@@ -118,14 +147,14 @@ func (pu *PermissionUpdate) AddURL(i int) *PermissionUpdate {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (pu *PermissionUpdate) AddRoleIDs(ids ...int) *PermissionUpdate {
+func (pu *PermissionUpdate) AddRoleIDs(ids ...uuid.UUID) *PermissionUpdate {
 	pu.mutation.AddRoleIDs(ids...)
 	return pu
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (pu *PermissionUpdate) AddRoles(r ...*Role) *PermissionUpdate {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -144,14 +173,14 @@ func (pu *PermissionUpdate) ClearRoles() *PermissionUpdate {
 }
 
 // RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
-func (pu *PermissionUpdate) RemoveRoleIDs(ids ...int) *PermissionUpdate {
+func (pu *PermissionUpdate) RemoveRoleIDs(ids ...uuid.UUID) *PermissionUpdate {
 	pu.mutation.RemoveRoleIDs(ids...)
 	return pu
 }
 
 // RemoveRoles removes "roles" edges to Role entities.
 func (pu *PermissionUpdate) RemoveRoles(r ...*Role) *PermissionUpdate {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -194,8 +223,21 @@ func (pu *PermissionUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (pu *PermissionUpdate) check() error {
+	if v, ok := pu.mutation.Creator(); ok {
+		if err := permission.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Permission.creator": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(permission.Table, permission.Columns, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt))
+	if err := pu.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(permission.Table, permission.Columns, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -209,8 +251,14 @@ func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Creator(); ok {
 		_spec.SetField(permission.FieldCreator, field.TypeString, value)
 	}
+	if pu.mutation.CreatorCleared() {
+		_spec.ClearField(permission.FieldCreator, field.TypeString)
+	}
 	if value, ok := pu.mutation.Editor(); ok {
 		_spec.SetField(permission.FieldEditor, field.TypeString, value)
+	}
+	if pu.mutation.EditorCleared() {
+		_spec.ClearField(permission.FieldEditor, field.TypeString)
 	}
 	if value, ok := pu.mutation.Deleted(); ok {
 		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
@@ -253,7 +301,7 @@ func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -266,7 +314,7 @@ func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -282,7 +330,7 @@ func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -322,9 +370,37 @@ func (puo *PermissionUpdateOne) SetCreator(s string) *PermissionUpdateOne {
 	return puo
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (puo *PermissionUpdateOne) SetNillableCreator(s *string) *PermissionUpdateOne {
+	if s != nil {
+		puo.SetCreator(*s)
+	}
+	return puo
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (puo *PermissionUpdateOne) ClearCreator() *PermissionUpdateOne {
+	puo.mutation.ClearCreator()
+	return puo
+}
+
 // SetEditor sets the "editor" field.
 func (puo *PermissionUpdateOne) SetEditor(s string) *PermissionUpdateOne {
 	puo.mutation.SetEditor(s)
+	return puo
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (puo *PermissionUpdateOne) SetNillableEditor(s *string) *PermissionUpdateOne {
+	if s != nil {
+		puo.SetEditor(*s)
+	}
+	return puo
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (puo *PermissionUpdateOne) ClearEditor() *PermissionUpdateOne {
+	puo.mutation.ClearEditor()
 	return puo
 }
 
@@ -399,14 +475,14 @@ func (puo *PermissionUpdateOne) AddURL(i int) *PermissionUpdateOne {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (puo *PermissionUpdateOne) AddRoleIDs(ids ...int) *PermissionUpdateOne {
+func (puo *PermissionUpdateOne) AddRoleIDs(ids ...uuid.UUID) *PermissionUpdateOne {
 	puo.mutation.AddRoleIDs(ids...)
 	return puo
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (puo *PermissionUpdateOne) AddRoles(r ...*Role) *PermissionUpdateOne {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -425,14 +501,14 @@ func (puo *PermissionUpdateOne) ClearRoles() *PermissionUpdateOne {
 }
 
 // RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
-func (puo *PermissionUpdateOne) RemoveRoleIDs(ids ...int) *PermissionUpdateOne {
+func (puo *PermissionUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *PermissionUpdateOne {
 	puo.mutation.RemoveRoleIDs(ids...)
 	return puo
 }
 
 // RemoveRoles removes "roles" edges to Role entities.
 func (puo *PermissionUpdateOne) RemoveRoles(r ...*Role) *PermissionUpdateOne {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -488,8 +564,21 @@ func (puo *PermissionUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (puo *PermissionUpdateOne) check() error {
+	if v, ok := puo.mutation.Creator(); ok {
+		if err := permission.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Permission.creator": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission, err error) {
-	_spec := sqlgraph.NewUpdateSpec(permission.Table, permission.Columns, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt))
+	if err := puo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(permission.Table, permission.Columns, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID))
 	id, ok := puo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Permission.id" for update`)}
@@ -520,8 +609,14 @@ func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission,
 	if value, ok := puo.mutation.Creator(); ok {
 		_spec.SetField(permission.FieldCreator, field.TypeString, value)
 	}
+	if puo.mutation.CreatorCleared() {
+		_spec.ClearField(permission.FieldCreator, field.TypeString)
+	}
 	if value, ok := puo.mutation.Editor(); ok {
 		_spec.SetField(permission.FieldEditor, field.TypeString, value)
+	}
+	if puo.mutation.EditorCleared() {
+		_spec.ClearField(permission.FieldEditor, field.TypeString)
 	}
 	if value, ok := puo.mutation.Deleted(); ok {
 		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
@@ -564,7 +659,7 @@ func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission,
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -577,7 +672,7 @@ func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission,
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -593,7 +688,7 @@ func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission,
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

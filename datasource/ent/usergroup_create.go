@@ -13,6 +13,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserGroupCreate is the builder for creating a UserGroup entity.
@@ -56,9 +57,25 @@ func (ugc *UserGroupCreate) SetCreator(s string) *UserGroupCreate {
 	return ugc
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (ugc *UserGroupCreate) SetNillableCreator(s *string) *UserGroupCreate {
+	if s != nil {
+		ugc.SetCreator(*s)
+	}
+	return ugc
+}
+
 // SetEditor sets the "editor" field.
 func (ugc *UserGroupCreate) SetEditor(s string) *UserGroupCreate {
 	ugc.mutation.SetEditor(s)
+	return ugc
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (ugc *UserGroupCreate) SetNillableEditor(s *string) *UserGroupCreate {
+	if s != nil {
+		ugc.SetEditor(*s)
+	}
 	return ugc
 }
 
@@ -93,20 +110,28 @@ func (ugc *UserGroupCreate) SetIntro(s string) *UserGroupCreate {
 }
 
 // SetID sets the "id" field.
-func (ugc *UserGroupCreate) SetID(i int) *UserGroupCreate {
-	ugc.mutation.SetID(i)
+func (ugc *UserGroupCreate) SetID(u uuid.UUID) *UserGroupCreate {
+	ugc.mutation.SetID(u)
+	return ugc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (ugc *UserGroupCreate) SetNillableID(u *uuid.UUID) *UserGroupCreate {
+	if u != nil {
+		ugc.SetID(*u)
+	}
 	return ugc
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (ugc *UserGroupCreate) AddUserIDs(ids ...int) *UserGroupCreate {
+func (ugc *UserGroupCreate) AddUserIDs(ids ...uuid.UUID) *UserGroupCreate {
 	ugc.mutation.AddUserIDs(ids...)
 	return ugc
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (ugc *UserGroupCreate) AddUsers(u ...*User) *UserGroupCreate {
-	ids := make([]int, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -114,14 +139,14 @@ func (ugc *UserGroupCreate) AddUsers(u ...*User) *UserGroupCreate {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (ugc *UserGroupCreate) AddRoleIDs(ids ...int) *UserGroupCreate {
+func (ugc *UserGroupCreate) AddRoleIDs(ids ...uuid.UUID) *UserGroupCreate {
 	ugc.mutation.AddRoleIDs(ids...)
 	return ugc
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (ugc *UserGroupCreate) AddRoles(r ...*Role) *UserGroupCreate {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -171,6 +196,10 @@ func (ugc *UserGroupCreate) defaults() {
 		v := usergroup.DefaultUpdatedAt()
 		ugc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := ugc.mutation.ID(); !ok {
+		v := usergroup.DefaultID()
+		ugc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -181,11 +210,10 @@ func (ugc *UserGroupCreate) check() error {
 	if _, ok := ugc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "UserGroup.updated_at"`)}
 	}
-	if _, ok := ugc.mutation.Creator(); !ok {
-		return &ValidationError{Name: "creator", err: errors.New(`ent: missing required field "UserGroup.creator"`)}
-	}
-	if _, ok := ugc.mutation.Editor(); !ok {
-		return &ValidationError{Name: "editor", err: errors.New(`ent: missing required field "UserGroup.editor"`)}
+	if v, ok := ugc.mutation.Creator(); ok {
+		if err := usergroup.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "UserGroup.creator": %w`, err)}
+		}
 	}
 	if _, ok := ugc.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "UserGroup.deleted"`)}
@@ -216,9 +244,12 @@ func (ugc *UserGroupCreate) sqlSave(ctx context.Context) (*UserGroup, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
 	}
 	ugc.mutation.id = &_node.ID
 	ugc.mutation.done = true
@@ -228,11 +259,11 @@ func (ugc *UserGroupCreate) sqlSave(ctx context.Context) (*UserGroup, error) {
 func (ugc *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserGroup{config: ugc.config}
-		_spec = sqlgraph.NewCreateSpec(usergroup.Table, sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(usergroup.Table, sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID))
 	)
 	if id, ok := ugc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := ugc.mutation.CreatedAt(); ok {
 		_spec.SetField(usergroup.FieldCreatedAt, field.TypeTime, value)
@@ -278,7 +309,7 @@ func (ugc *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
 			Columns: usergroup.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -294,7 +325,7 @@ func (ugc *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
 			Columns: usergroup.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -346,10 +377,6 @@ func (ugcb *UserGroupCreateBulk) Save(ctx context.Context) ([]*UserGroup, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

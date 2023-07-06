@@ -8,50 +8,51 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Role {
+func ID(id uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Role {
+func IDEQ(id uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Role {
+func IDNEQ(id uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Role {
+func IDIn(ids ...uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Role {
+func IDNotIn(ids ...uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Role {
+func IDGT(id uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Role {
+func IDGTE(id uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Role {
+func IDLT(id uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Role {
+func IDLTE(id uuid.UUID) predicate.Role {
 	return predicate.Role(sql.FieldLTE(FieldID, id))
 }
 
@@ -235,6 +236,16 @@ func CreatorHasSuffix(v string) predicate.Role {
 	return predicate.Role(sql.FieldHasSuffix(FieldCreator, v))
 }
 
+// CreatorIsNil applies the IsNil predicate on the "creator" field.
+func CreatorIsNil() predicate.Role {
+	return predicate.Role(sql.FieldIsNull(FieldCreator))
+}
+
+// CreatorNotNil applies the NotNil predicate on the "creator" field.
+func CreatorNotNil() predicate.Role {
+	return predicate.Role(sql.FieldNotNull(FieldCreator))
+}
+
 // CreatorEqualFold applies the EqualFold predicate on the "creator" field.
 func CreatorEqualFold(v string) predicate.Role {
 	return predicate.Role(sql.FieldEqualFold(FieldCreator, v))
@@ -298,6 +309,16 @@ func EditorHasPrefix(v string) predicate.Role {
 // EditorHasSuffix applies the HasSuffix predicate on the "editor" field.
 func EditorHasSuffix(v string) predicate.Role {
 	return predicate.Role(sql.FieldHasSuffix(FieldEditor, v))
+}
+
+// EditorIsNil applies the IsNil predicate on the "editor" field.
+func EditorIsNil() predicate.Role {
+	return predicate.Role(sql.FieldIsNull(FieldEditor))
+}
+
+// EditorNotNil applies the NotNil predicate on the "editor" field.
+func EditorNotNil() predicate.Role {
+	return predicate.Role(sql.FieldNotNull(FieldEditor))
 }
 
 // EditorEqualFold applies the EqualFold predicate on the "editor" field.

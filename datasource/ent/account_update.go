@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // AccountUpdate is the builder for updating Account entities.
@@ -41,9 +42,37 @@ func (au *AccountUpdate) SetCreator(s string) *AccountUpdate {
 	return au
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableCreator(s *string) *AccountUpdate {
+	if s != nil {
+		au.SetCreator(*s)
+	}
+	return au
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (au *AccountUpdate) ClearCreator() *AccountUpdate {
+	au.mutation.ClearCreator()
+	return au
+}
+
 // SetEditor sets the "editor" field.
 func (au *AccountUpdate) SetEditor(s string) *AccountUpdate {
 	au.mutation.SetEditor(s)
+	return au
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableEditor(s *string) *AccountUpdate {
+	if s != nil {
+		au.SetEditor(*s)
+	}
+	return au
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (au *AccountUpdate) ClearEditor() *AccountUpdate {
+	au.mutation.ClearEditor()
 	return au
 }
 
@@ -73,13 +102,13 @@ func (au *AccountUpdate) SetCategory(s string) *AccountUpdate {
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (au *AccountUpdate) SetUserID(id int) *AccountUpdate {
+func (au *AccountUpdate) SetUserID(id uuid.UUID) *AccountUpdate {
 	au.mutation.SetUserID(id)
 	return au
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (au *AccountUpdate) SetNillableUserID(id *int) *AccountUpdate {
+func (au *AccountUpdate) SetNillableUserID(id *uuid.UUID) *AccountUpdate {
 	if id != nil {
 		au = au.SetUserID(*id)
 	}
@@ -138,8 +167,21 @@ func (au *AccountUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (au *AccountUpdate) check() error {
+	if v, ok := au.mutation.Creator(); ok {
+		if err := account.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Account.creator": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(account.Table, account.Columns, sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt))
+	if err := au.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(account.Table, account.Columns, sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID))
 	if ps := au.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -153,8 +195,14 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.Creator(); ok {
 		_spec.SetField(account.FieldCreator, field.TypeString, value)
 	}
+	if au.mutation.CreatorCleared() {
+		_spec.ClearField(account.FieldCreator, field.TypeString)
+	}
 	if value, ok := au.mutation.Editor(); ok {
 		_spec.SetField(account.FieldEditor, field.TypeString, value)
+	}
+	if au.mutation.EditorCleared() {
+		_spec.ClearField(account.FieldEditor, field.TypeString)
 	}
 	if value, ok := au.mutation.Deleted(); ok {
 		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
@@ -176,7 +224,7 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{account.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -189,7 +237,7 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{account.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -229,9 +277,37 @@ func (auo *AccountUpdateOne) SetCreator(s string) *AccountUpdateOne {
 	return auo
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableCreator(s *string) *AccountUpdateOne {
+	if s != nil {
+		auo.SetCreator(*s)
+	}
+	return auo
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (auo *AccountUpdateOne) ClearCreator() *AccountUpdateOne {
+	auo.mutation.ClearCreator()
+	return auo
+}
+
 // SetEditor sets the "editor" field.
 func (auo *AccountUpdateOne) SetEditor(s string) *AccountUpdateOne {
 	auo.mutation.SetEditor(s)
+	return auo
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableEditor(s *string) *AccountUpdateOne {
+	if s != nil {
+		auo.SetEditor(*s)
+	}
+	return auo
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (auo *AccountUpdateOne) ClearEditor() *AccountUpdateOne {
+	auo.mutation.ClearEditor()
 	return auo
 }
 
@@ -261,13 +337,13 @@ func (auo *AccountUpdateOne) SetCategory(s string) *AccountUpdateOne {
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (auo *AccountUpdateOne) SetUserID(id int) *AccountUpdateOne {
+func (auo *AccountUpdateOne) SetUserID(id uuid.UUID) *AccountUpdateOne {
 	auo.mutation.SetUserID(id)
 	return auo
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (auo *AccountUpdateOne) SetNillableUserID(id *int) *AccountUpdateOne {
+func (auo *AccountUpdateOne) SetNillableUserID(id *uuid.UUID) *AccountUpdateOne {
 	if id != nil {
 		auo = auo.SetUserID(*id)
 	}
@@ -339,8 +415,21 @@ func (auo *AccountUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (auo *AccountUpdateOne) check() error {
+	if v, ok := auo.mutation.Creator(); ok {
+		if err := account.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Account.creator": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err error) {
-	_spec := sqlgraph.NewUpdateSpec(account.Table, account.Columns, sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt))
+	if err := auo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(account.Table, account.Columns, sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID))
 	id, ok := auo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Account.id" for update`)}
@@ -371,8 +460,14 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	if value, ok := auo.mutation.Creator(); ok {
 		_spec.SetField(account.FieldCreator, field.TypeString, value)
 	}
+	if auo.mutation.CreatorCleared() {
+		_spec.ClearField(account.FieldCreator, field.TypeString)
+	}
 	if value, ok := auo.mutation.Editor(); ok {
 		_spec.SetField(account.FieldEditor, field.TypeString, value)
+	}
+	if auo.mutation.EditorCleared() {
+		_spec.ClearField(account.FieldEditor, field.TypeString)
 	}
 	if value, ok := auo.mutation.Deleted(); ok {
 		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
@@ -394,7 +489,7 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 			Columns: []string{account.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -407,7 +502,7 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 			Columns: []string{account.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

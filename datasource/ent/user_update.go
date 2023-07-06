@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -43,9 +44,37 @@ func (uu *UserUpdate) SetCreator(s string) *UserUpdate {
 	return uu
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableCreator(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetCreator(*s)
+	}
+	return uu
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (uu *UserUpdate) ClearCreator() *UserUpdate {
+	uu.mutation.ClearCreator()
+	return uu
+}
+
 // SetEditor sets the "editor" field.
 func (uu *UserUpdate) SetEditor(s string) *UserUpdate {
 	uu.mutation.SetEditor(s)
+	return uu
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableEditor(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetEditor(*s)
+	}
+	return uu
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (uu *UserUpdate) ClearEditor() *UserUpdate {
+	uu.mutation.ClearEditor()
 	return uu
 }
 
@@ -59,12 +88,6 @@ func (uu *UserUpdate) SetDeleted(f float64) *UserUpdate {
 // AddDeleted adds f to the "deleted" field.
 func (uu *UserUpdate) AddDeleted(f float64) *UserUpdate {
 	uu.mutation.AddDeleted(f)
-	return uu
-}
-
-// SetUsername sets the "username" field.
-func (uu *UserUpdate) SetUsername(s string) *UserUpdate {
-	uu.mutation.SetUsername(s)
 	return uu
 }
 
@@ -165,14 +188,14 @@ func (uu *UserUpdate) AddState(i int) *UserUpdate {
 }
 
 // AddUserGroupIDs adds the "user_groups" edge to the UserGroup entity by IDs.
-func (uu *UserUpdate) AddUserGroupIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) AddUserGroupIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddUserGroupIDs(ids...)
 	return uu
 }
 
 // AddUserGroups adds the "user_groups" edges to the UserGroup entity.
 func (uu *UserUpdate) AddUserGroups(u ...*UserGroup) *UserUpdate {
-	ids := make([]int, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -180,14 +203,14 @@ func (uu *UserUpdate) AddUserGroups(u ...*UserGroup) *UserUpdate {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (uu *UserUpdate) AddRoleIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) AddRoleIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddRoleIDs(ids...)
 	return uu
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (uu *UserUpdate) AddRoles(r ...*Role) *UserUpdate {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -195,14 +218,14 @@ func (uu *UserUpdate) AddRoles(r ...*Role) *UserUpdate {
 }
 
 // AddAccountIDs adds the "accounts" edge to the Account entity by IDs.
-func (uu *UserUpdate) AddAccountIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) AddAccountIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddAccountIDs(ids...)
 	return uu
 }
 
 // AddAccounts adds the "accounts" edges to the Account entity.
 func (uu *UserUpdate) AddAccounts(a ...*Account) *UserUpdate {
-	ids := make([]int, len(a))
+	ids := make([]uuid.UUID, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
@@ -221,14 +244,14 @@ func (uu *UserUpdate) ClearUserGroups() *UserUpdate {
 }
 
 // RemoveUserGroupIDs removes the "user_groups" edge to UserGroup entities by IDs.
-func (uu *UserUpdate) RemoveUserGroupIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) RemoveUserGroupIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.RemoveUserGroupIDs(ids...)
 	return uu
 }
 
 // RemoveUserGroups removes "user_groups" edges to UserGroup entities.
 func (uu *UserUpdate) RemoveUserGroups(u ...*UserGroup) *UserUpdate {
-	ids := make([]int, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -242,14 +265,14 @@ func (uu *UserUpdate) ClearRoles() *UserUpdate {
 }
 
 // RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
-func (uu *UserUpdate) RemoveRoleIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) RemoveRoleIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.RemoveRoleIDs(ids...)
 	return uu
 }
 
 // RemoveRoles removes "roles" edges to Role entities.
 func (uu *UserUpdate) RemoveRoles(r ...*Role) *UserUpdate {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -263,14 +286,14 @@ func (uu *UserUpdate) ClearAccounts() *UserUpdate {
 }
 
 // RemoveAccountIDs removes the "accounts" edge to Account entities by IDs.
-func (uu *UserUpdate) RemoveAccountIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) RemoveAccountIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.RemoveAccountIDs(ids...)
 	return uu
 }
 
 // RemoveAccounts removes "accounts" edges to Account entities.
 func (uu *UserUpdate) RemoveAccounts(a ...*Account) *UserUpdate {
-	ids := make([]int, len(a))
+	ids := make([]uuid.UUID, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
@@ -315,6 +338,11 @@ func (uu *UserUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (uu *UserUpdate) check() error {
+	if v, ok := uu.mutation.Creator(); ok {
+		if err := user.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "User.creator": %w`, err)}
+		}
+	}
 	if v, ok := uu.mutation.Age(); ok {
 		if err := user.AgeValidator(v); err != nil {
 			return &ValidationError{Name: "age", err: fmt.Errorf(`ent: validator failed for field "User.age": %w`, err)}
@@ -327,7 +355,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := uu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	if ps := uu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -341,17 +369,20 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Creator(); ok {
 		_spec.SetField(user.FieldCreator, field.TypeString, value)
 	}
+	if uu.mutation.CreatorCleared() {
+		_spec.ClearField(user.FieldCreator, field.TypeString)
+	}
 	if value, ok := uu.mutation.Editor(); ok {
 		_spec.SetField(user.FieldEditor, field.TypeString, value)
+	}
+	if uu.mutation.EditorCleared() {
+		_spec.ClearField(user.FieldEditor, field.TypeString)
 	}
 	if value, ok := uu.mutation.Deleted(); ok {
 		_spec.SetField(user.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := uu.mutation.AddedDeleted(); ok {
 		_spec.AddField(user.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := uu.mutation.Username(); ok {
-		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.Nickname(); ok {
 		_spec.SetField(user.FieldNickname, field.TypeString, value)
@@ -400,7 +431,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -413,7 +444,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -429,7 +460,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -445,7 +476,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -458,7 +489,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -474,7 +505,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -490,7 +521,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -503,7 +534,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -519,7 +550,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -559,9 +590,37 @@ func (uuo *UserUpdateOne) SetCreator(s string) *UserUpdateOne {
 	return uuo
 }
 
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCreator(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetCreator(*s)
+	}
+	return uuo
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (uuo *UserUpdateOne) ClearCreator() *UserUpdateOne {
+	uuo.mutation.ClearCreator()
+	return uuo
+}
+
 // SetEditor sets the "editor" field.
 func (uuo *UserUpdateOne) SetEditor(s string) *UserUpdateOne {
 	uuo.mutation.SetEditor(s)
+	return uuo
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableEditor(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetEditor(*s)
+	}
+	return uuo
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (uuo *UserUpdateOne) ClearEditor() *UserUpdateOne {
+	uuo.mutation.ClearEditor()
 	return uuo
 }
 
@@ -575,12 +634,6 @@ func (uuo *UserUpdateOne) SetDeleted(f float64) *UserUpdateOne {
 // AddDeleted adds f to the "deleted" field.
 func (uuo *UserUpdateOne) AddDeleted(f float64) *UserUpdateOne {
 	uuo.mutation.AddDeleted(f)
-	return uuo
-}
-
-// SetUsername sets the "username" field.
-func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
-	uuo.mutation.SetUsername(s)
 	return uuo
 }
 
@@ -681,14 +734,14 @@ func (uuo *UserUpdateOne) AddState(i int) *UserUpdateOne {
 }
 
 // AddUserGroupIDs adds the "user_groups" edge to the UserGroup entity by IDs.
-func (uuo *UserUpdateOne) AddUserGroupIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddUserGroupIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.AddUserGroupIDs(ids...)
 	return uuo
 }
 
 // AddUserGroups adds the "user_groups" edges to the UserGroup entity.
 func (uuo *UserUpdateOne) AddUserGroups(u ...*UserGroup) *UserUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -696,14 +749,14 @@ func (uuo *UserUpdateOne) AddUserGroups(u ...*UserGroup) *UserUpdateOne {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (uuo *UserUpdateOne) AddRoleIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddRoleIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.AddRoleIDs(ids...)
 	return uuo
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (uuo *UserUpdateOne) AddRoles(r ...*Role) *UserUpdateOne {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -711,14 +764,14 @@ func (uuo *UserUpdateOne) AddRoles(r ...*Role) *UserUpdateOne {
 }
 
 // AddAccountIDs adds the "accounts" edge to the Account entity by IDs.
-func (uuo *UserUpdateOne) AddAccountIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddAccountIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.AddAccountIDs(ids...)
 	return uuo
 }
 
 // AddAccounts adds the "accounts" edges to the Account entity.
 func (uuo *UserUpdateOne) AddAccounts(a ...*Account) *UserUpdateOne {
-	ids := make([]int, len(a))
+	ids := make([]uuid.UUID, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
@@ -737,14 +790,14 @@ func (uuo *UserUpdateOne) ClearUserGroups() *UserUpdateOne {
 }
 
 // RemoveUserGroupIDs removes the "user_groups" edge to UserGroup entities by IDs.
-func (uuo *UserUpdateOne) RemoveUserGroupIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveUserGroupIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.RemoveUserGroupIDs(ids...)
 	return uuo
 }
 
 // RemoveUserGroups removes "user_groups" edges to UserGroup entities.
 func (uuo *UserUpdateOne) RemoveUserGroups(u ...*UserGroup) *UserUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -758,14 +811,14 @@ func (uuo *UserUpdateOne) ClearRoles() *UserUpdateOne {
 }
 
 // RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
-func (uuo *UserUpdateOne) RemoveRoleIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.RemoveRoleIDs(ids...)
 	return uuo
 }
 
 // RemoveRoles removes "roles" edges to Role entities.
 func (uuo *UserUpdateOne) RemoveRoles(r ...*Role) *UserUpdateOne {
-	ids := make([]int, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -779,14 +832,14 @@ func (uuo *UserUpdateOne) ClearAccounts() *UserUpdateOne {
 }
 
 // RemoveAccountIDs removes the "accounts" edge to Account entities by IDs.
-func (uuo *UserUpdateOne) RemoveAccountIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveAccountIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.RemoveAccountIDs(ids...)
 	return uuo
 }
 
 // RemoveAccounts removes "accounts" edges to Account entities.
 func (uuo *UserUpdateOne) RemoveAccounts(a ...*Account) *UserUpdateOne {
-	ids := make([]int, len(a))
+	ids := make([]uuid.UUID, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
@@ -844,6 +897,11 @@ func (uuo *UserUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (uuo *UserUpdateOne) check() error {
+	if v, ok := uuo.mutation.Creator(); ok {
+		if err := user.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "User.creator": %w`, err)}
+		}
+	}
 	if v, ok := uuo.mutation.Age(); ok {
 		if err := user.AgeValidator(v); err != nil {
 			return &ValidationError{Name: "age", err: fmt.Errorf(`ent: validator failed for field "User.age": %w`, err)}
@@ -856,7 +914,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if err := uuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	id, ok := uuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "User.id" for update`)}
@@ -887,17 +945,20 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.Creator(); ok {
 		_spec.SetField(user.FieldCreator, field.TypeString, value)
 	}
+	if uuo.mutation.CreatorCleared() {
+		_spec.ClearField(user.FieldCreator, field.TypeString)
+	}
 	if value, ok := uuo.mutation.Editor(); ok {
 		_spec.SetField(user.FieldEditor, field.TypeString, value)
+	}
+	if uuo.mutation.EditorCleared() {
+		_spec.ClearField(user.FieldEditor, field.TypeString)
 	}
 	if value, ok := uuo.mutation.Deleted(); ok {
 		_spec.SetField(user.FieldDeleted, field.TypeFloat64, value)
 	}
 	if value, ok := uuo.mutation.AddedDeleted(); ok {
 		_spec.AddField(user.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := uuo.mutation.Username(); ok {
-		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.Nickname(); ok {
 		_spec.SetField(user.FieldNickname, field.TypeString, value)
@@ -946,7 +1007,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -959,7 +1020,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -975,7 +1036,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.UserGroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -991,7 +1052,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1004,7 +1065,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1020,7 +1081,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1036,7 +1097,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1049,7 +1110,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1065,7 +1126,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.AccountsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

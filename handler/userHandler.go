@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"time"
 )
 
 // GetAllUsers 获取所有用户
@@ -140,6 +141,11 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 			SetAge(u.Age).
 			SetIntroduction(u.Introduction).
 			SetState(u.State).
+			SetCreator(u.Creator).
+			SetEditor(u.Editor).
+			SetDeleted(u.Deleted).
+			SetCreatedAt(time.Now()).
+			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		if err != nil {
 			return err

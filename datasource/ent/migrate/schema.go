@@ -11,15 +11,15 @@ import (
 var (
 	// AccountsColumns holds the columns for the "accounts" table.
 	AccountsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "creator", Type: field.TypeString},
-		{Name: "editor", Type: field.TypeString},
+		{Name: "creator", Type: field.TypeString, Nullable: true},
+		{Name: "editor", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
 		{Name: "open_code", Type: field.TypeString},
 		{Name: "category", Type: field.TypeString},
-		{Name: "user_accounts", Type: field.TypeInt, Nullable: true},
+		{Name: "user_accounts", Type: field.TypeUUID, Nullable: true},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.
 	AccountsTable = &schema.Table{
@@ -56,11 +56,11 @@ var (
 	}
 	// PermissionsColumns holds the columns for the "permissions" table.
 	PermissionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "creator", Type: field.TypeString},
-		{Name: "editor", Type: field.TypeString},
+		{Name: "creator", Type: field.TypeString, Nullable: true},
+		{Name: "editor", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
 		{Name: "parent_id", Type: field.TypeInt},
 		{Name: "code", Type: field.TypeString},
@@ -77,11 +77,11 @@ var (
 	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "creator", Type: field.TypeString},
-		{Name: "editor", Type: field.TypeString},
+		{Name: "creator", Type: field.TypeString, Nullable: true},
+		{Name: "editor", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
 		{Name: "parent_id", Type: field.TypeInt},
 		{Name: "code", Type: field.TypeString},
@@ -96,11 +96,11 @@ var (
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "creator", Type: field.TypeString},
-		{Name: "editor", Type: field.TypeString},
+		{Name: "creator", Type: field.TypeString, Nullable: true},
+		{Name: "editor", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
 		{Name: "username", Type: field.TypeString, Unique: true},
 		{Name: "nickname", Type: field.TypeString},
@@ -121,11 +121,11 @@ var (
 	}
 	// UserGroupsColumns holds the columns for the "user_groups" table.
 	UserGroupsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "creator", Type: field.TypeString},
-		{Name: "editor", Type: field.TypeString},
+		{Name: "creator", Type: field.TypeString, Nullable: true},
+		{Name: "editor", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
 		{Name: "parent_id", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
@@ -140,8 +140,8 @@ var (
 	}
 	// RolePermissionsColumns holds the columns for the "role_permissions" table.
 	RolePermissionsColumns = []*schema.Column{
-		{Name: "role_id", Type: field.TypeInt},
-		{Name: "permission_id", Type: field.TypeInt},
+		{Name: "role_id", Type: field.TypeUUID},
+		{Name: "permission_id", Type: field.TypeUUID},
 	}
 	// RolePermissionsTable holds the schema information for the "role_permissions" table.
 	RolePermissionsTable = &schema.Table{
@@ -165,8 +165,8 @@ var (
 	}
 	// UserRolesColumns holds the columns for the "user_roles" table.
 	UserRolesColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeInt},
-		{Name: "role_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "role_id", Type: field.TypeUUID},
 	}
 	// UserRolesTable holds the schema information for the "user_roles" table.
 	UserRolesTable = &schema.Table{
@@ -190,8 +190,8 @@ var (
 	}
 	// UserGroupUsersColumns holds the columns for the "user_group_users" table.
 	UserGroupUsersColumns = []*schema.Column{
-		{Name: "user_group_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "user_group_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// UserGroupUsersTable holds the schema information for the "user_group_users" table.
 	UserGroupUsersTable = &schema.Table{
@@ -215,8 +215,8 @@ var (
 	}
 	// UserGroupRolesColumns holds the columns for the "user_group_roles" table.
 	UserGroupRolesColumns = []*schema.Column{
-		{Name: "user_group_id", Type: field.TypeInt},
-		{Name: "role_id", Type: field.TypeInt},
+		{Name: "user_group_id", Type: field.TypeUUID},
+		{Name: "role_id", Type: field.TypeUUID},
 	}
 	// UserGroupRolesTable holds the schema information for the "user_group_roles" table.
 	UserGroupRolesTable = &schema.Table{

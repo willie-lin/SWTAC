@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // RoleQuery is the builder for querying Role entities.
@@ -154,8 +155,8 @@ func (rq *RoleQuery) FirstX(ctx context.Context) *Role {
 
 // FirstID returns the first Role ID from the query.
 // Returns a *NotFoundError when no Role ID was found.
-func (rq *RoleQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (rq *RoleQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = rq.Limit(1).IDs(setContextOp(ctx, rq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -167,7 +168,7 @@ func (rq *RoleQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (rq *RoleQuery) FirstIDX(ctx context.Context) int {
+func (rq *RoleQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := rq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -205,8 +206,8 @@ func (rq *RoleQuery) OnlyX(ctx context.Context) *Role {
 // OnlyID is like Only, but returns the only Role ID in the query.
 // Returns a *NotSingularError when more than one Role ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (rq *RoleQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (rq *RoleQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = rq.Limit(2).IDs(setContextOp(ctx, rq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -222,7 +223,7 @@ func (rq *RoleQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (rq *RoleQuery) OnlyIDX(ctx context.Context) int {
+func (rq *RoleQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := rq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -250,7 +251,7 @@ func (rq *RoleQuery) AllX(ctx context.Context) []*Role {
 }
 
 // IDs executes the query and returns a list of Role IDs.
-func (rq *RoleQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (rq *RoleQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if rq.ctx.Unique == nil && rq.path != nil {
 		rq.Unique(true)
 	}
@@ -262,7 +263,7 @@ func (rq *RoleQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (rq *RoleQuery) IDsX(ctx context.Context) []int {
+func (rq *RoleQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := rq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -492,8 +493,8 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 
 func (rq *RoleQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Role, init func(*Role), assign func(*Role, *User)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Role)
-	nids := make(map[int]map[*Role]struct{})
+	byID := make(map[uuid.UUID]*Role)
+	nids := make(map[uuid.UUID]map[*Role]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -522,11 +523,11 @@ func (rq *RoleQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*R
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Role]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -553,8 +554,8 @@ func (rq *RoleQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*R
 }
 func (rq *RoleQuery) loadPermissions(ctx context.Context, query *PermissionQuery, nodes []*Role, init func(*Role), assign func(*Role, *Permission)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Role)
-	nids := make(map[int]map[*Role]struct{})
+	byID := make(map[uuid.UUID]*Role)
+	nids := make(map[uuid.UUID]map[*Role]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -583,11 +584,11 @@ func (rq *RoleQuery) loadPermissions(ctx context.Context, query *PermissionQuery
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Role]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -614,8 +615,8 @@ func (rq *RoleQuery) loadPermissions(ctx context.Context, query *PermissionQuery
 }
 func (rq *RoleQuery) loadUserGroups(ctx context.Context, query *UserGroupQuery, nodes []*Role, init func(*Role), assign func(*Role, *UserGroup)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Role)
-	nids := make(map[int]map[*Role]struct{})
+	byID := make(map[uuid.UUID]*Role)
+	nids := make(map[uuid.UUID]map[*Role]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -644,11 +645,11 @@ func (rq *RoleQuery) loadUserGroups(ctx context.Context, query *UserGroupQuery, 
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(uuid.UUID)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Role]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -684,7 +685,7 @@ func (rq *RoleQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (rq *RoleQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(role.Table, role.Columns, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	_spec.From = rq.sql
 	if unique := rq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

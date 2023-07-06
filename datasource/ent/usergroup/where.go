@@ -8,50 +8,51 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.UserGroup {
+func ID(id uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.UserGroup {
+func IDEQ(id uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.UserGroup {
+func IDNEQ(id uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.UserGroup {
+func IDIn(ids ...uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.UserGroup {
+func IDNotIn(ids ...uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.UserGroup {
+func IDGT(id uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.UserGroup {
+func IDGTE(id uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.UserGroup {
+func IDLT(id uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.UserGroup {
+func IDLTE(id uuid.UUID) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldLTE(FieldID, id))
 }
 
@@ -235,6 +236,16 @@ func CreatorHasSuffix(v string) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldHasSuffix(FieldCreator, v))
 }
 
+// CreatorIsNil applies the IsNil predicate on the "creator" field.
+func CreatorIsNil() predicate.UserGroup {
+	return predicate.UserGroup(sql.FieldIsNull(FieldCreator))
+}
+
+// CreatorNotNil applies the NotNil predicate on the "creator" field.
+func CreatorNotNil() predicate.UserGroup {
+	return predicate.UserGroup(sql.FieldNotNull(FieldCreator))
+}
+
 // CreatorEqualFold applies the EqualFold predicate on the "creator" field.
 func CreatorEqualFold(v string) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldEqualFold(FieldCreator, v))
@@ -298,6 +309,16 @@ func EditorHasPrefix(v string) predicate.UserGroup {
 // EditorHasSuffix applies the HasSuffix predicate on the "editor" field.
 func EditorHasSuffix(v string) predicate.UserGroup {
 	return predicate.UserGroup(sql.FieldHasSuffix(FieldEditor, v))
+}
+
+// EditorIsNil applies the IsNil predicate on the "editor" field.
+func EditorIsNil() predicate.UserGroup {
+	return predicate.UserGroup(sql.FieldIsNull(FieldEditor))
+}
+
+// EditorNotNil applies the NotNil predicate on the "editor" field.
+func EditorNotNil() predicate.UserGroup {
+	return predicate.UserGroup(sql.FieldNotNull(FieldEditor))
 }
 
 // EditorEqualFold applies the EqualFold predicate on the "editor" field.

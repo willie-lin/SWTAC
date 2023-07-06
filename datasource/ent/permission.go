@@ -10,13 +10,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Permission is the model entity for the Permission schema.
 type Permission struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -70,12 +71,14 @@ func (*Permission) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case permission.FieldDeleted:
 			values[i] = new(sql.NullFloat64)
-		case permission.FieldID, permission.FieldParentID, permission.FieldCategory, permission.FieldURL:
+		case permission.FieldParentID, permission.FieldCategory, permission.FieldURL:
 			values[i] = new(sql.NullInt64)
 		case permission.FieldCreator, permission.FieldEditor, permission.FieldCode, permission.FieldName, permission.FieldIntro:
 			values[i] = new(sql.NullString)
 		case permission.FieldCreatedAt, permission.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case permission.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -92,11 +95,11 @@ func (pe *Permission) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case permission.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				pe.ID = *value
 			}
-			pe.ID = int(value.Int64)
 		case permission.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])

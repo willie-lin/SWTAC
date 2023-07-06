@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 )
 
 // Role holds the schema definition for the Role entity.
@@ -30,7 +31,8 @@ func (Role) Mixin() []ent.Mixin {
 // Fields of the Role.
 func (Role) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").Unique(),
+		//field.Int("id").Unique(),
+		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		field.Int("parent_id"),
 		field.String("code"),
 		field.String("name"),
