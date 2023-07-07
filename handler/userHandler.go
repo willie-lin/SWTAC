@@ -35,18 +35,15 @@ func GetUserByUsername(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
 		// 直接解析raw数据为json
-		log, _ := zap.NewProduction()
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-			log.Fatal("Json Decode Error", zap.Error(err))
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
+
 		user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
 		if err != nil {
 			if ent.IsNotFound(err) {
-				log.Fatal("Query User Error", zap.Error(err))
 				return c.JSON(http.StatusBadRequest, err.Error())
 			}
-			return c.JSON(http.StatusBadRequest, "Not Found!")
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -56,29 +53,17 @@ func GetUserByUsername(client *ent.Client) echo.HandlerFunc {
 func GetUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
-
 		// 直接解析raw数据为json
-		log, _ := zap.NewProduction()
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-			log.Fatal("json decode error", zap.Error(err))
-			return c.JSON(http.StatusBadRequest, err)
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
-		//user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-		//if err != nil {
-		//	//log.Fatal("user not found", zap.Error(err))
-		//	return err
-		//}
 
 		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
 		if err != nil {
-			log.Fatal("user not found", zap.Error(err))
-			return err
+			if ent.IsNotFound(err) {
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
 		}
-
-		fmt.Println(user.ID)
-
-		//fmt.Println(un)
 		return c.JSON(http.StatusOK, user)
 	}
 }
@@ -90,15 +75,15 @@ func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
 		u := new(ent.User)
 
 		// 直接解析raw数据为json
-		log, _ := zap.NewProduction()
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-			log.Fatal("json decode error", zap.Error(err))
-			return err
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
 		user, err := client.User.Query().Where(user.EmailEQ(u.Email)).Only(context.Background())
 		if err != nil {
-			return err
+			if ent.IsNotFound(err) {
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -108,24 +93,18 @@ func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
 func CreateUser(client *ent.Client) echo.HandlerFunc {
 	//return func(c echo.Context, client *ent.Client) (*ent.User, error) {
 	return func(c echo.Context) (err error) {
-		log, _ := zap.NewProduction()
 
 		u := new(ent.User)
 
 		// 直接解析raw数据为json
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-			log.Fatal("json decode error", zap.Error(err))
-			return c.JSON(http.StatusNotFound, err)
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
-		fmt.Println(u.ID)
-		//u.ID = utils.UUID()
-		fmt.Println(u.ID)
 
 		pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 		if err != nil {
 			//fmt.Println("加密密码失败", err)
-			return err
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		fmt.Println(pwd)
 		u.Password = string(pwd)
@@ -149,8 +128,9 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		if err != nil {
-			return err
-
+			if ent.IsNotFound(err) {
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
 		}
 		return c.JSON(http.StatusOK, user)
 	}

@@ -108,8 +108,8 @@ var (
 		{Name: "age", Type: field.TypeInt},
 		{Name: "city", Type: field.TypeString, Nullable: true},
 		{Name: "introduction", Type: field.TypeString, Nullable: true},
-		{Name: "email", Type: field.TypeString},
-		{Name: "phone", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString, Unique: true},
+		{Name: "phone", Type: field.TypeString, Unique: true, Size: 11},
 		{Name: "password", Type: field.TypeString},
 		{Name: "state", Type: field.TypeInt},
 	}
