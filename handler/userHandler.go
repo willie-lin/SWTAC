@@ -139,15 +139,12 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 // UpdateUser 更新用户
 func UpdateUser(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		log, _ := zap.NewProduction()
-
 		u := new(ent.User)
 		// 解析json 并绑定到u
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-			log.Fatal("Json Decode Error", zap.Error(err))
-			return c.JSON(http.StatusBadRequest, u)
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
+		u.Update().SetEditor(u.Editor).Save(context.Background())
 		return nil
 	}
 }
