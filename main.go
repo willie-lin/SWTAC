@@ -71,6 +71,9 @@ func main() {
 
 	e.POST("/user", handler.CreateUser(client))
 	e.GET("/users", handler.GetAllUsers(client))
+	e.GET("/user/id", handler.GetUserById(client))
+	e.GET("/user/name", handler.GetUserByUsername(client))
+	e.GET("/user/email", handler.GetUserByEmail(client))
 
 	e.Logger.Fatal(e.Start(":2023"))
 

@@ -17,42 +17,43 @@ import (
 // GetAllUsers 获取所有用户
 func GetAllUsers(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
 		log, _ := zap.NewProduction()
 		users, err := client.User.Query().All(context.Background())
 		if err != nil {
 			if ent.IsNotFound(err) {
 				log.Fatal("Get All Users Error:", zap.Error(err))
-				return c.JSON(http.StatusBadRequest, "Get:"+err.Error())
+				return c.JSON(http.StatusBadRequest, err.Error())
 			}
-			return c.JSON(http.StatusNotFound, "Not Found")
+			return c.JSON(http.StatusNotFound, "Not Found!")
 		}
 		return c.JSON(http.StatusOK, users)
 	}
 }
 
-// FindUserByUsername 根据用户名查找
-func FindUserByUsername(client *ent.Client) echo.HandlerFunc {
+// GetUserByUsername 根据用户名查找
+func GetUserByUsername(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
 		u := new(ent.User)
 		// 直接解析raw数据为json
 		log, _ := zap.NewProduction()
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
 			log.Fatal("Json Decode Error", zap.Error(err))
-			return err
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
 		user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
 		if err != nil {
-			return err
+			if ent.IsNotFound(err) {
+				log.Fatal("Query User Error", zap.Error(err))
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
+			return c.JSON(http.StatusBadRequest, "Not Found!")
 		}
 		return c.JSON(http.StatusOK, user)
 	}
 }
 
-// FindUserById 根据ID查找
-func FindUserById(client *ent.Client) echo.HandlerFunc {
+// GetUserById  根据ID查找
+func GetUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
 
@@ -60,7 +61,7 @@ func FindUserById(client *ent.Client) echo.HandlerFunc {
 		log, _ := zap.NewProduction()
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
 			log.Fatal("json decode error", zap.Error(err))
-			return err
+			return c.JSON(http.StatusBadRequest, err)
 		}
 
 		//user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
@@ -82,8 +83,8 @@ func FindUserById(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// FindUserByEmail 根据email 查找用户
-func FindUserByEmail(client *ent.Client) echo.HandlerFunc {
+// GetUserByEmail 根据email 查找用户
+func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		u := new(ent.User)
@@ -107,11 +108,11 @@ func FindUserByEmail(client *ent.Client) echo.HandlerFunc {
 func CreateUser(client *ent.Client) echo.HandlerFunc {
 	//return func(c echo.Context, client *ent.Client) (*ent.User, error) {
 	return func(c echo.Context) (err error) {
+		log, _ := zap.NewProduction()
 
 		u := new(ent.User)
 
 		// 直接解析raw数据为json
-		log, _ := zap.NewProduction()
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
 			log.Fatal("json decode error", zap.Error(err))
 			return c.JSON(http.StatusNotFound, err)
@@ -152,6 +153,22 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 
 		}
 		return c.JSON(http.StatusOK, user)
+	}
+}
+
+// UpdateUser 更新用户
+func UpdateUser(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log, _ := zap.NewProduction()
+
+		u := new(ent.User)
+		// 解析json 并绑定到u
+		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+			log.Fatal("Json Decode Error", zap.Error(err))
+			return c.JSON(http.StatusBadRequest, u)
+		}
+
+		return nil
 	}
 }
 
