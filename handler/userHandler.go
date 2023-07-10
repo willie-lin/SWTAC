@@ -101,14 +101,23 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
+		//user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
+		//if err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		//if user != nil {
+		//	return c.JSON(http.StatusConflict, "User is Exits!")
+		//
+		//}
+
 		pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 		if err != nil {
 			//fmt.Println("加密密码失败", err)
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		fmt.Println(pwd)
+		//fmt.Println(pwd)
 		u.Password = string(pwd)
-		fmt.Println(pwd)
+		//fmt.Println(pwd)
 
 		user, err := client.User.Create().
 			SetUsername(u.Username).
@@ -127,12 +136,19 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 			SetCreatedAt(time.Now()).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
+		fmt.Println(err)
 		if err != nil {
+
 			if ent.IsNotFound(err) {
-				return c.JSON(http.StatusBadRequest, err.Error())
+				//return c.JSON(http.StatusBadRequest, err.Error())
+				return c.JSON(http.StatusConflict, "User is Exits!")
+
 			}
 		}
-		return c.JSON(http.StatusOK, user)
+		if user != nil {
+			return c.JSON(http.StatusConflict, "User is Exits!")
+		}
+		return c.JSON(http.StatusCreated, user)
 	}
 }
 
