@@ -19,12 +19,9 @@ func GetAllUsers(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		log, _ := zap.NewProduction()
 		users, err := client.User.Query().All(context.Background())
-		if err != nil {
-			if ent.IsNotFound(err) {
-				log.Fatal("Get All Users Error:", zap.Error(err))
-				return c.JSON(http.StatusBadRequest, err.Error())
-			}
-			return c.JSON(http.StatusNotFound, "Not Found!")
+		if ent.IsNotFound(err) {
+			log.Fatal("Get All Users Error:", zap.Error(err))
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		return c.JSON(http.StatusOK, users)
 	}
@@ -40,10 +37,8 @@ func GetUserByUsername(client *ent.Client) echo.HandlerFunc {
 		}
 
 		user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return c.JSON(http.StatusBadRequest, err.Error())
-			}
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -59,10 +54,10 @@ func GetUserById(client *ent.Client) echo.HandlerFunc {
 		}
 
 		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return c.JSON(http.StatusBadRequest, err.Error())
-			}
+
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+
 		}
 		return c.JSON(http.StatusOK, user)
 	}
