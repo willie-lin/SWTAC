@@ -75,10 +75,10 @@ func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
 		}
 
 		user, err := client.User.Query().Where(user.EmailEQ(u.Email)).Only(context.Background())
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return c.JSON(http.StatusBadRequest, err.Error())
-			}
+
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+
 		}
 		return c.JSON(http.StatusOK, user)
 	}
