@@ -137,17 +137,21 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		fmt.Println(err)
-		if err != nil {
 
-			if ent.IsNotFound(err) {
-				//return c.JSON(http.StatusBadRequest, err.Error())
-				return c.JSON(http.StatusConflict, "User is Exits!")
-
-			}
+		if ent.IsConstraintError(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		if user != nil {
-			return c.JSON(http.StatusConflict, "User is Exits!")
-		}
+		//if err != nil {
+		//
+		//	if ent.IsNotFound(err) {
+		//		//return c.JSON(http.StatusBadRequest, err.Error())
+		//		return c.JSON(http.StatusConflict, "User is Exits!")
+		//
+		//	}
+		//}
+		//if user != nil {
+		//	return c.JSON(http.StatusConflict, "User is Exits!")
+		//}
 		return c.JSON(http.StatusCreated, user)
 	}
 }
