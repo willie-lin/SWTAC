@@ -77,6 +77,7 @@ func main() {
 	e.PUT("/user/id", handler.UpdateUserById(client))
 	e.PUT("/user", handler.UpdateUser(client))
 	e.DELETE("/user", handler.DeleteUser(client))
+	e.DELETE("/user/id", handler.DeleteUserById(client))
 
 	e.Logger.Fatal(e.Start(":2023"))
 
