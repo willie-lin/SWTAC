@@ -69,11 +69,13 @@ func main() {
 		return c.JSON(http.StatusOK, "hello world!!!")
 	})
 
-	e.POST("/user", handler.CreateUser(client))
 	e.GET("/users", handler.GetAllUsers(client))
 	e.GET("/user/id", handler.GetUserById(client))
 	e.GET("/user/name", handler.GetUserByUsername(client))
 	e.GET("/user/email", handler.GetUserByEmail(client))
+	e.POST("/user", handler.CreateUser(client))
+	e.PUT("/user", handler.UpdateUserById(client))
+	e.DELETE("/user", handler.CreateUser(client))
 
 	e.Logger.Fatal(e.Start(":2023"))
 
