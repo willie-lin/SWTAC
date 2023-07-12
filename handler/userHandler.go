@@ -6,7 +6,9 @@ import (
 	"SWTAC/utils"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
@@ -124,7 +126,7 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// UpdateUserById UpdateUser 更新用户
+// UpdateUserById  更新用户
 func UpdateUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
@@ -154,299 +156,99 @@ func UpdateUserById(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-//// 更新用户
-//func UpdateUser(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//
-//		//client, err := database.Client()
-//		//client, err := config.NewClient()
-//		//if err != nil {
-//		//	panic(err)
-//		//}
-//
-//		u := new(ent.User)
-//		fmt.Println(client)
-//
-//		//// 接收raw数据
-//		//result, err := ioutil.ReadAll(c.Request().Body)
-//		//if err != nil {
-//		//	fmt.Println("ioutil.ReadAll err:", err)
-//		//	return err
-//		//}
-//		//
-//		//// 解析raw为json
-//		//err = json.Unmarshal(result, &u)
-//		//if err != nil {
-//		//	fmt.Println("json.Unmarshal err:", err)
-//		//	return err
-//		//}
-//
-//		// 直接解析raw数据为json
-//		log, _ := zap.NewProduction()
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			log.Fatal("json decode error", zap.Error(err))
-//			return err
-//		}
-//		//// or for DisallowUnknownFields() wrapped in your custom func
-//		//decoder := json.NewDecoder(c.Request().Body)
-//		//decoder.DisallowUnknownFields()
-//		//if err := decoder.Decode(&payload); err != nil {
-//		//	return err
-//		//}
-//
-//		//us, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-//		//if err != nil {
-//		//	panic(err)
-//		//	return fmt.Errorf("failed querying user: %v", err)
-//		//}
-//		//_, err = us.Update().
-//		//	SetUsername(u.Username).
-//		//	SetPassword(u.Password).
-//		//	SetNickname(u.Nickname).
-//		//	SetTotpSecret(u.TotpSecret).
-//		//	SetOnline(u.Online).
-//		//	SetEnable(u.Enable).
-//		//	SetCreatedAt(time.Now()).
-//		//	SetUpdatedAt(time.Now()).
-//		//	SetType(u.Type).Save(context.Background())
-//		//if err != nil {
-//		//	panic(err)
-//		//	fmt.Println("删除出错！")
-//		//	return err
-//		//}
-//
-//		ur, err := client.User.Update().
-//			Where(user.UsernameEQ(u.Username)).
-//			//SetPassword(string(utils.u.Password)).
-//			SetEmail(u.Email).
-//			SetNickname(u.Nickname).
-//			SetTotpSecret(u.TotpSecret).
-//			SetOnline(u.Online).
-//			SetEnable(u.Enable).
-//			//SetCreatedAt(time.Now()).
-//			//SetUpdatedAt(time.Now()).
-//			SetType(u.Type).Save(context.Background())
-//		if err != nil {
-//			//panic(err)
-//			//log.Fatal("Update user error:", zap.Error(err))
-//			//fmt.Println("update user err: ", err)
-//			return err
-//		}
-//		return c.JSON(http.StatusOK, &ur)
-//	}
-//
-//}
-//
-//// 更新用户 by  ID
-//func UpdateUserById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//
-//		//client, err := database.Client()
-//		//client, err := config.NewClient()
-//		//
-//		//if err != nil {
-//		//	panic(err)
-//		//}
-//
-//		u := new(ent.User)
-//		fmt.Println(client)
-//
-//		//// 接收raw数据
-//		//result, err := ioutil.ReadAll(c.Request().Body)
-//		//if err != nil {
-//		//	fmt.Println("ioutil.ReadAll err:", err)
-//		//	return err
-//		//}
-//		//// 解析raw为json
-//		//err = json.Unmarshal(result, &u)
-//		//if err != nil {
-//		//	fmt.Println("json.Unmarshal err:", err)
-//		//	return err
-//		//}
-//
-//		// 直接解析raw数据为json
-//		log, _ := zap.NewProduction()
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			log.Fatal("json decode error", zap.Error(err))
-//			return err
-//		}
-//		//// or for DisallowUnknownFields() wrapped in your custom func
-//		//decoder := json.NewDecoder(c.Request().Body)
-//		//decoder.DisallowUnknownFields()
-//		//if err := decoder.Decode(&payload); err != nil {
-//		//	return err
-//		//}
-//
-//		us, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-//		if err != nil {
-//			//panic(err)
-//			//log.Fatal("Query user error:", zap.Error(err))
-//			return fmt.Errorf("failed querying user: %v", err)
-//		}
-//
-//		ur, err := client.User.UpdateOneID(us.ID).
-//			SetEmail(us.Email).
-//			SetNickname(u.Nickname).
-//			SetTotpSecret(u.TotpSecret).
-//			SetOnline(u.Online).
-//			SetEnable(u.Enable).
-//			//SetCreatedAt(time.Now()).
-//			//SetUpdatedAt(time.Now()).
-//			SetType(u.Type).Save(context.Background())
-//		if err != nil {
-//			//panic(err)
-//			//log.Fatal("Update user error:", zap.Error(err))
-//			//fmt.Println("update user err: ", err)
-//			return err
-//		}
-//
-//		return c.JSON(http.StatusOK, &ur)
-//	}
-//
-//}
-//
-//// 更新用户 by  ID
-//func TestBindJson(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//
-//		////client, err := database.Client()
-//		//client, err := config.NewClient()
-//		//
-//		//if err != nil {
-//		//	panic(err)
-//		//}
-//		u := new(ent.User)
-//		fmt.Println(client)
-//
-//		//// 接收raw数据
-//		//result, err := ioutil.ReadAll(c.Request().Body)
-//		//if err != nil {
-//		//	fmt.Println("ioutil.ReadAll err:", err)
-//		//	return err
-//		//}
-//		//
-//		//// 解析raw为json
-//		//err = json.Unmarshal(result, &u)
-//		//if err != nil {
-//		//	fmt.Println("json.Unmarshal err:", err)
-//		//	return err
-//		//}
-//
-//		// 直接解析raw数据为json
-//		log, _ := zap.NewProduction()
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			log.Fatal("json decode error", zap.Error(err))
-//			return err
-//		}
-//		//// or for DisallowUnknownFields() wrapped in your custom func
-//		//decoder := json.NewDecoder(c.Request().Body)
-//		//decoder.DisallowUnknownFields()
-//		//if err := decoder.Decode(&payload); err != nil {
-//		//	return err
-//		//}
-//		us, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-//		if err != nil {
-//			//panic(err)
-//			log.Fatal("Query user error:", zap.Error(err))
-//			return err
-//		}
-//
-//		ur, err := client.User.UpdateOneID(us.ID).
-//			//SetUsername(u.Username).
-//			//SetPassword(u.Password).
-//			SetNickname(u.Nickname).
-//			SetTotpSecret(u.TotpSecret).
-//			SetOnline(u.Online).
-//			SetEnable(u.Enable).
-//			//SetCreatedAt(time.Now()).
-//			//SetUpdatedAt(time.Now()).
-//			SetType(u.Type).Save(context.Background())
-//		if err != nil {
-//			//panic(err)
-//			//fmt.Println("update user err: ", err)
-//			//log.Fatal("Update user error:", zap.Error(err))
-//			return err
-//		}
-//
-//		//us, err = client.User.Update().SetNickname()
-//
-//		return c.JSON(http.StatusOK, &ur)
-//
-//		//return c.NoContent(http.StatusNoContent)
-//	}
-//
-//}
-//
-//// @Title DeleteUser
-//// @Description 删除用户信息
-//// ListAccounts godoc
-//// @Summary List accounts
-//// @Description get accounts
-//// @Accept  json
-//// @Produce  json
-//// @RequestBody user_name formData string true "用户名称"
-//// @Success 200 "删除信息成功"
-//// @Failure 400 "删除信息失败"
-//// @Router /handler.DeleteUser [DELETE]
-//// 删除用户
-//func DeleteUser(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		//client, err := database.Client()
-//		//client, err := config.NewClient()
-//		//if err != nil {
-//		//	panic(err)
-//		//	return err
-//		//}
-//		u := new(ent.User)
-//
-//		//// 接收raw数据
-//		//result, err := ioutil.ReadAll(c.Request().Body)
-//		//if err != nil {
-//		//	fmt.Println("ioutil.ReadAll err:", err)
-//		//	return err
-//		//}
-//		//// 解析raw为json
-//		//err = json.Unmarshal(result, &u)
-//		//if err != nil {
-//		//	fmt.Println("json.Unmarshal err:", err)
-//		//	return err
-//		//}
-//
-//		// 直接解析raw数据为json
-//		log, _ := zap.NewProduction()
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			log.Fatal("json decode error", zap.Error(err))
-//			return err
-//		}
-//		//// or for DisallowUnknownFields() wrapped in your custom func
-//		//decoder := json.NewDecoder(c.Request().Body)
-//		//decoder.DisallowUnknownFields()
-//		//if err := decoder.Decode(&payload); err != nil {
-//		//	return err
-//		//}
-//
-//		fmt.Println(1111)
-//		fmt.Println(u.Username)
-//		fmt.Println(22222)
-//		us, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-//		if err != nil {
-//			//panic(err)
-//			//log.Fatal("Query user error:", zap.Error(err))
-//			return fmt.Errorf("failed querying user: %v", err)
-//		}
-//		fmt.Println(us.ID)
-//
-//		//err = client.User.DeleteOneID(u.ID).Exec(context.Background())
-//		err = client.User.DeleteOne(us).Exec(context.Background())
-//		if err != nil {
-//			//panic(err)
-//			//fmt.Println("Delete user err: ", err)
-//			//log.Fatal("Delete user error:", zap.Error(err))
-//			return err
-//		}
-//		return c.NoContent(http.StatusOK)
-//	}
-//}
+// UpdateUser UpdateOneUser 更新用户
+func UpdateUser(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		u := new(ent.User)
+
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		user, err = user.Update().
+			SetEmail(u.Email).
+			SetNickname(u.Nickname).
+			SetCity(u.City).
+			SetAvatar(u.Avatar).
+			SetPhone(u.Phone).
+			SetAge(u.Age).
+			SetIntroduction(u.Introduction).
+			SetState(u.State).
+			SetCreator(u.Creator).
+			SetEditor(u.Editor).
+			SetDeleted(u.Deleted).
+			SetUpdatedAt(time.Now()).
+			Save(context.Background())
+		return c.JSON(http.StatusOK, user)
+	}
+
+}
+
+func DeleteUser(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		//client, err := database.Client()
+		//client, err := config.NewClient()
+		//if err != nil {
+		//	panic(err)
+		//	return err
+		//}
+		u := new(ent.User)
+
+		//// 接收raw数据
+		//result, err := ioutil.ReadAll(c.Request().Body)
+		//if err != nil {
+		//	fmt.Println("ioutil.ReadAll err:", err)
+		//	return err
+		//}
+		//// 解析raw为json
+		//err = json.Unmarshal(result, &u)
+		//if err != nil {
+		//	fmt.Println("json.Unmarshal err:", err)
+		//	return err
+		//}
+
+		// 直接解析raw数据为json
+		log, _ := zap.NewProduction()
+		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+			log.Fatal("json decode error", zap.Error(err))
+			return err
+		}
+		//// or for DisallowUnknownFields() wrapped in your custom func
+		//decoder := json.NewDecoder(c.Request().Body)
+		//decoder.DisallowUnknownFields()
+		//if err := decoder.Decode(&payload); err != nil {
+		//	return err
+		//}
+
+		fmt.Println(1111)
+		fmt.Println(u.Username)
+		fmt.Println(22222)
+		us, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
+		if err != nil {
+			//panic(err)
+			//log.Fatal("Query user error:", zap.Error(err))
+			return fmt.Errorf("failed querying user: %v", err)
+		}
+		fmt.Println(us.ID)
+
+		//err = client.User.DeleteOneID(u.ID).Exec(context.Background())
+		err = client.User.DeleteOne(us).Exec(context.Background())
+		if err != nil {
+			//panic(err)
+			//fmt.Println("Delete user err: ", err)
+			//log.Fatal("Delete user error:", zap.Error(err))
+			return err
+		}
+		return c.NoContent(http.StatusOK)
+	}
+}
+
 //
 //// @Title DeleteUser
 //// @Description 删除用户信息
