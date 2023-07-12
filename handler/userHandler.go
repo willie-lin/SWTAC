@@ -6,9 +6,7 @@ import (
 	"SWTAC/utils"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
@@ -17,10 +15,8 @@ import (
 // GetAllUsers 获取所有用户
 func GetAllUsers(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		log, _ := zap.NewProduction()
 		users, err := client.User.Query().All(context.Background())
 		if ent.IsNotFound(err) {
-			log.Fatal("Get All Users Error:", zap.Error(err))
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		return c.JSON(http.StatusOK, users)
@@ -131,8 +127,6 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 			SetCreatedAt(time.Now()).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
-		fmt.Println(err)
-
 		if ent.IsConstraintError(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}

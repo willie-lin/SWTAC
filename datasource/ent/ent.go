@@ -378,7 +378,7 @@ func (s *selector) IntsX(ctx context.Context) []int {
 	return v
 }
 
-// Int returns a single int from a selector. It is only allowed when selecting one field.
+// Int returns a single int from a selector. It is onlyz allowed when selecting one field.
 func (s *selector) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = s.Ints(ctx); err != nil {
