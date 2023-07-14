@@ -51,13 +51,14 @@ type User struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
+	group_users  *uuid.UUID
 	selectValues sql.SelectValues
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// UserGroups holds the value of the user_groups edge.
-	UserGroups []*UserGroup `json:"user_groups,omitempty"`
+	// Groups holds the value of the groups edge.
+	Groups []*UserGroup `json:"groups,omitempty"`
 	// Roles holds the value of the roles edge.
 	Roles []*Role `json:"roles,omitempty"`
 	// Accounts holds the value of the accounts edge.
@@ -67,13 +68,13 @@ type UserEdges struct {
 	loadedTypes [3]bool
 }
 
-// UserGroupsOrErr returns the UserGroups value or an error if the edge
+// GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) UserGroupsOrErr() ([]*UserGroup, error) {
+func (e UserEdges) GroupsOrErr() ([]*UserGroup, error) {
 	if e.loadedTypes[0] {
-		return e.UserGroups, nil
+		return e.Groups, nil
 	}
-	return nil, &NotLoadedError{edge: "user_groups"}
+	return nil, &NotLoadedError{edge: "groups"}
 }
 
 // RolesOrErr returns the Roles value or an error if the edge
@@ -109,6 +110,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case user.FieldID:
 			values[i] = new(uuid.UUID)
+		case user.ForeignKeys[0]: // group_users
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -220,6 +223,13 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.State = int(value.Int64)
 			}
+		case user.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field group_users", values[i])
+			} else if value.Valid {
+				u.group_users = new(uuid.UUID)
+				*u.group_users = *value.S.(*uuid.UUID)
+			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
 		}
@@ -233,9 +243,9 @@ func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
 }
 
-// QueryUserGroups queries the "user_groups" edge of the User entity.
-func (u *User) QueryUserGroups() *UserGroupQuery {
-	return NewUserClient(u.config).QueryUserGroups(u)
+// QueryGroups queries the "groups" edge of the User entity.
+func (u *User) QueryGroups() *UserGroupQuery {
+	return NewUserClient(u.config).QueryGroups(u)
 }
 
 // QueryRoles queries the "roles" edge of the User entity.

@@ -65,6 +65,8 @@ func main() {
 	debugMode := datasource.DebugMode
 	debugMode(err, client, ctx)
 
+	e.Group("user")
+
 	e.GET("/hello", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "hello world!!!")
 	})

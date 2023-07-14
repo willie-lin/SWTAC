@@ -37,8 +37,8 @@ const (
 	EdgeUsers = "users"
 	// EdgePermissions holds the string denoting the permissions edge name in mutations.
 	EdgePermissions = "permissions"
-	// EdgeUserGroups holds the string denoting the user_groups edge name in mutations.
-	EdgeUserGroups = "user_groups"
+	// EdgeGroups holds the string denoting the groups edge name in mutations.
+	EdgeGroups = "groups"
 	// Table holds the table name of the role in the database.
 	Table = "roles"
 	// UsersTable is the table that holds the users relation/edge. The primary key declared below.
@@ -51,11 +51,11 @@ const (
 	// PermissionsInverseTable is the table name for the Permission entity.
 	// It exists in this package in order to avoid circular dependency with the "permission" package.
 	PermissionsInverseTable = "permissions"
-	// UserGroupsTable is the table that holds the user_groups relation/edge. The primary key declared below.
-	UserGroupsTable = "user_group_roles"
-	// UserGroupsInverseTable is the table name for the UserGroup entity.
+	// GroupsTable is the table that holds the groups relation/edge. The primary key declared below.
+	GroupsTable = "user_group_roles"
+	// GroupsInverseTable is the table name for the UserGroup entity.
 	// It exists in this package in order to avoid circular dependency with the "usergroup" package.
-	UserGroupsInverseTable = "user_groups"
+	GroupsInverseTable = "user_groups"
 )
 
 // Columns holds all SQL columns for role fields.
@@ -72,6 +72,12 @@ var Columns = []string{
 	FieldIntro,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "roles"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"group_roles",
+}
+
 var (
 	// UsersPrimaryKey and UsersColumn2 are the table columns denoting the
 	// primary key for the users relation (M2M).
@@ -79,15 +85,20 @@ var (
 	// PermissionsPrimaryKey and PermissionsColumn2 are the table columns denoting the
 	// primary key for the permissions relation (M2M).
 	PermissionsPrimaryKey = []string{"role_id", "permission_id"}
-	// UserGroupsPrimaryKey and UserGroupsColumn2 are the table columns denoting the
-	// primary key for the user_groups relation (M2M).
-	UserGroupsPrimaryKey = []string{"user_group_id", "role_id"}
+	// GroupsPrimaryKey and GroupsColumn2 are the table columns denoting the
+	// primary key for the groups relation (M2M).
+	GroupsPrimaryKey = []string{"user_group_id", "role_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -188,17 +199,17 @@ func ByPermissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByUserGroupsCount orders the results by user_groups count.
-func ByUserGroupsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByGroupsCount orders the results by groups count.
+func ByGroupsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserGroupsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newGroupsStep(), opts...)
 	}
 }
 
-// ByUserGroups orders the results by user_groups terms.
-func ByUserGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByGroups orders the results by groups terms.
+func ByGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newUsersStep() *sqlgraph.Step {
@@ -215,10 +226,10 @@ func newPermissionsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
 	)
 }
-func newUserGroupsStep() *sqlgraph.Step {
+func newGroupsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserGroupsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, UserGroupsTable, UserGroupsPrimaryKey...),
+		sqlgraph.To(GroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, GroupsTable, GroupsPrimaryKey...),
 	)
 }

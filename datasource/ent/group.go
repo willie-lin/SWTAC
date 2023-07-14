@@ -10,18 +10,65 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Group is the model entity for the Group schema.
 type Group struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt    time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Creator holds the value of the "creator" field.
+	Creator string `json:"creator,omitempty"`
+	// Editor holds the value of the "editor" field.
+	Editor string `json:"editor,omitempty"`
+	// Deleted holds the value of the "deleted" field.
+	Deleted float64 `json:"deleted,omitempty"`
+	// ParentID holds the value of the "parent_id" field.
+	ParentID string `json:"parent_id,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// Code holds the value of the "code" field.
+	Code string `json:"code,omitempty"`
+	// Intro holds the value of the "intro" field.
+	Intro string `json:"intro,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the GroupQuery when eager-loading is set.
+	Edges        GroupEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// GroupEdges holds the relations/edges for other nodes in the graph.
+type GroupEdges struct {
+	// Users holds the value of the users edge.
+	Users []*User `json:"users,omitempty"`
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// UsersOrErr returns the Users value or an error if the edge
+// was not loaded in eager-loading.
+func (e GroupEdges) UsersOrErr() ([]*User, error) {
+	if e.loadedTypes[0] {
+		return e.Users, nil
+	}
+	return nil, &NotLoadedError{edge: "users"}
+}
+
+// RolesOrErr returns the Roles value or an error if the edge
+// was not loaded in eager-loading.
+func (e GroupEdges) RolesOrErr() ([]*Role, error) {
+	if e.loadedTypes[1] {
+		return e.Roles, nil
+	}
+	return nil, &NotLoadedError{edge: "roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -29,10 +76,14 @@ func (*Group) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case group.FieldID:
-			values[i] = new(sql.NullInt64)
+		case group.FieldDeleted:
+			values[i] = new(sql.NullFloat64)
+		case group.FieldCreator, group.FieldEditor, group.FieldParentID, group.FieldName, group.FieldCode, group.FieldIntro:
+			values[i] = new(sql.NullString)
 		case group.FieldCreatedAt, group.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case group.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -49,11 +100,11 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case group.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				gr.ID = *value
 			}
-			gr.ID = int(value.Int64)
 		case group.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -66,6 +117,48 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				gr.UpdatedAt = value.Time
 			}
+		case group.FieldCreator:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field creator", values[i])
+			} else if value.Valid {
+				gr.Creator = value.String
+			}
+		case group.FieldEditor:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field editor", values[i])
+			} else if value.Valid {
+				gr.Editor = value.String
+			}
+		case group.FieldDeleted:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted", values[i])
+			} else if value.Valid {
+				gr.Deleted = value.Float64
+			}
+		case group.FieldParentID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
+			} else if value.Valid {
+				gr.ParentID = value.String
+			}
+		case group.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				gr.Name = value.String
+			}
+		case group.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				gr.Code = value.String
+			}
+		case group.FieldIntro:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field intro", values[i])
+			} else if value.Valid {
+				gr.Intro = value.String
+			}
 		default:
 			gr.selectValues.Set(columns[i], values[i])
 		}
@@ -77,6 +170,16 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (gr *Group) Value(name string) (ent.Value, error) {
 	return gr.selectValues.Get(name)
+}
+
+// QueryUsers queries the "users" edge of the Group entity.
+func (gr *Group) QueryUsers() *UserQuery {
+	return NewGroupClient(gr.config).QueryUsers(gr)
+}
+
+// QueryRoles queries the "roles" edge of the Group entity.
+func (gr *Group) QueryRoles() *RoleQuery {
+	return NewGroupClient(gr.config).QueryRoles(gr)
 }
 
 // Update returns a builder for updating this Group.
@@ -107,6 +210,27 @@ func (gr *Group) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(gr.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("creator=")
+	builder.WriteString(gr.Creator)
+	builder.WriteString(", ")
+	builder.WriteString("editor=")
+	builder.WriteString(gr.Editor)
+	builder.WriteString(", ")
+	builder.WriteString("deleted=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Deleted))
+	builder.WriteString(", ")
+	builder.WriteString("parent_id=")
+	builder.WriteString(gr.ParentID)
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(gr.Name)
+	builder.WriteString(", ")
+	builder.WriteString("code=")
+	builder.WriteString(gr.Code)
+	builder.WriteString(", ")
+	builder.WriteString("intro=")
+	builder.WriteString(gr.Intro)
 	builder.WriteByte(')')
 	return builder.String()
 }

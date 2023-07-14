@@ -5,6 +5,8 @@ package ent
 import (
 	"SWTAC/datasource/ent/group"
 	"SWTAC/datasource/ent/predicate"
+	"SWTAC/datasource/ent/role"
+	"SWTAC/datasource/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -13,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GroupUpdate is the builder for updating Group entities.
@@ -34,9 +37,158 @@ func (gu *GroupUpdate) SetUpdatedAt(t time.Time) *GroupUpdate {
 	return gu
 }
 
+// SetCreator sets the "creator" field.
+func (gu *GroupUpdate) SetCreator(s string) *GroupUpdate {
+	gu.mutation.SetCreator(s)
+	return gu
+}
+
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableCreator(s *string) *GroupUpdate {
+	if s != nil {
+		gu.SetCreator(*s)
+	}
+	return gu
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (gu *GroupUpdate) ClearCreator() *GroupUpdate {
+	gu.mutation.ClearCreator()
+	return gu
+}
+
+// SetEditor sets the "editor" field.
+func (gu *GroupUpdate) SetEditor(s string) *GroupUpdate {
+	gu.mutation.SetEditor(s)
+	return gu
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableEditor(s *string) *GroupUpdate {
+	if s != nil {
+		gu.SetEditor(*s)
+	}
+	return gu
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (gu *GroupUpdate) ClearEditor() *GroupUpdate {
+	gu.mutation.ClearEditor()
+	return gu
+}
+
+// SetDeleted sets the "deleted" field.
+func (gu *GroupUpdate) SetDeleted(f float64) *GroupUpdate {
+	gu.mutation.ResetDeleted()
+	gu.mutation.SetDeleted(f)
+	return gu
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (gu *GroupUpdate) AddDeleted(f float64) *GroupUpdate {
+	gu.mutation.AddDeleted(f)
+	return gu
+}
+
+// SetParentID sets the "parent_id" field.
+func (gu *GroupUpdate) SetParentID(s string) *GroupUpdate {
+	gu.mutation.SetParentID(s)
+	return gu
+}
+
+// SetName sets the "name" field.
+func (gu *GroupUpdate) SetName(s string) *GroupUpdate {
+	gu.mutation.SetName(s)
+	return gu
+}
+
+// SetCode sets the "code" field.
+func (gu *GroupUpdate) SetCode(s string) *GroupUpdate {
+	gu.mutation.SetCode(s)
+	return gu
+}
+
+// SetIntro sets the "intro" field.
+func (gu *GroupUpdate) SetIntro(s string) *GroupUpdate {
+	gu.mutation.SetIntro(s)
+	return gu
+}
+
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (gu *GroupUpdate) AddUserIDs(ids ...uuid.UUID) *GroupUpdate {
+	gu.mutation.AddUserIDs(ids...)
+	return gu
+}
+
+// AddUsers adds the "users" edges to the User entity.
+func (gu *GroupUpdate) AddUsers(u ...*User) *GroupUpdate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return gu.AddUserIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (gu *GroupUpdate) AddRoleIDs(ids ...uuid.UUID) *GroupUpdate {
+	gu.mutation.AddRoleIDs(ids...)
+	return gu
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (gu *GroupUpdate) AddRoles(r ...*Role) *GroupUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return gu.AddRoleIDs(ids...)
+}
+
 // Mutation returns the GroupMutation object of the builder.
 func (gu *GroupUpdate) Mutation() *GroupMutation {
 	return gu.mutation
+}
+
+// ClearUsers clears all "users" edges to the User entity.
+func (gu *GroupUpdate) ClearUsers() *GroupUpdate {
+	gu.mutation.ClearUsers()
+	return gu
+}
+
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (gu *GroupUpdate) RemoveUserIDs(ids ...uuid.UUID) *GroupUpdate {
+	gu.mutation.RemoveUserIDs(ids...)
+	return gu
+}
+
+// RemoveUsers removes "users" edges to User entities.
+func (gu *GroupUpdate) RemoveUsers(u ...*User) *GroupUpdate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return gu.RemoveUserIDs(ids...)
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (gu *GroupUpdate) ClearRoles() *GroupUpdate {
+	gu.mutation.ClearRoles()
+	return gu
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (gu *GroupUpdate) RemoveRoleIDs(ids ...uuid.UUID) *GroupUpdate {
+	gu.mutation.RemoveRoleIDs(ids...)
+	return gu
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (gu *GroupUpdate) RemoveRoles(r ...*Role) *GroupUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return gu.RemoveRoleIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -75,8 +227,21 @@ func (gu *GroupUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (gu *GroupUpdate) check() error {
+	if v, ok := gu.mutation.Creator(); ok {
+		if err := group.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Group.creator": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
+	if err := gu.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeUUID))
 	if ps := gu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -86,6 +251,126 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := gu.mutation.UpdatedAt(); ok {
 		_spec.SetField(group.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := gu.mutation.Creator(); ok {
+		_spec.SetField(group.FieldCreator, field.TypeString, value)
+	}
+	if gu.mutation.CreatorCleared() {
+		_spec.ClearField(group.FieldCreator, field.TypeString)
+	}
+	if value, ok := gu.mutation.Editor(); ok {
+		_spec.SetField(group.FieldEditor, field.TypeString, value)
+	}
+	if gu.mutation.EditorCleared() {
+		_spec.ClearField(group.FieldEditor, field.TypeString)
+	}
+	if value, ok := gu.mutation.Deleted(); ok {
+		_spec.SetField(group.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := gu.mutation.AddedDeleted(); ok {
+		_spec.AddField(group.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := gu.mutation.ParentID(); ok {
+		_spec.SetField(group.FieldParentID, field.TypeString, value)
+	}
+	if value, ok := gu.mutation.Name(); ok {
+		_spec.SetField(group.FieldName, field.TypeString, value)
+	}
+	if value, ok := gu.mutation.Code(); ok {
+		_spec.SetField(group.FieldCode, field.TypeString, value)
+	}
+	if value, ok := gu.mutation.Intro(); ok {
+		_spec.SetField(group.FieldIntro, field.TypeString, value)
+	}
+	if gu.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.UsersTable,
+			Columns: []string{group.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.RemovedUsersIDs(); len(nodes) > 0 && !gu.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.UsersTable,
+			Columns: []string{group.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.UsersTable,
+			Columns: []string{group.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if gu.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.RolesTable,
+			Columns: []string{group.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.RemovedRolesIDs(); len(nodes) > 0 && !gu.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.RolesTable,
+			Columns: []string{group.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.RolesTable,
+			Columns: []string{group.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, gu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -113,9 +398,158 @@ func (guo *GroupUpdateOne) SetUpdatedAt(t time.Time) *GroupUpdateOne {
 	return guo
 }
 
+// SetCreator sets the "creator" field.
+func (guo *GroupUpdateOne) SetCreator(s string) *GroupUpdateOne {
+	guo.mutation.SetCreator(s)
+	return guo
+}
+
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableCreator(s *string) *GroupUpdateOne {
+	if s != nil {
+		guo.SetCreator(*s)
+	}
+	return guo
+}
+
+// ClearCreator clears the value of the "creator" field.
+func (guo *GroupUpdateOne) ClearCreator() *GroupUpdateOne {
+	guo.mutation.ClearCreator()
+	return guo
+}
+
+// SetEditor sets the "editor" field.
+func (guo *GroupUpdateOne) SetEditor(s string) *GroupUpdateOne {
+	guo.mutation.SetEditor(s)
+	return guo
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableEditor(s *string) *GroupUpdateOne {
+	if s != nil {
+		guo.SetEditor(*s)
+	}
+	return guo
+}
+
+// ClearEditor clears the value of the "editor" field.
+func (guo *GroupUpdateOne) ClearEditor() *GroupUpdateOne {
+	guo.mutation.ClearEditor()
+	return guo
+}
+
+// SetDeleted sets the "deleted" field.
+func (guo *GroupUpdateOne) SetDeleted(f float64) *GroupUpdateOne {
+	guo.mutation.ResetDeleted()
+	guo.mutation.SetDeleted(f)
+	return guo
+}
+
+// AddDeleted adds f to the "deleted" field.
+func (guo *GroupUpdateOne) AddDeleted(f float64) *GroupUpdateOne {
+	guo.mutation.AddDeleted(f)
+	return guo
+}
+
+// SetParentID sets the "parent_id" field.
+func (guo *GroupUpdateOne) SetParentID(s string) *GroupUpdateOne {
+	guo.mutation.SetParentID(s)
+	return guo
+}
+
+// SetName sets the "name" field.
+func (guo *GroupUpdateOne) SetName(s string) *GroupUpdateOne {
+	guo.mutation.SetName(s)
+	return guo
+}
+
+// SetCode sets the "code" field.
+func (guo *GroupUpdateOne) SetCode(s string) *GroupUpdateOne {
+	guo.mutation.SetCode(s)
+	return guo
+}
+
+// SetIntro sets the "intro" field.
+func (guo *GroupUpdateOne) SetIntro(s string) *GroupUpdateOne {
+	guo.mutation.SetIntro(s)
+	return guo
+}
+
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (guo *GroupUpdateOne) AddUserIDs(ids ...uuid.UUID) *GroupUpdateOne {
+	guo.mutation.AddUserIDs(ids...)
+	return guo
+}
+
+// AddUsers adds the "users" edges to the User entity.
+func (guo *GroupUpdateOne) AddUsers(u ...*User) *GroupUpdateOne {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return guo.AddUserIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (guo *GroupUpdateOne) AddRoleIDs(ids ...uuid.UUID) *GroupUpdateOne {
+	guo.mutation.AddRoleIDs(ids...)
+	return guo
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (guo *GroupUpdateOne) AddRoles(r ...*Role) *GroupUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return guo.AddRoleIDs(ids...)
+}
+
 // Mutation returns the GroupMutation object of the builder.
 func (guo *GroupUpdateOne) Mutation() *GroupMutation {
 	return guo.mutation
+}
+
+// ClearUsers clears all "users" edges to the User entity.
+func (guo *GroupUpdateOne) ClearUsers() *GroupUpdateOne {
+	guo.mutation.ClearUsers()
+	return guo
+}
+
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (guo *GroupUpdateOne) RemoveUserIDs(ids ...uuid.UUID) *GroupUpdateOne {
+	guo.mutation.RemoveUserIDs(ids...)
+	return guo
+}
+
+// RemoveUsers removes "users" edges to User entities.
+func (guo *GroupUpdateOne) RemoveUsers(u ...*User) *GroupUpdateOne {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return guo.RemoveUserIDs(ids...)
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (guo *GroupUpdateOne) ClearRoles() *GroupUpdateOne {
+	guo.mutation.ClearRoles()
+	return guo
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (guo *GroupUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *GroupUpdateOne {
+	guo.mutation.RemoveRoleIDs(ids...)
+	return guo
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (guo *GroupUpdateOne) RemoveRoles(r ...*Role) *GroupUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return guo.RemoveRoleIDs(ids...)
 }
 
 // Where appends a list predicates to the GroupUpdate builder.
@@ -167,8 +601,21 @@ func (guo *GroupUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (guo *GroupUpdateOne) check() error {
+	if v, ok := guo.mutation.Creator(); ok {
+		if err := group.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Group.creator": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error) {
-	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
+	if err := guo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(group.Table, group.Columns, sqlgraph.NewFieldSpec(group.FieldID, field.TypeUUID))
 	id, ok := guo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Group.id" for update`)}
@@ -195,6 +642,126 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 	}
 	if value, ok := guo.mutation.UpdatedAt(); ok {
 		_spec.SetField(group.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := guo.mutation.Creator(); ok {
+		_spec.SetField(group.FieldCreator, field.TypeString, value)
+	}
+	if guo.mutation.CreatorCleared() {
+		_spec.ClearField(group.FieldCreator, field.TypeString)
+	}
+	if value, ok := guo.mutation.Editor(); ok {
+		_spec.SetField(group.FieldEditor, field.TypeString, value)
+	}
+	if guo.mutation.EditorCleared() {
+		_spec.ClearField(group.FieldEditor, field.TypeString)
+	}
+	if value, ok := guo.mutation.Deleted(); ok {
+		_spec.SetField(group.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := guo.mutation.AddedDeleted(); ok {
+		_spec.AddField(group.FieldDeleted, field.TypeFloat64, value)
+	}
+	if value, ok := guo.mutation.ParentID(); ok {
+		_spec.SetField(group.FieldParentID, field.TypeString, value)
+	}
+	if value, ok := guo.mutation.Name(); ok {
+		_spec.SetField(group.FieldName, field.TypeString, value)
+	}
+	if value, ok := guo.mutation.Code(); ok {
+		_spec.SetField(group.FieldCode, field.TypeString, value)
+	}
+	if value, ok := guo.mutation.Intro(); ok {
+		_spec.SetField(group.FieldIntro, field.TypeString, value)
+	}
+	if guo.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.UsersTable,
+			Columns: []string{group.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !guo.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.UsersTable,
+			Columns: []string{group.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.UsersTable,
+			Columns: []string{group.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if guo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.RolesTable,
+			Columns: []string{group.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.RemovedRolesIDs(); len(nodes) > 0 && !guo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.RolesTable,
+			Columns: []string{group.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.RolesTable,
+			Columns: []string{group.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Group{config: guo.config}
 	_spec.Assign = _node.assignValues

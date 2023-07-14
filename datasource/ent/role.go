@@ -39,6 +39,7 @@ type Role struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RoleQuery when eager-loading is set.
 	Edges        RoleEdges `json:"edges"`
+	group_roles  *uuid.UUID
 	selectValues sql.SelectValues
 }
 
@@ -48,8 +49,8 @@ type RoleEdges struct {
 	Users []*User `json:"users,omitempty"`
 	// Permissions holds the value of the permissions edge.
 	Permissions []*Permission `json:"permissions,omitempty"`
-	// UserGroups holds the value of the user_groups edge.
-	UserGroups []*UserGroup `json:"user_groups,omitempty"`
+	// Groups holds the value of the groups edge.
+	Groups []*UserGroup `json:"groups,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -73,13 +74,13 @@ func (e RoleEdges) PermissionsOrErr() ([]*Permission, error) {
 	return nil, &NotLoadedError{edge: "permissions"}
 }
 
-// UserGroupsOrErr returns the UserGroups value or an error if the edge
+// GroupsOrErr returns the Groups value or an error if the edge
 // was not loaded in eager-loading.
-func (e RoleEdges) UserGroupsOrErr() ([]*UserGroup, error) {
+func (e RoleEdges) GroupsOrErr() ([]*UserGroup, error) {
 	if e.loadedTypes[2] {
-		return e.UserGroups, nil
+		return e.Groups, nil
 	}
-	return nil, &NotLoadedError{edge: "user_groups"}
+	return nil, &NotLoadedError{edge: "groups"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -97,6 +98,8 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case role.FieldID:
 			values[i] = new(uuid.UUID)
+		case role.ForeignKeys[0]: // group_roles
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -172,6 +175,13 @@ func (r *Role) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.Intro = value.String
 			}
+		case role.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field group_roles", values[i])
+			} else if value.Valid {
+				r.group_roles = new(uuid.UUID)
+				*r.group_roles = *value.S.(*uuid.UUID)
+			}
 		default:
 			r.selectValues.Set(columns[i], values[i])
 		}
@@ -195,9 +205,9 @@ func (r *Role) QueryPermissions() *PermissionQuery {
 	return NewRoleClient(r.config).QueryPermissions(r)
 }
 
-// QueryUserGroups queries the "user_groups" edge of the Role entity.
-func (r *Role) QueryUserGroups() *UserGroupQuery {
-	return NewRoleClient(r.config).QueryUserGroups(r)
+// QueryGroups queries the "groups" edge of the Role entity.
+func (r *Role) QueryGroups() *UserGroupQuery {
+	return NewRoleClient(r.config).QueryGroups(r)
 }
 
 // Update returns a builder for updating this Role.

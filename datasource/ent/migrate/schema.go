@@ -44,9 +44,16 @@ var (
 	}
 	// GroupColumns holds the columns for the "group" table.
 	GroupColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "creator", Type: field.TypeString, Nullable: true},
+		{Name: "editor", Type: field.TypeString, Nullable: true},
+		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
+		{Name: "parent_id", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString},
+		{Name: "code", Type: field.TypeString},
+		{Name: "intro", Type: field.TypeString},
 	}
 	// GroupTable holds the schema information for the "group" table.
 	GroupTable = &schema.Table{
@@ -87,12 +94,21 @@ var (
 		{Name: "code", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
 		{Name: "intro", Type: field.TypeString},
+		{Name: "group_roles", Type: field.TypeUUID, Nullable: true},
 	}
 	// RolesTable holds the schema information for the "roles" table.
 	RolesTable = &schema.Table{
 		Name:       "roles",
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "roles_group_roles",
+				Columns:    []*schema.Column{RolesColumns[10]},
+				RefColumns: []*schema.Column{GroupColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -112,12 +128,21 @@ var (
 		{Name: "phone", Type: field.TypeString, Unique: true, Size: 11},
 		{Name: "password", Type: field.TypeString},
 		{Name: "state", Type: field.TypeInt},
+		{Name: "group_users", Type: field.TypeUUID, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_group_users",
+				Columns:    []*schema.Column{UsersColumns[16]},
+				RefColumns: []*schema.Column{GroupColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// UserGroupsColumns holds the columns for the "user_groups" table.
 	UserGroupsColumns = []*schema.Column{
@@ -264,9 +289,11 @@ func init() {
 	PermissionsTable.Annotation = &entsql.Annotation{
 		Table: "permissions",
 	}
+	RolesTable.ForeignKeys[0].RefTable = GroupTable
 	RolesTable.Annotation = &entsql.Annotation{
 		Table: "roles",
 	}
+	UsersTable.ForeignKeys[0].RefTable = GroupTable
 	UsersTable.Annotation = &entsql.Annotation{
 		Table: "users",
 	}

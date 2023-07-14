@@ -4,6 +4,8 @@ package ent
 
 import (
 	"SWTAC/datasource/ent/group"
+	"SWTAC/datasource/ent/role"
+	"SWTAC/datasource/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -11,6 +13,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GroupCreate is the builder for creating a Group entity.
@@ -46,6 +49,108 @@ func (gc *GroupCreate) SetNillableUpdatedAt(t *time.Time) *GroupCreate {
 		gc.SetUpdatedAt(*t)
 	}
 	return gc
+}
+
+// SetCreator sets the "creator" field.
+func (gc *GroupCreate) SetCreator(s string) *GroupCreate {
+	gc.mutation.SetCreator(s)
+	return gc
+}
+
+// SetNillableCreator sets the "creator" field if the given value is not nil.
+func (gc *GroupCreate) SetNillableCreator(s *string) *GroupCreate {
+	if s != nil {
+		gc.SetCreator(*s)
+	}
+	return gc
+}
+
+// SetEditor sets the "editor" field.
+func (gc *GroupCreate) SetEditor(s string) *GroupCreate {
+	gc.mutation.SetEditor(s)
+	return gc
+}
+
+// SetNillableEditor sets the "editor" field if the given value is not nil.
+func (gc *GroupCreate) SetNillableEditor(s *string) *GroupCreate {
+	if s != nil {
+		gc.SetEditor(*s)
+	}
+	return gc
+}
+
+// SetDeleted sets the "deleted" field.
+func (gc *GroupCreate) SetDeleted(f float64) *GroupCreate {
+	gc.mutation.SetDeleted(f)
+	return gc
+}
+
+// SetParentID sets the "parent_id" field.
+func (gc *GroupCreate) SetParentID(s string) *GroupCreate {
+	gc.mutation.SetParentID(s)
+	return gc
+}
+
+// SetName sets the "name" field.
+func (gc *GroupCreate) SetName(s string) *GroupCreate {
+	gc.mutation.SetName(s)
+	return gc
+}
+
+// SetCode sets the "code" field.
+func (gc *GroupCreate) SetCode(s string) *GroupCreate {
+	gc.mutation.SetCode(s)
+	return gc
+}
+
+// SetIntro sets the "intro" field.
+func (gc *GroupCreate) SetIntro(s string) *GroupCreate {
+	gc.mutation.SetIntro(s)
+	return gc
+}
+
+// SetID sets the "id" field.
+func (gc *GroupCreate) SetID(u uuid.UUID) *GroupCreate {
+	gc.mutation.SetID(u)
+	return gc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (gc *GroupCreate) SetNillableID(u *uuid.UUID) *GroupCreate {
+	if u != nil {
+		gc.SetID(*u)
+	}
+	return gc
+}
+
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (gc *GroupCreate) AddUserIDs(ids ...uuid.UUID) *GroupCreate {
+	gc.mutation.AddUserIDs(ids...)
+	return gc
+}
+
+// AddUsers adds the "users" edges to the User entity.
+func (gc *GroupCreate) AddUsers(u ...*User) *GroupCreate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return gc.AddUserIDs(ids...)
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (gc *GroupCreate) AddRoleIDs(ids ...uuid.UUID) *GroupCreate {
+	gc.mutation.AddRoleIDs(ids...)
+	return gc
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (gc *GroupCreate) AddRoles(r ...*Role) *GroupCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return gc.AddRoleIDs(ids...)
 }
 
 // Mutation returns the GroupMutation object of the builder.
@@ -91,6 +196,10 @@ func (gc *GroupCreate) defaults() {
 		v := group.DefaultUpdatedAt()
 		gc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := gc.mutation.ID(); !ok {
+		v := group.DefaultID()
+		gc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -100,6 +209,26 @@ func (gc *GroupCreate) check() error {
 	}
 	if _, ok := gc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Group.updated_at"`)}
+	}
+	if v, ok := gc.mutation.Creator(); ok {
+		if err := group.CreatorValidator(v); err != nil {
+			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Group.creator": %w`, err)}
+		}
+	}
+	if _, ok := gc.mutation.Deleted(); !ok {
+		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Group.deleted"`)}
+	}
+	if _, ok := gc.mutation.ParentID(); !ok {
+		return &ValidationError{Name: "parent_id", err: errors.New(`ent: missing required field "Group.parent_id"`)}
+	}
+	if _, ok := gc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Group.name"`)}
+	}
+	if _, ok := gc.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Group.code"`)}
+	}
+	if _, ok := gc.mutation.Intro(); !ok {
+		return &ValidationError{Name: "intro", err: errors.New(`ent: missing required field "Group.intro"`)}
 	}
 	return nil
 }
@@ -115,8 +244,13 @@ func (gc *GroupCreate) sqlSave(ctx context.Context) (*Group, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	gc.mutation.id = &_node.ID
 	gc.mutation.done = true
 	return _node, nil
@@ -125,8 +259,12 @@ func (gc *GroupCreate) sqlSave(ctx context.Context) (*Group, error) {
 func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Group{config: gc.config}
-		_spec = sqlgraph.NewCreateSpec(group.Table, sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(group.Table, sqlgraph.NewFieldSpec(group.FieldID, field.TypeUUID))
 	)
+	if id, ok := gc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := gc.mutation.CreatedAt(); ok {
 		_spec.SetField(group.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -134,6 +272,66 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 	if value, ok := gc.mutation.UpdatedAt(); ok {
 		_spec.SetField(group.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := gc.mutation.Creator(); ok {
+		_spec.SetField(group.FieldCreator, field.TypeString, value)
+		_node.Creator = value
+	}
+	if value, ok := gc.mutation.Editor(); ok {
+		_spec.SetField(group.FieldEditor, field.TypeString, value)
+		_node.Editor = value
+	}
+	if value, ok := gc.mutation.Deleted(); ok {
+		_spec.SetField(group.FieldDeleted, field.TypeFloat64, value)
+		_node.Deleted = value
+	}
+	if value, ok := gc.mutation.ParentID(); ok {
+		_spec.SetField(group.FieldParentID, field.TypeString, value)
+		_node.ParentID = value
+	}
+	if value, ok := gc.mutation.Name(); ok {
+		_spec.SetField(group.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := gc.mutation.Code(); ok {
+		_spec.SetField(group.FieldCode, field.TypeString, value)
+		_node.Code = value
+	}
+	if value, ok := gc.mutation.Intro(); ok {
+		_spec.SetField(group.FieldIntro, field.TypeString, value)
+		_node.Intro = value
+	}
+	if nodes := gc.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.UsersTable,
+			Columns: []string{group.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   group.RolesTable,
+			Columns: []string{group.RolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -179,10 +377,6 @@ func (gcb *GroupCreateBulk) Save(ctx context.Context) ([]*Group, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

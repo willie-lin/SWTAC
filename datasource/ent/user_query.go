@@ -22,13 +22,14 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx            *QueryContext
-	order          []user.OrderOption
-	inters         []Interceptor
-	predicates     []predicate.User
-	withUserGroups *UserGroupQuery
-	withRoles      *RoleQuery
-	withAccounts   *AccountQuery
+	ctx          *QueryContext
+	order        []user.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.User
+	withGroups   *UserGroupQuery
+	withRoles    *RoleQuery
+	withAccounts *AccountQuery
+	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -65,8 +66,8 @@ func (uq *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 	return uq
 }
 
-// QueryUserGroups chains the current query on the "user_groups" edge.
-func (uq *UserQuery) QueryUserGroups() *UserGroupQuery {
+// QueryGroups chains the current query on the "groups" edge.
+func (uq *UserQuery) QueryGroups() *UserGroupQuery {
 	query := (&UserGroupClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
@@ -79,7 +80,7 @@ func (uq *UserQuery) QueryUserGroups() *UserGroupQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(usergroup.Table, usergroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, user.UserGroupsTable, user.UserGroupsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.GroupsTable, user.GroupsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -318,28 +319,28 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:         uq.config,
-		ctx:            uq.ctx.Clone(),
-		order:          append([]user.OrderOption{}, uq.order...),
-		inters:         append([]Interceptor{}, uq.inters...),
-		predicates:     append([]predicate.User{}, uq.predicates...),
-		withUserGroups: uq.withUserGroups.Clone(),
-		withRoles:      uq.withRoles.Clone(),
-		withAccounts:   uq.withAccounts.Clone(),
+		config:       uq.config,
+		ctx:          uq.ctx.Clone(),
+		order:        append([]user.OrderOption{}, uq.order...),
+		inters:       append([]Interceptor{}, uq.inters...),
+		predicates:   append([]predicate.User{}, uq.predicates...),
+		withGroups:   uq.withGroups.Clone(),
+		withRoles:    uq.withRoles.Clone(),
+		withAccounts: uq.withAccounts.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
 	}
 }
 
-// WithUserGroups tells the query-builder to eager-load the nodes that are connected to
-// the "user_groups" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithUserGroups(opts ...func(*UserGroupQuery)) *UserQuery {
+// WithGroups tells the query-builder to eager-load the nodes that are connected to
+// the "groups" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithGroups(opts ...func(*UserGroupQuery)) *UserQuery {
 	query := (&UserGroupClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withUserGroups = query
+	uq.withGroups = query
 	return uq
 }
 
@@ -442,13 +443,17 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
+		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
 		loadedTypes = [3]bool{
-			uq.withUserGroups != nil,
+			uq.withGroups != nil,
 			uq.withRoles != nil,
 			uq.withAccounts != nil,
 		}
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -467,10 +472,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := uq.withUserGroups; query != nil {
-		if err := uq.loadUserGroups(ctx, query, nodes,
-			func(n *User) { n.Edges.UserGroups = []*UserGroup{} },
-			func(n *User, e *UserGroup) { n.Edges.UserGroups = append(n.Edges.UserGroups, e) }); err != nil {
+	if query := uq.withGroups; query != nil {
+		if err := uq.loadGroups(ctx, query, nodes,
+			func(n *User) { n.Edges.Groups = []*UserGroup{} },
+			func(n *User, e *UserGroup) { n.Edges.Groups = append(n.Edges.Groups, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -491,7 +496,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	return nodes, nil
 }
 
-func (uq *UserQuery) loadUserGroups(ctx context.Context, query *UserGroupQuery, nodes []*User, init func(*User), assign func(*User, *UserGroup)) error {
+func (uq *UserQuery) loadGroups(ctx context.Context, query *UserGroupQuery, nodes []*User, init func(*User), assign func(*User, *UserGroup)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[uuid.UUID]*User)
 	nids := make(map[uuid.UUID]map[*User]struct{})
@@ -503,11 +508,11 @@ func (uq *UserQuery) loadUserGroups(ctx context.Context, query *UserGroupQuery, 
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(user.UserGroupsTable)
-		s.Join(joinT).On(s.C(usergroup.FieldID), joinT.C(user.UserGroupsPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(user.UserGroupsPrimaryKey[1]), edgeIDs...))
+		joinT := sql.Table(user.GroupsTable)
+		s.Join(joinT).On(s.C(usergroup.FieldID), joinT.C(user.GroupsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(user.GroupsPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(user.UserGroupsPrimaryKey[1]))
+		s.Select(joinT.C(user.GroupsPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -544,7 +549,7 @@ func (uq *UserQuery) loadUserGroups(ctx context.Context, query *UserGroupQuery, 
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "user_groups" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "groups" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)

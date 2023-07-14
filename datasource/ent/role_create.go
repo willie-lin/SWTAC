@@ -154,19 +154,19 @@ func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
 	return rc.AddPermissionIDs(ids...)
 }
 
-// AddUserGroupIDs adds the "user_groups" edge to the UserGroup entity by IDs.
-func (rc *RoleCreate) AddUserGroupIDs(ids ...uuid.UUID) *RoleCreate {
-	rc.mutation.AddUserGroupIDs(ids...)
+// AddGroupIDs adds the "groups" edge to the UserGroup entity by IDs.
+func (rc *RoleCreate) AddGroupIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddGroupIDs(ids...)
 	return rc
 }
 
-// AddUserGroups adds the "user_groups" edges to the UserGroup entity.
-func (rc *RoleCreate) AddUserGroups(u ...*UserGroup) *RoleCreate {
+// AddGroups adds the "groups" edges to the UserGroup entity.
+func (rc *RoleCreate) AddGroups(u ...*UserGroup) *RoleCreate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return rc.AddUserGroupIDs(ids...)
+	return rc.AddGroupIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -349,12 +349,12 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := rc.mutation.UserGroupsIDs(); len(nodes) > 0 {
+	if nodes := rc.mutation.GroupsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   role.UserGroupsTable,
-			Columns: role.UserGroupsPrimaryKey,
+			Table:   role.GroupsTable,
+			Columns: role.GroupsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),

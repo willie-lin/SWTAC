@@ -1021,21 +1021,21 @@ func StateLTE(v int) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldState, v))
 }
 
-// HasUserGroups applies the HasEdge predicate on the "user_groups" edge.
-func HasUserGroups() predicate.User {
+// HasGroups applies the HasEdge predicate on the "groups" edge.
+func HasGroups() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, UserGroupsTable, UserGroupsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, GroupsTable, GroupsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserGroupsWith applies the HasEdge predicate on the "user_groups" edge with a given conditions (other predicates).
-func HasUserGroupsWith(preds ...predicate.UserGroup) predicate.User {
+// HasGroupsWith applies the HasEdge predicate on the "groups" edge with a given conditions (other predicates).
+func HasGroupsWith(preds ...predicate.UserGroup) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
-		step := newUserGroupsStep()
+		step := newGroupsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

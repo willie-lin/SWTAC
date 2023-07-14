@@ -49,7 +49,7 @@ func (Role) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("users", User.Type).Ref("roles"),
 		edge.To("permissions", Permission.Type),
-		edge.From("user_groups", UserGroup.Type).Ref("roles"),
+		edge.From("groups", UserGroup.Type).Ref("roles"),
 	}
 }
 
