@@ -38,12 +38,12 @@ func main() {
 	}))
 
 	// 连接数据库
-
 	client, err := datasource.NewClient()
 	if err != nil {
 		zapLogger.Fatal("opening ent client", zap.Error(err))
 		return
 	}
+	// 关闭数据库
 	defer func(client *ent.Client) {
 		err := client.Close()
 		if err != nil {
