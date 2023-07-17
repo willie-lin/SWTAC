@@ -9,8 +9,8 @@ import (
 	"net/http"
 )
 
-// GetAllGroups   获取所有用户
-func GetAllGroups(client *ent.Client) echo.HandlerFunc {
+// GetAllUserGroups  获取所有用户
+func GetAllUserGroups(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		usergroups, err := client.UserGroup.Query().All(context.Background())
 		if ent.IsNotFound(err) {
@@ -20,8 +20,8 @@ func GetAllGroups(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// GetGroupByGroupName   根据用户名查找
-func GetGroupByGroupName(client *ent.Client) echo.HandlerFunc {
+// GetUserGroupByUserGroupName  根据用户名查找
+func GetUserGroupByUserGroupName(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
 		// 直接解析raw数据为json
