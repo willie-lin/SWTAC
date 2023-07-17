@@ -12,11 +12,11 @@ import (
 // GetAllUserGroups  获取所有用户
 func GetAllUserGroups(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		usergroups, err := client.UserGroup.Query().All(context.Background())
+		supergroups, err := client.UserGroup.Query().All(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		return c.JSON(http.StatusOK, usergroups)
+		return c.JSON(http.StatusOK, supergroups)
 	}
 }
 
@@ -37,46 +37,44 @@ func GetUserGroupByUserGroupName(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-//
-//// GetUserById  根据ID查找
-//func GetUserGroupById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
-//
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
-//
-//// GetUserByEmail 根据email 查找用户
-//func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//
-//		u := new(ent.User)
-//
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.Query().Where(user.EmailEQ(u.Email)).Only(context.Background())
-//
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
+// GetUserGroupById   根据ID查找
+func GetUserGroupById(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ug := new(ent.UserGroup)
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		usergroup, err := client.UserGroup.Query().Where(usergroup.IDEQ(ug.ID)).Only(context.Background())
+
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusOK, usergroup)
+	}
+}
+
+// GetUserGroupByName  根据name 查找用户组
+func GetUserGroupByName(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		ug := new(ent.UserGroup)
+
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		usergroup, err := client.UserGroup.Query().Where(usergroup.NameEQ(ug.Name)).Only(context.Background())
+
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusOK, usergroup)
+	}
+}
+
 //
 //// CreateUser 创建用户
 //func CreateUser(client *ent.Client) echo.HandlerFunc {
