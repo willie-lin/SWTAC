@@ -71,6 +71,7 @@ func main() {
 		return c.JSON(http.StatusOK, "hello world!!!")
 	})
 
+	// user
 	e.GET("/users", handler.GetAllUsers(client))
 	e.GET("/user/id", handler.GetUserById(client))
 	e.GET("/user/name", handler.GetUserByUsername(client))
@@ -80,6 +81,15 @@ func main() {
 	e.PUT("/user", handler.UpdateUser(client))
 	e.DELETE("/user", handler.DeleteUser(client))
 	e.DELETE("/user/id", handler.DeleteUserById(client))
+	// usergroup
+	e.GET("/usergroups", handler.GetAllUserGroups(client))
+	e.GET("/usergropu/id", handler.GetUserGroupById(client))
+	e.GET("/usergropu/name", handler.GetUserGroupByName(client))
+	e.POST("/usergropu", handler.CreateUserGroup(client))
+	e.PUT("/usergropu/id", handler.UpdateUserGroupById(client))
+	e.PUT("/usergropu", handler.UpdateUserGroup(client))
+	e.DELETE("/usergropu", handler.DeleteUserGroup(client))
+	e.DELETE("/usergropu/id", handler.DeleteUserGroupById(client))
 
 	e.Logger.Fatal(e.Start(":2023"))
 
