@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// GetAllUserGroups  获取所有用户
+// GetAllUserGroups  获取所有用户组
 func GetAllUserGroups(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		supergroups, err := client.UserGroup.Query().All(context.Background())
@@ -21,7 +21,7 @@ func GetAllUserGroups(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// GetUserGroupByUserGroupName  根据用户名查找
+// GetUserGroupByUserGroupName  根据用户组名查找
 func GetUserGroupByUserGroupName(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
@@ -56,7 +56,7 @@ func GetUserGroupById(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// GetUserGroupByName  根据name 查找用户组
+// GetUserGroupByName  根据name 查找用户组组
 func GetUserGroupByName(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -76,7 +76,7 @@ func GetUserGroupByName(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// CreateUser 创建用户
+// CreateUser 创建用户组
 func CreateUserGroup(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 
@@ -114,7 +114,7 @@ func CreateUserGroup(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// UpdateUserGroupById 更新用户
+// UpdateUserGroupById 更新用户组
 func UpdateUserGroupById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
@@ -139,7 +139,7 @@ func UpdateUserGroupById(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// UpdateUserGroup   更新用户
+// UpdateUserGroup   更新用户组
 func UpdateUserGroup(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
@@ -164,7 +164,7 @@ func UpdateUserGroup(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// DeleteUser 删除用户
+// DeleteUserGroup  删除用户组
 func DeleteUserGroup(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
@@ -182,22 +182,19 @@ func DeleteUserGroup(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-//// 删除用户
-//func DeleteUserById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		err := client.User.DeleteOneID(u.ID).Exec(context.Background())
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		//return c.NoContent(http.StatusNoContent)
-//		return c.NoContent(http.StatusOK)
-//	}
-//}
+// DeleteUserGroupById 删除用户组
+func DeleteUserGroupById(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ug := new(ent.UserGroup)
+
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err := client.UserGroup.DeleteOneID(ug.ID).Exec(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.NoContent(http.StatusOK)
+	}
+}

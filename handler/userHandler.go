@@ -210,18 +210,14 @@ func DeleteUser(client *ent.Client) echo.HandlerFunc {
 func DeleteUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
-
 		// 直接解析raw数据为json
 		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
 		err := client.User.DeleteOneID(u.ID).Exec(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
-		//return c.NoContent(http.StatusNoContent)
 		return c.NoContent(http.StatusOK)
 	}
 }
