@@ -206,7 +206,7 @@ func DeleteUser(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// 删除用户
+// DeleteUserById 删除用户
 func DeleteUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
