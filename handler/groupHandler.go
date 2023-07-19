@@ -2,224 +2,178 @@ package handler
 
 import (
 	"SWTAC/datasource/ent"
-	"SWTAC/datasource/ent/usergroup"
+	"SWTAC/datasource/ent/group"
 	"context"
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"time"
 )
 
-// GetAllGroups   获取所有用户
+// GetAllGroups   获取所有组
 func GetAllGroups(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		usergroups, err := client.UserGroup.Query().All(context.Background())
+		groups, err := client.Group.Query().All(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		return c.JSON(http.StatusOK, usergroups)
+		return c.JSON(http.StatusOK, groups)
 	}
 }
 
-// GetGroupByGroupName   根据用户名查找
-func GetGroupByGroupName(client *ent.Client) echo.HandlerFunc {
+// GetGroupByName    根据组名查找
+func GetGroupByName(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ug := new(ent.UserGroup)
+		g := new(ent.Group)
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		user_group, err := client.UserGroup.Query().Where(usergroup.NameEQ(ug.Name)).Only(context.Background())
+		group, err := client.Group.Query().Where(group.NameEQ(g.Name)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		return c.JSON(http.StatusOK, user_group)
+		return c.JSON(http.StatusOK, group)
 	}
 }
 
-//
-//// GetUserById  根据ID查找
-//func GetUserGroupById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
-//
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
-//
-//// GetUserByEmail 根据email 查找用户
-//func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//
-//		u := new(ent.User)
-//
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.Query().Where(user.EmailEQ(u.Email)).Only(context.Background())
-//
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
-//
-//// CreateUser 创建用户
-//func CreateUser(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) (err error) {
-//
-//		u := new(ent.User)
-//
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-//		if err != nil {
-//			//fmt.Println("加密密码失败", err)
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//		//fmt.Println(pwd)
-//		u.Password = string(pwd)
-//		//fmt.Println(pwd)
-//
-//		user, err := client.User.Create().
-//			SetUsername(u.Username).
-//			SetPassword(u.Password).
-//			SetEmail(u.Email).
-//			SetNickname(u.Nickname).
-//			SetCity(u.City).
-//			SetAvatar(u.Avatar).
-//			SetPhone(u.Phone).
-//			SetAge(u.Age).
-//			SetIntroduction(u.Introduction).
-//			SetState(u.State).
-//			SetCreator(u.Creator).
-//			SetEditor(u.Editor).
-//			SetDeleted(u.Deleted).
-//			SetCreatedAt(time.Now()).
-//			SetUpdatedAt(time.Now()).
-//			Save(context.Background())
-//		if ent.IsConstraintError(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//		return c.JSON(http.StatusCreated, user)
-//	}
-//}
-//
-//// UpdateUserById  更新用户
-//func UpdateUserById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//		// 解析json 并绑定到u
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.UpdateOneID(u.ID).
-//			SetEmail(u.Email).
-//			SetNickname(u.Nickname).
-//			SetCity(u.City).
-//			SetAvatar(u.Avatar).
-//			SetPhone(u.Phone).
-//			SetAge(u.Age).
-//			SetIntroduction(u.Introduction).
-//			SetState(u.State).
-//			SetCreator(u.Creator).
-//			SetEditor(u.Editor).
-//			SetDeleted(u.Deleted).
-//			SetUpdatedAt(time.Now()).
-//			Save(context.Background())
-//		if ent.IsConstraintError(err) {
-//			c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
-//
-//// UpdateUser UpdateOneUser 更新用户
-//func UpdateUser(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err = user.Update().
-//			SetEmail(u.Email).
-//			SetNickname(u.Nickname).
-//			SetCity(u.City).
-//			SetAvatar(u.Avatar).
-//			SetPhone(u.Phone).
-//			SetAge(u.Age).
-//			SetIntroduction(u.Introduction).
-//			SetState(u.State).
-//			SetCreator(u.Creator).
-//			SetEditor(u.Editor).
-//			SetDeleted(u.Deleted).
-//			SetUpdatedAt(time.Now()).
-//			Save(context.Background())
-//		return c.JSON(http.StatusOK, user)
-//	}
-//
-//}
-//
-//// DeleteUser 删除用户
-//func DeleteUser(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//		user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//		err = client.User.DeleteOne(user).Exec(context.Background())
-//		return c.NoContent(http.StatusOK)
-//	}
-//}
-//
-//// 删除用户
-//func DeleteUserById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//
-//		// 直接解析raw数据为json
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		err := client.User.DeleteOneID(u.ID).Exec(context.Background())
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		//return c.NoContent(http.StatusNoContent)
-//		return c.NoContent(http.StatusOK)
-//	}
-//}
+// GetUserById  根据ID查找
+func GetGroupById(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		g := new(ent.Group)
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		group, err := client.Group.Query().Where(group.IDEQ(g.ID)).Only(context.Background())
+
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusOK, group)
+	}
+}
+
+// CreateGroup  创建组
+func CreateGroup(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) (err error) {
+
+		g := new(ent.Group)
+
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		//pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		//if err != nil {
+		//	//fmt.Println("加密密码失败", err)
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		//fmt.Println(pwd)
+		//u.Password = string(pwd)
+		//fmt.Println(pwd)
+
+		group, err := client.Group.Create().
+			SetName(g.Name).
+			SetCreator(g.Creator).
+			SetEditor(g.Editor).
+			SetDeleted(g.Deleted).
+			SetCode(g.Code).
+			SetIntro(g.Intro).
+			SetCreatedAt(time.Now()).
+			SetUpdatedAt(time.Now()).
+			Save(context.Background())
+		if ent.IsConstraintError(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusCreated, group)
+	}
+}
+
+// UpdateGroupById  更新用户组
+func UpdateGroupById(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		g := new(ent.Group)
+		// 解析json 并绑定到u
+		if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		group, err := client.Group.UpdateOneID(g.ID).
+			SetName(g.Name).
+			SetCreator(g.Creator).
+			SetEditor(g.Editor).
+			SetDeleted(g.Deleted).
+			SetCode(g.Code).
+			SetIntro(g.Intro).
+			SetUpdatedAt(time.Now()).
+			Save(context.Background())
+		if ent.IsConstraintError(err) {
+			c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusOK, group)
+	}
+}
+
+// UpdateGroup    更新用户组
+func UpdateGroup(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		g := new(ent.Group)
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		group, err := client.Group.Query().Where(group.IDEQ(g.ID)).Only(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		group, err = group.Update().
+			SetName(g.Name).
+			SetCreator(g.Creator).
+			SetEditor(g.Editor).
+			SetDeleted(g.Deleted).
+			SetCode(g.Code).
+			SetIntro(g.Intro).
+			SetUpdatedAt(time.Now()).
+			Save(context.Background())
+		return c.JSON(http.StatusOK, group)
+	}
+}
+
+// DeleteGroup DeleteUserGroup  删除用户组
+func DeleteGroup(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		g := new(ent.Group)
+
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		group, err := client.Group.Query().Where(group.NameEQ(g.Name)).Only(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = client.Group.DeleteOne(group).Exec(context.Background())
+		return c.NoContent(http.StatusOK)
+	}
+}
+
+// DeleteGroupById  删除用户组
+func DeleteGroupById(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		g := new(ent.Group)
+
+		// 直接解析raw数据为json
+		if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err := client.Group.DeleteOneID(g.ID).Exec(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.NoContent(http.StatusOK)
+	}
+}
