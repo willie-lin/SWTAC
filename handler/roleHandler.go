@@ -66,15 +66,6 @@ func CreateRole(client *ent.Client) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		//pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-		//if err != nil {
-		//	//fmt.Println("加密密码失败", err)
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
-		////fmt.Println(pwd)
-		//u.Password = string(pwd)
-		//fmt.Println(pwd)
-
 		role, err := client.Role.Create().
 			SetName(r.Name).
 			SetIntro(r.Intro).

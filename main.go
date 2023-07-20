@@ -91,6 +91,16 @@ func main() {
 	e.DELETE("/usergropu", handler.DeleteUserGroup(client))
 	e.DELETE("/usergropu/id", handler.DeleteUserGroupById(client))
 
+	// role
+	e.GET("/roles", handler.GetAllRoles(client))
+	e.GET("/role/id", handler.GetRoleById(client))
+	e.GET("/role/name", handler.GetRoleByRoleName(client))
+	e.POST("/role", handler.CreateRole(client))
+	e.PUT("/role/id", handler.UpdateRoleById(client))
+	e.PUT("/role", handler.UpdateRole(client))
+	e.DELETE("/role", handler.DeleteRole(client))
+	e.DELETE("/role/id", handler.DeleteRoleById(client))
+
 	e.Logger.Fatal(e.Start(":2023"))
 
 }
