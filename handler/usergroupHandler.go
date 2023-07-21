@@ -4,7 +4,6 @@ import (
 	"SWTAC/datasource/ent"
 	"SWTAC/datasource/ent/usergroup"
 	"context"
-	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
@@ -15,7 +14,10 @@ func GetAllUserGroups(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		supergroups, err := client.UserGroup.Query().All(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, supergroups)
 	}
@@ -26,13 +28,20 @@ func GetUserGroupByName(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+
+		if err := c.Bind(ug); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
 		user_group, err := client.UserGroup.Query().Where(usergroup.NameEQ(ug.Name)).Only(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, user_group)
 	}
@@ -43,14 +52,19 @@ func GetUserGroupById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(ug); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
 		usergroup, err := client.UserGroup.Query().Where(usergroup.IDEQ(ug.ID)).Only(context.Background())
-
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, usergroup)
 	}
@@ -63,18 +77,13 @@ func CreateUserGroup(client *ent.Client) echo.HandlerFunc {
 		ug := new(ent.UserGroup)
 
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-		//
-		//pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-		//if err != nil {
-		//	//fmt.Println("加密密码失败", err)
+		//if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
-		//fmt.Println(pwd)
-		//u.Password = string(pwd)
-		//fmt.Println(pwd)
+
+		if err := c.Bind(ug); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
 
 		usergroup, err := client.UserGroup.Create().
 			SetName(ug.Name).
@@ -88,7 +97,10 @@ func CreateUserGroup(client *ent.Client) echo.HandlerFunc {
 			Save(context.Background())
 
 		if ent.IsConstraintError(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusConflict, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusCreated, usergroup)
 	}
@@ -99,7 +111,11 @@ func UpdateUserGroupById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
 		// 解析json 并绑定到u
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+
+		if err := c.Bind(ug); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
@@ -113,7 +129,13 @@ func UpdateUserGroupById(client *ent.Client) echo.HandlerFunc {
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		if ent.IsConstraintError(err) {
-			c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusConflict, err.Error())
+		}
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, usergroup)
 	}
@@ -124,12 +146,18 @@ func UpdateUserGroup(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ug := new(ent.UserGroup)
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(ug); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		usergroup, err := client.UserGroup.Query().Where(usergroup.IDEQ(ug.ID)).Only(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		usergroup, err = usergroup.Update().
 			SetName(ug.Name).
@@ -140,6 +168,9 @@ func UpdateUserGroup(client *ent.Client) echo.HandlerFunc {
 			SetIntro(ug.Intro).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return c.JSON(http.StatusOK, usergroup)
 	}
 }
@@ -150,14 +181,21 @@ func DeleteUserGroup(client *ent.Client) echo.HandlerFunc {
 		ug := new(ent.UserGroup)
 
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(ug); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
+
 		usergroup, err := client.UserGroup.Query().Where(usergroup.NameEQ(ug.Name)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		err = client.UserGroup.DeleteOne(usergroup).Exec(context.Background())
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return c.NoContent(http.StatusOK)
 	}
 }
@@ -168,12 +206,20 @@ func DeleteUserGroupById(client *ent.Client) echo.HandlerFunc {
 		ug := new(ent.UserGroup)
 
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&ug); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(ug); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
+
 		err := client.UserGroup.DeleteOneID(ug.ID).Exec(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.NoContent(http.StatusOK)
 	}

@@ -63,7 +63,10 @@ func GetUserById(client *ent.Client) echo.HandlerFunc {
 		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
 
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -212,6 +215,9 @@ func UpdateUser(client *ent.Client) echo.HandlerFunc {
 		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
 		user, err = user.Update().
