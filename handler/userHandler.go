@@ -5,7 +5,6 @@ import (
 	"SWTAC/datasource/ent/user"
 	"SWTAC/utils"
 	"context"
-	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -196,49 +195,23 @@ func UpdateUserById(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-//// UpdateUserById  更新用户
-//func UpdateUserById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//		// 解析json 并绑定到u
-//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.UpdateOneID(u.ID).
-//			SetEmail(u.Email).
-//			SetNickname(u.Nickname).
-//			SetCity(u.City).
-//			SetAvatar(u.Avatar).
-//			SetPhone(u.Phone).
-//			SetAge(u.Age).
-//			SetIntroduction(u.Introduction).
-//			SetState(u.State).
-//			SetCreator(u.Creator).
-//			SetEditor(u.Editor).
-//			SetDeleted(u.Deleted).
-//			SetUpdatedAt(time.Now()).
-//			Save(context.Background())
-//		if ent.IsConstraintError(err) {
-//			c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
-
 // UpdateUser UpdateOneUser 更新用户
 func UpdateUser(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
 
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
 		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
 		}
 
 		user, err = user.Update().
@@ -255,9 +228,11 @@ func UpdateUser(client *ent.Client) echo.HandlerFunc {
 			SetDeleted(u.Deleted).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return c.JSON(http.StatusOK, user)
 	}
-
 }
 
 // DeleteUser 删除用户
@@ -265,15 +240,20 @@ func DeleteUser(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
 
-		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
+
 		user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
 		}
+
 		err = client.User.DeleteOne(user).Exec(context.Background())
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
 		return c.NoContent(http.StatusOK)
 	}
 }
@@ -282,14 +262,20 @@ func DeleteUser(client *ent.Client) echo.HandlerFunc {
 func DeleteUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
-		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
+
 		err := client.User.DeleteOneID(u.ID).Exec(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
 		}
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
 		return c.NoContent(http.StatusOK)
 	}
 }
