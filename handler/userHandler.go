@@ -95,6 +95,25 @@ func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
+// GetUserByPhone  根据手机号码查找用户
+func GetUserByPhone(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		u := new(ent.User)
+		if err := c.Bind(u); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		user, err := client.User.Query().Where(user.PhoneEQ(u.Phone)).Only(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusOK, user)
+	}
+}
+
 // CreateUser 创建用户
 func CreateUser(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {

@@ -76,6 +76,7 @@ func main() {
 	e.GET("/user/id", handler.GetUserById(client))
 	e.GET("/user/name", handler.GetUserByUsername(client))
 	e.GET("/user/email", handler.GetUserByEmail(client))
+	e.GET("/user/phone", handler.GetUserByPhone(client))
 	e.POST("/user", handler.CreateUser(client))
 	e.PUT("/user/id", handler.UpdateUserById(client))
 	e.PUT("/user", handler.UpdateUser(client))
