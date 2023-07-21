@@ -34,8 +34,12 @@ func (Account) Fields() []ent.Field {
 		//field.Int("id").Unique(),
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		//field.Int("user_id"),
-		field.String("open_code"),
-		field.String("category"),
+		//field.String("open_code"),
+		//field.String("category"),
+		field.String("username").NotEmpty().Unique().Immutable(),
+		field.String("email").NotEmpty().Unique(),
+		field.String("phone").NotEmpty().Unique().MinLen(11).MaxLen(11),
+		field.String("password").Sensitive().MinLen(8).MinLen(120),
 	}
 }
 

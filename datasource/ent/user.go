@@ -28,8 +28,6 @@ type User struct {
 	Editor string `json:"editor,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted float64 `json:"deleted,omitempty"`
-	// Username holds the value of the "username" field.
-	Username string `json:"username,omitempty"`
 	// Nickname holds the value of the "nickname" field.
 	Nickname string `json:"nickname,omitempty"`
 	// Avatar holds the value of the "avatar" field.
@@ -40,12 +38,6 @@ type User struct {
 	City string `json:"city,omitempty"`
 	// Introduction holds the value of the "introduction" field.
 	Introduction string `json:"introduction,omitempty"`
-	// Email holds the value of the "email" field.
-	Email string `json:"email,omitempty"`
-	// Phone holds the value of the "phone" field.
-	Phone string `json:"phone,omitempty"`
-	// Password holds the value of the "password" field.
-	Password string `json:"-"`
 	// State holds the value of the "state" field.
 	State int `json:"state,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -104,7 +96,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case user.FieldAge, user.FieldState:
 			values[i] = new(sql.NullInt64)
-		case user.FieldCreator, user.FieldEditor, user.FieldUsername, user.FieldNickname, user.FieldAvatar, user.FieldCity, user.FieldIntroduction, user.FieldEmail, user.FieldPhone, user.FieldPassword:
+		case user.FieldCreator, user.FieldEditor, user.FieldNickname, user.FieldAvatar, user.FieldCity, user.FieldIntroduction:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -163,12 +155,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Deleted = value.Float64
 			}
-		case user.FieldUsername:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field username", values[i])
-			} else if value.Valid {
-				u.Username = value.String
-			}
 		case user.FieldNickname:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field nickname", values[i])
@@ -198,24 +184,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field introduction", values[i])
 			} else if value.Valid {
 				u.Introduction = value.String
-			}
-		case user.FieldEmail:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field email", values[i])
-			} else if value.Valid {
-				u.Email = value.String
-			}
-		case user.FieldPhone:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field phone", values[i])
-			} else if value.Valid {
-				u.Phone = value.String
-			}
-		case user.FieldPassword:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field password", values[i])
-			} else if value.Valid {
-				u.Password = value.String
 			}
 		case user.FieldState:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -296,9 +264,6 @@ func (u *User) String() string {
 	builder.WriteString("deleted=")
 	builder.WriteString(fmt.Sprintf("%v", u.Deleted))
 	builder.WriteString(", ")
-	builder.WriteString("username=")
-	builder.WriteString(u.Username)
-	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(u.Nickname)
 	builder.WriteString(", ")
@@ -313,14 +278,6 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("introduction=")
 	builder.WriteString(u.Introduction)
-	builder.WriteString(", ")
-	builder.WriteString("email=")
-	builder.WriteString(u.Email)
-	builder.WriteString(", ")
-	builder.WriteString("phone=")
-	builder.WriteString(u.Phone)
-	builder.WriteString(", ")
-	builder.WriteString("password=<sensitive>")
 	builder.WriteString(", ")
 	builder.WriteString("state=")
 	builder.WriteString(fmt.Sprintf("%v", u.State))

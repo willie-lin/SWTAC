@@ -25,8 +25,6 @@ const (
 	FieldEditor = "editor"
 	// FieldDeleted holds the string denoting the deleted field in the database.
 	FieldDeleted = "deleted"
-	// FieldUsername holds the string denoting the username field in the database.
-	FieldUsername = "username"
 	// FieldNickname holds the string denoting the nickname field in the database.
 	FieldNickname = "nickname"
 	// FieldAvatar holds the string denoting the avatar field in the database.
@@ -37,12 +35,6 @@ const (
 	FieldCity = "city"
 	// FieldIntroduction holds the string denoting the introduction field in the database.
 	FieldIntroduction = "introduction"
-	// FieldEmail holds the string denoting the email field in the database.
-	FieldEmail = "email"
-	// FieldPhone holds the string denoting the phone field in the database.
-	FieldPhone = "phone"
-	// FieldPassword holds the string denoting the password field in the database.
-	FieldPassword = "password"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
 	// EdgeGroups holds the string denoting the groups edge name in mutations.
@@ -80,15 +72,11 @@ var Columns = []string{
 	FieldCreator,
 	FieldEditor,
 	FieldDeleted,
-	FieldUsername,
 	FieldNickname,
 	FieldAvatar,
 	FieldAge,
 	FieldCity,
 	FieldIntroduction,
-	FieldEmail,
-	FieldPhone,
-	FieldPassword,
 	FieldState,
 }
 
@@ -131,14 +119,10 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
 	CreatorValidator func(string) error
-	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
-	UsernameValidator func(string) error
+	// NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
+	NicknameValidator func(string) error
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
-	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	EmailValidator func(string) error
-	// PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
-	PhoneValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -176,11 +160,6 @@ func ByDeleted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeleted, opts...).ToFunc()
 }
 
-// ByUsername orders the results by the username field.
-func ByUsername(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUsername, opts...).ToFunc()
-}
-
 // ByNickname orders the results by the nickname field.
 func ByNickname(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNickname, opts...).ToFunc()
@@ -204,21 +183,6 @@ func ByCity(opts ...sql.OrderTermOption) OrderOption {
 // ByIntroduction orders the results by the introduction field.
 func ByIntroduction(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIntroduction, opts...).ToFunc()
-}
-
-// ByEmail orders the results by the email field.
-func ByEmail(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEmail, opts...).ToFunc()
-}
-
-// ByPhone orders the results by the phone field.
-func ByPhone(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPhone, opts...).ToFunc()
-}
-
-// ByPassword orders the results by the password field.
-func ByPassword(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPassword, opts...).ToFunc()
 }
 
 // ByState orders the results by the state field.

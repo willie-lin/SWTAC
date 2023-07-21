@@ -34,15 +34,11 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		//field.Int("id").Unique(),
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
-		field.String("username").NotEmpty().Unique().Immutable(),
-		field.String("nickname"),
+		field.String("nickname").Unique().NotEmpty(),
 		field.String("avatar"),
 		field.Int("age").Positive().Min(0).Max(1000),
 		field.String("city").Optional(),
 		field.String("introduction").Optional(),
-		field.String("email").NotEmpty().Unique(),
-		field.String("phone").NotEmpty().Unique().MinLen(11).MaxLen(11),
-		field.String("password").Sensitive(),
 		field.Int("state"),
 	}
 }
@@ -62,7 +58,7 @@ func (User) Index() []ent.Index {
 		// 非唯一的普通索引
 		index.Fields("age"),
 		// 唯一索引
-		index.Fields("id", "username").Unique(),
+		index.Fields("id", "nickname").Unique(),
 	}
 
 }

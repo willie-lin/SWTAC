@@ -29,10 +29,14 @@ type Account struct {
 	Editor string `json:"editor,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted float64 `json:"deleted,omitempty"`
-	// OpenCode holds the value of the "open_code" field.
-	OpenCode string `json:"open_code,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
+	// Username holds the value of the "username" field.
+	Username string `json:"username,omitempty"`
+	// Email holds the value of the "email" field.
+	Email string `json:"email,omitempty"`
+	// Phone holds the value of the "phone" field.
+	Phone string `json:"phone,omitempty"`
+	// Password holds the value of the "password" field.
+	Password string `json:"-"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AccountQuery when eager-loading is set.
 	Edges         AccountEdges `json:"edges"`
@@ -69,7 +73,7 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case account.FieldDeleted:
 			values[i] = new(sql.NullFloat64)
-		case account.FieldCreator, account.FieldEditor, account.FieldOpenCode, account.FieldCategory:
+		case account.FieldCreator, account.FieldEditor, account.FieldUsername, account.FieldEmail, account.FieldPhone, account.FieldPassword:
 			values[i] = new(sql.NullString)
 		case account.FieldCreatedAt, account.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -128,17 +132,29 @@ func (a *Account) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				a.Deleted = value.Float64
 			}
-		case account.FieldOpenCode:
+		case account.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field open_code", values[i])
+				return fmt.Errorf("unexpected type %T for field username", values[i])
 			} else if value.Valid {
-				a.OpenCode = value.String
+				a.Username = value.String
 			}
-		case account.FieldCategory:
+		case account.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[i])
+				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
-				a.Category = value.String
+				a.Email = value.String
+			}
+		case account.FieldPhone:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field phone", values[i])
+			} else if value.Valid {
+				a.Phone = value.String
+			}
+		case account.FieldPassword:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field password", values[i])
+			} else if value.Valid {
+				a.Password = value.String
 			}
 		case account.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -203,11 +219,16 @@ func (a *Account) String() string {
 	builder.WriteString("deleted=")
 	builder.WriteString(fmt.Sprintf("%v", a.Deleted))
 	builder.WriteString(", ")
-	builder.WriteString("open_code=")
-	builder.WriteString(a.OpenCode)
+	builder.WriteString("username=")
+	builder.WriteString(a.Username)
 	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(a.Category)
+	builder.WriteString("email=")
+	builder.WriteString(a.Email)
+	builder.WriteString(", ")
+	builder.WriteString("phone=")
+	builder.WriteString(a.Phone)
+	builder.WriteString(", ")
+	builder.WriteString("password=<sensitive>")
 	builder.WriteByte(')')
 	return builder.String()
 }

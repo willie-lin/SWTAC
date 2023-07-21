@@ -17,8 +17,10 @@ var (
 		{Name: "creator", Type: field.TypeString, Nullable: true},
 		{Name: "editor", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
-		{Name: "open_code", Type: field.TypeString},
-		{Name: "category", Type: field.TypeString},
+		{Name: "username", Type: field.TypeString, Unique: true},
+		{Name: "email", Type: field.TypeString, Unique: true},
+		{Name: "phone", Type: field.TypeString, Unique: true, Size: 11},
+		{Name: "password", Type: field.TypeString},
 		{Name: "user_accounts", Type: field.TypeUUID, Nullable: true},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.
@@ -29,7 +31,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "accounts_users_accounts",
-				Columns:    []*schema.Column{AccountsColumns[8]},
+				Columns:    []*schema.Column{AccountsColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -38,7 +40,7 @@ var (
 			{
 				Name:    "account_id_user_accounts",
 				Unique:  true,
-				Columns: []*schema.Column{AccountsColumns[0], AccountsColumns[8]},
+				Columns: []*schema.Column{AccountsColumns[0], AccountsColumns[10]},
 			},
 		},
 	}
@@ -118,15 +120,11 @@ var (
 		{Name: "creator", Type: field.TypeString, Nullable: true},
 		{Name: "editor", Type: field.TypeString, Nullable: true},
 		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
-		{Name: "username", Type: field.TypeString, Unique: true},
-		{Name: "nickname", Type: field.TypeString},
+		{Name: "nickname", Type: field.TypeString, Unique: true},
 		{Name: "avatar", Type: field.TypeString},
 		{Name: "age", Type: field.TypeInt},
 		{Name: "city", Type: field.TypeString, Nullable: true},
 		{Name: "introduction", Type: field.TypeString, Nullable: true},
-		{Name: "email", Type: field.TypeString, Unique: true},
-		{Name: "phone", Type: field.TypeString, Unique: true, Size: 11},
-		{Name: "password", Type: field.TypeString},
 		{Name: "state", Type: field.TypeInt},
 		{Name: "group_users", Type: field.TypeUUID, Nullable: true},
 	}
@@ -138,7 +136,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_group_users",
-				Columns:    []*schema.Column{UsersColumns[16]},
+				Columns:    []*schema.Column{UsersColumns[12]},
 				RefColumns: []*schema.Column{GroupColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

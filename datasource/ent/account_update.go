@@ -89,15 +89,21 @@ func (au *AccountUpdate) AddDeleted(f float64) *AccountUpdate {
 	return au
 }
 
-// SetOpenCode sets the "open_code" field.
-func (au *AccountUpdate) SetOpenCode(s string) *AccountUpdate {
-	au.mutation.SetOpenCode(s)
+// SetEmail sets the "email" field.
+func (au *AccountUpdate) SetEmail(s string) *AccountUpdate {
+	au.mutation.SetEmail(s)
 	return au
 }
 
-// SetCategory sets the "category" field.
-func (au *AccountUpdate) SetCategory(s string) *AccountUpdate {
-	au.mutation.SetCategory(s)
+// SetPhone sets the "phone" field.
+func (au *AccountUpdate) SetPhone(s string) *AccountUpdate {
+	au.mutation.SetPhone(s)
+	return au
+}
+
+// SetPassword sets the "password" field.
+func (au *AccountUpdate) SetPassword(s string) *AccountUpdate {
+	au.mutation.SetPassword(s)
 	return au
 }
 
@@ -174,6 +180,21 @@ func (au *AccountUpdate) check() error {
 			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Account.creator": %w`, err)}
 		}
 	}
+	if v, ok := au.mutation.Email(); ok {
+		if err := account.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Account.email": %w`, err)}
+		}
+	}
+	if v, ok := au.mutation.Phone(); ok {
+		if err := account.PhoneValidator(v); err != nil {
+			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Account.phone": %w`, err)}
+		}
+	}
+	if v, ok := au.mutation.Password(); ok {
+		if err := account.PasswordValidator(v); err != nil {
+			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Account.password": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -210,11 +231,14 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.AddedDeleted(); ok {
 		_spec.AddField(account.FieldDeleted, field.TypeFloat64, value)
 	}
-	if value, ok := au.mutation.OpenCode(); ok {
-		_spec.SetField(account.FieldOpenCode, field.TypeString, value)
+	if value, ok := au.mutation.Email(); ok {
+		_spec.SetField(account.FieldEmail, field.TypeString, value)
 	}
-	if value, ok := au.mutation.Category(); ok {
-		_spec.SetField(account.FieldCategory, field.TypeString, value)
+	if value, ok := au.mutation.Phone(); ok {
+		_spec.SetField(account.FieldPhone, field.TypeString, value)
+	}
+	if value, ok := au.mutation.Password(); ok {
+		_spec.SetField(account.FieldPassword, field.TypeString, value)
 	}
 	if au.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -324,15 +348,21 @@ func (auo *AccountUpdateOne) AddDeleted(f float64) *AccountUpdateOne {
 	return auo
 }
 
-// SetOpenCode sets the "open_code" field.
-func (auo *AccountUpdateOne) SetOpenCode(s string) *AccountUpdateOne {
-	auo.mutation.SetOpenCode(s)
+// SetEmail sets the "email" field.
+func (auo *AccountUpdateOne) SetEmail(s string) *AccountUpdateOne {
+	auo.mutation.SetEmail(s)
 	return auo
 }
 
-// SetCategory sets the "category" field.
-func (auo *AccountUpdateOne) SetCategory(s string) *AccountUpdateOne {
-	auo.mutation.SetCategory(s)
+// SetPhone sets the "phone" field.
+func (auo *AccountUpdateOne) SetPhone(s string) *AccountUpdateOne {
+	auo.mutation.SetPhone(s)
+	return auo
+}
+
+// SetPassword sets the "password" field.
+func (auo *AccountUpdateOne) SetPassword(s string) *AccountUpdateOne {
+	auo.mutation.SetPassword(s)
 	return auo
 }
 
@@ -422,6 +452,21 @@ func (auo *AccountUpdateOne) check() error {
 			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Account.creator": %w`, err)}
 		}
 	}
+	if v, ok := auo.mutation.Email(); ok {
+		if err := account.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Account.email": %w`, err)}
+		}
+	}
+	if v, ok := auo.mutation.Phone(); ok {
+		if err := account.PhoneValidator(v); err != nil {
+			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Account.phone": %w`, err)}
+		}
+	}
+	if v, ok := auo.mutation.Password(); ok {
+		if err := account.PasswordValidator(v); err != nil {
+			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Account.password": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -475,11 +520,14 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	if value, ok := auo.mutation.AddedDeleted(); ok {
 		_spec.AddField(account.FieldDeleted, field.TypeFloat64, value)
 	}
-	if value, ok := auo.mutation.OpenCode(); ok {
-		_spec.SetField(account.FieldOpenCode, field.TypeString, value)
+	if value, ok := auo.mutation.Email(); ok {
+		_spec.SetField(account.FieldEmail, field.TypeString, value)
 	}
-	if value, ok := auo.mutation.Category(); ok {
-		_spec.SetField(account.FieldCategory, field.TypeString, value)
+	if value, ok := auo.mutation.Phone(); ok {
+		_spec.SetField(account.FieldPhone, field.TypeString, value)
+	}
+	if value, ok := auo.mutation.Password(); ok {
+		_spec.SetField(account.FieldPassword, field.TypeString, value)
 	}
 	if auo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

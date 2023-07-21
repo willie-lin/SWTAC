@@ -4,7 +4,6 @@ import (
 	"SWTAC/config"
 	"SWTAC/datasource"
 	"SWTAC/datasource/ent"
-	"SWTAC/handler"
 	"SWTAC/log"
 	"context"
 	"fmt"
@@ -72,35 +71,35 @@ func main() {
 	})
 
 	// user
-	e.GET("/users", handler.GetAllUsers(client))
-	e.GET("/user/id", handler.GetUserById(client))
-	e.GET("/user/name", handler.GetUserByUsername(client))
-	e.GET("/user/email", handler.GetUserByEmail(client))
-	e.GET("/user/phone", handler.GetUserByPhone(client))
-	e.POST("/user", handler.CreateUser(client))
-	e.PUT("/user/id", handler.UpdateUserById(client))
-	e.PUT("/user", handler.UpdateUser(client))
-	e.DELETE("/user", handler.DeleteUser(client))
-	e.DELETE("/user/id", handler.DeleteUserById(client))
-	// usergroup
-	e.GET("/usergroups", handler.GetAllUserGroups(client))
-	e.GET("/usergroup/id", handler.GetUserGroupById(client))
-	e.GET("/usergroup/name", handler.GetUserGroupByName(client))
-	e.POST("/usergroup", handler.CreateUserGroup(client))
-	e.PUT("/usergroup/id", handler.UpdateUserGroupById(client))
-	e.PUT("/usergroup", handler.UpdateUserGroup(client))
-	e.DELETE("/usergroup", handler.DeleteUserGroup(client))
-	e.DELETE("/usergroup/id", handler.DeleteUserGroupById(client))
-
-	// role
-	e.GET("/roles", handler.GetAllRoles(client))
-	e.GET("/role/id", handler.GetRoleById(client))
-	e.GET("/role/name", handler.GetRoleByRoleName(client))
-	e.POST("/role", handler.CreateRole(client))
-	e.PUT("/role/id", handler.UpdateRoleById(client))
-	e.PUT("/role", handler.UpdateRole(client))
-	e.DELETE("/role", handler.DeleteRole(client))
-	e.DELETE("/role/id", handler.DeleteRoleById(client))
+	//e.GET("/users", handler.GetAllUsers(client))
+	//e.GET("/user/id", handler.GetUserById(client))
+	//e.GET("/user/name", handler.GetUserByUsername(client))
+	//e.GET("/user/email", handler.GetUserByEmail(client))
+	//e.GET("/user/phone", handler.GetUserByPhone(client))
+	//e.POST("/user", handler.CreateUser(client))
+	//e.PUT("/user/id", handler.UpdateUserById(client))
+	//e.PUT("/user", handler.UpdateUser(client))
+	//e.DELETE("/user", handler.DeleteUser(client))
+	//e.DELETE("/user/id", handler.DeleteUserById(client))
+	//// usergroup
+	//e.GET("/usergroups", handler.GetAllUserGroups(client))
+	//e.GET("/usergroup/id", handler.GetUserGroupById(client))
+	//e.GET("/usergroup/name", handler.GetUserGroupByName(client))
+	//e.POST("/usergroup", handler.CreateUserGroup(client))
+	//e.PUT("/usergroup/id", handler.UpdateUserGroupById(client))
+	//e.PUT("/usergroup", handler.UpdateUserGroup(client))
+	//e.DELETE("/usergroup", handler.DeleteUserGroup(client))
+	//e.DELETE("/usergroup/id", handler.DeleteUserGroupById(client))
+	//
+	//// role
+	//e.GET("/roles", handler.GetAllRoles(client))
+	//e.GET("/role/id", handler.GetRoleById(client))
+	//e.GET("/role/name", handler.GetRoleByRoleName(client))
+	//e.POST("/role", handler.CreateRole(client))
+	//e.PUT("/role/id", handler.UpdateRoleById(client))
+	//e.PUT("/role", handler.UpdateRole(client))
+	//e.DELETE("/role", handler.DeleteRole(client))
+	//e.DELETE("/role/id", handler.DeleteRoleById(client))
 
 	e.Logger.Fatal(e.Start(":2023"))
 

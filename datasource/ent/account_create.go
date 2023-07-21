@@ -84,15 +84,27 @@ func (ac *AccountCreate) SetDeleted(f float64) *AccountCreate {
 	return ac
 }
 
-// SetOpenCode sets the "open_code" field.
-func (ac *AccountCreate) SetOpenCode(s string) *AccountCreate {
-	ac.mutation.SetOpenCode(s)
+// SetUsername sets the "username" field.
+func (ac *AccountCreate) SetUsername(s string) *AccountCreate {
+	ac.mutation.SetUsername(s)
 	return ac
 }
 
-// SetCategory sets the "category" field.
-func (ac *AccountCreate) SetCategory(s string) *AccountCreate {
-	ac.mutation.SetCategory(s)
+// SetEmail sets the "email" field.
+func (ac *AccountCreate) SetEmail(s string) *AccountCreate {
+	ac.mutation.SetEmail(s)
+	return ac
+}
+
+// SetPhone sets the "phone" field.
+func (ac *AccountCreate) SetPhone(s string) *AccountCreate {
+	ac.mutation.SetPhone(s)
+	return ac
+}
+
+// SetPassword sets the "password" field.
+func (ac *AccountCreate) SetPassword(s string) *AccountCreate {
+	ac.mutation.SetPassword(s)
 	return ac
 }
 
@@ -194,11 +206,37 @@ func (ac *AccountCreate) check() error {
 	if _, ok := ac.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Account.deleted"`)}
 	}
-	if _, ok := ac.mutation.OpenCode(); !ok {
-		return &ValidationError{Name: "open_code", err: errors.New(`ent: missing required field "Account.open_code"`)}
+	if _, ok := ac.mutation.Username(); !ok {
+		return &ValidationError{Name: "username", err: errors.New(`ent: missing required field "Account.username"`)}
 	}
-	if _, ok := ac.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Account.category"`)}
+	if v, ok := ac.mutation.Username(); ok {
+		if err := account.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Account.username": %w`, err)}
+		}
+	}
+	if _, ok := ac.mutation.Email(); !ok {
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Account.email"`)}
+	}
+	if v, ok := ac.mutation.Email(); ok {
+		if err := account.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Account.email": %w`, err)}
+		}
+	}
+	if _, ok := ac.mutation.Phone(); !ok {
+		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "Account.phone"`)}
+	}
+	if v, ok := ac.mutation.Phone(); ok {
+		if err := account.PhoneValidator(v); err != nil {
+			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Account.phone": %w`, err)}
+		}
+	}
+	if _, ok := ac.mutation.Password(); !ok {
+		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "Account.password"`)}
+	}
+	if v, ok := ac.mutation.Password(); ok {
+		if err := account.PasswordValidator(v); err != nil {
+			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Account.password": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -255,13 +293,21 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
 		_node.Deleted = value
 	}
-	if value, ok := ac.mutation.OpenCode(); ok {
-		_spec.SetField(account.FieldOpenCode, field.TypeString, value)
-		_node.OpenCode = value
+	if value, ok := ac.mutation.Username(); ok {
+		_spec.SetField(account.FieldUsername, field.TypeString, value)
+		_node.Username = value
 	}
-	if value, ok := ac.mutation.Category(); ok {
-		_spec.SetField(account.FieldCategory, field.TypeString, value)
-		_node.Category = value
+	if value, ok := ac.mutation.Email(); ok {
+		_spec.SetField(account.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := ac.mutation.Phone(); ok {
+		_spec.SetField(account.FieldPhone, field.TypeString, value)
+		_node.Phone = value
+	}
+	if value, ok := ac.mutation.Password(); ok {
+		_spec.SetField(account.FieldPassword, field.TypeString, value)
+		_node.Password = value
 	}
 	if nodes := ac.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
