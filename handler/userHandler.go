@@ -17,7 +17,10 @@ func GetAllUsers(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		users, err := client.User.Query().All(context.Background())
 		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, users)
 	}
@@ -27,14 +30,20 @@ func GetAllUsers(client *ent.Client) echo.HandlerFunc {
 func GetUserByUsername(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
-		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//直接解析raw数据为json
+		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
 		user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -45,7 +54,10 @@ func GetUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
@@ -53,7 +65,6 @@ func GetUserById(client *ent.Client) echo.HandlerFunc {
 
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
-
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -66,15 +77,19 @@ func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
 		u := new(ent.User)
 
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
 		user, err := client.User.Query().Where(user.EmailEQ(u.Email)).Only(context.Background())
 
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusBadRequest, err.Error())
-
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -87,18 +102,18 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 		u := new(ent.User)
 
 		// 直接解析raw数据为json
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
 		pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 		if err != nil {
-			//fmt.Println("加密密码失败", err)
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		//fmt.Println(pwd)
 		u.Password = string(pwd)
-		//fmt.Println(pwd)
 
 		user, err := client.User.Create().
 			SetUsername(u.Username).
@@ -118,7 +133,10 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		if ent.IsConstraintError(err) {
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusConflict, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusCreated, user)
 	}
@@ -128,8 +146,7 @@ func CreateUser(client *ent.Client) echo.HandlerFunc {
 func UpdateUserById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
-		// 解析json 并绑定到u
-		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
@@ -148,11 +165,47 @@ func UpdateUserById(client *ent.Client) echo.HandlerFunc {
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		if ent.IsConstraintError(err) {
-			c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusConflict, err.Error())
+		}
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, user)
 	}
 }
+
+//// UpdateUserById  更新用户
+//func UpdateUserById(client *ent.Client) echo.HandlerFunc {
+//	return func(c echo.Context) error {
+//		u := new(ent.User)
+//		// 解析json 并绑定到u
+//		if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+//			return c.JSON(http.StatusBadRequest, err.Error())
+//		}
+//
+//		user, err := client.User.UpdateOneID(u.ID).
+//			SetEmail(u.Email).
+//			SetNickname(u.Nickname).
+//			SetCity(u.City).
+//			SetAvatar(u.Avatar).
+//			SetPhone(u.Phone).
+//			SetAge(u.Age).
+//			SetIntroduction(u.Introduction).
+//			SetState(u.State).
+//			SetCreator(u.Creator).
+//			SetEditor(u.Editor).
+//			SetDeleted(u.Deleted).
+//			SetUpdatedAt(time.Now()).
+//			Save(context.Background())
+//		if ent.IsConstraintError(err) {
+//			c.JSON(http.StatusBadRequest, err.Error())
+//		}
+//		return c.JSON(http.StatusOK, user)
+//	}
+//}
 
 // UpdateUser UpdateOneUser 更新用户
 func UpdateUser(client *ent.Client) echo.HandlerFunc {
