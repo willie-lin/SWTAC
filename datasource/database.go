@@ -12,6 +12,12 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	DatabaseTypeSQLite   = "sqlite3"
+	DatabaseTypeMySQL    = "mysql"
+	DatabaseTypePostgres = "postgres"
+)
+
 type DatabaseCfg struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
@@ -36,27 +42,42 @@ func NewClient() (*ent.Client, error) {
 	var client *ent.Client
 	var err error
 	switch dfg.Type {
-	case "sqlite3":
+	case DatabaseTypeSQLite:
 		client, err = ent.Open(dfg.Type, fmt.Sprintf("file:%s?_busy_timeout=100000&_fk=1", dfg.DbName))
-		if err != nil {
-			return client, fmt.Errorf("failed opening connection to sqlite: %v", err)
-		}
-	case "mysql":
+	case DatabaseTypeMySQL:
 		client, err = ent.Open(dfg.Type, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true",
 			dfg.User, dfg.Password, dfg.Host, dfg.Port, dfg.DbName))
-		if err != nil {
-			return client, fmt.Errorf("failed opening connection to mysql: %v", err)
-		}
-	case "postgres", "postgresql":
+	case DatabaseTypePostgres:
 		client, err = ent.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
 			dfg.Host, dfg.Port, dfg.User, dfg.DbName, dfg.Password))
-		if err != nil {
-			return client, fmt.Errorf("failed opening connection to postgres: %v", err)
-		}
 	default:
-		return client, fmt.Errorf("unknown database type")
+		return nil, fmt.Errorf("unknown database type: %s", dfg.Type)
 	}
-	return client, err
+	if err != nil {
+		return nil, fmt.Errorf("failed opening connection to %s: %w", dfg.Type, err)
+	}
+	return client, nil
+
+	//	client, err = ent.Open(dfg.Type, fmt.Sprintf("file:%s?_busy_timeout=100000&_fk=1", dfg.DbName))
+	//	if err != nil {
+	//		return client, fmt.Errorf("failed opening connection to sqlite: %v", err)
+	//	}
+	//case "mysql":
+	//	client, err = ent.Open(dfg.Type, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true",
+	//		dfg.User, dfg.Password, dfg.Host, dfg.Port, dfg.DbName))
+	//	if err != nil {
+	//		return client, fmt.Errorf("failed opening connection to mysql: %v", err)
+	//	}
+	//case "postgres", "postgresql":
+	//	client, err = ent.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
+	//		dfg.Host, dfg.Port, dfg.User, dfg.DbName, dfg.Password))
+	//	if err != nil {
+	//		return client, fmt.Errorf("failed opening connection to postgres: %v", err)
+	//	}
+	//default:
+	//	return client, fmt.Errorf("unknown database type")
+	//}
+	//return client, err
 }
 
 func AutoMigration(client *ent.Client, ctx context.Context) {

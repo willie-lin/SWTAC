@@ -14,33 +14,21 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "creator", Type: field.TypeString, Nullable: true},
-		{Name: "editor", Type: field.TypeString, Nullable: true},
-		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
 		{Name: "username", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
-		{Name: "phone", Type: field.TypeString, Unique: true, Size: 11},
-		{Name: "password", Type: field.TypeString},
-		{Name: "user_accounts", Type: field.TypeUUID, Nullable: true},
+		{Name: "phone", Type: field.TypeString, Unique: true},
+		{Name: "password", Type: field.TypeString, Size: 120},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.
 	AccountsTable = &schema.Table{
 		Name:       "accounts",
 		Columns:    AccountsColumns,
 		PrimaryKey: []*schema.Column{AccountsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "accounts_users_accounts",
-				Columns:    []*schema.Column{AccountsColumns[10]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "account_id_user_accounts",
+				Name:    "account_username_email_phone",
 				Unique:  true,
-				Columns: []*schema.Column{AccountsColumns[0], AccountsColumns[10]},
+				Columns: []*schema.Column{AccountsColumns[3], AccountsColumns[4], AccountsColumns[5]},
 			},
 		},
 	}
@@ -117,15 +105,12 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "creator", Type: field.TypeString, Nullable: true},
-		{Name: "editor", Type: field.TypeString, Nullable: true},
-		{Name: "deleted", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(1,0)", "postgres": "numeric"}},
 		{Name: "nickname", Type: field.TypeString, Unique: true},
-		{Name: "avatar", Type: field.TypeString},
-		{Name: "age", Type: field.TypeInt},
+		{Name: "avatar", Type: field.TypeString, Nullable: true, Default: "https://example.com/default-avatar.png"},
+		{Name: "age", Type: field.TypeInt, Nullable: true, Default: 1},
+		{Name: "gender", Type: field.TypeEnum, Nullable: true, Enums: []string{"male", "female", "other"}},
 		{Name: "city", Type: field.TypeString, Nullable: true},
 		{Name: "introduction", Type: field.TypeString, Nullable: true},
-		{Name: "state", Type: field.TypeInt},
 		{Name: "group_users", Type: field.TypeUUID, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -136,7 +121,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_group_users",
-				Columns:    []*schema.Column{UsersColumns[12]},
+				Columns:    []*schema.Column{UsersColumns[9]},
 				RefColumns: []*schema.Column{GroupColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -211,6 +196,31 @@ var (
 			},
 		},
 	}
+	// UserAccountsColumns holds the columns for the "user_accounts" table.
+	UserAccountsColumns = []*schema.Column{
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "account_id", Type: field.TypeUUID},
+	}
+	// UserAccountsTable holds the schema information for the "user_accounts" table.
+	UserAccountsTable = &schema.Table{
+		Name:       "user_accounts",
+		Columns:    UserAccountsColumns,
+		PrimaryKey: []*schema.Column{UserAccountsColumns[0], UserAccountsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_accounts_user_id",
+				Columns:    []*schema.Column{UserAccountsColumns[0]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "user_accounts_account_id",
+				Columns:    []*schema.Column{UserAccountsColumns[1]},
+				RefColumns: []*schema.Column{AccountsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// UserGroupUsersColumns holds the columns for the "user_group_users" table.
 	UserGroupUsersColumns = []*schema.Column{
 		{Name: "user_group_id", Type: field.TypeUUID},
@@ -271,13 +281,13 @@ var (
 		UserGroupsTable,
 		RolePermissionsTable,
 		UserRolesTable,
+		UserAccountsTable,
 		UserGroupUsersTable,
 		UserGroupRolesTable,
 	}
 )
 
 func init() {
-	AccountsTable.ForeignKeys[0].RefTable = UsersTable
 	AccountsTable.Annotation = &entsql.Annotation{
 		Table: "accounts",
 	}
@@ -302,6 +312,8 @@ func init() {
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
+	UserAccountsTable.ForeignKeys[0].RefTable = UsersTable
+	UserAccountsTable.ForeignKeys[1].RefTable = AccountsTable
 	UserGroupUsersTable.ForeignKeys[0].RefTable = UserGroupsTable
 	UserGroupUsersTable.ForeignKeys[1].RefTable = UsersTable
 	UserGroupRolesTable.ForeignKeys[0].RefTable = UserGroupsTable

@@ -38,59 +38,6 @@ func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
 	return uu
 }
 
-// SetCreator sets the "creator" field.
-func (uu *UserUpdate) SetCreator(s string) *UserUpdate {
-	uu.mutation.SetCreator(s)
-	return uu
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableCreator(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetCreator(*s)
-	}
-	return uu
-}
-
-// ClearCreator clears the value of the "creator" field.
-func (uu *UserUpdate) ClearCreator() *UserUpdate {
-	uu.mutation.ClearCreator()
-	return uu
-}
-
-// SetEditor sets the "editor" field.
-func (uu *UserUpdate) SetEditor(s string) *UserUpdate {
-	uu.mutation.SetEditor(s)
-	return uu
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableEditor(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetEditor(*s)
-	}
-	return uu
-}
-
-// ClearEditor clears the value of the "editor" field.
-func (uu *UserUpdate) ClearEditor() *UserUpdate {
-	uu.mutation.ClearEditor()
-	return uu
-}
-
-// SetDeleted sets the "deleted" field.
-func (uu *UserUpdate) SetDeleted(f float64) *UserUpdate {
-	uu.mutation.ResetDeleted()
-	uu.mutation.SetDeleted(f)
-	return uu
-}
-
-// AddDeleted adds f to the "deleted" field.
-func (uu *UserUpdate) AddDeleted(f float64) *UserUpdate {
-	uu.mutation.AddDeleted(f)
-	return uu
-}
-
 // SetNickname sets the "nickname" field.
 func (uu *UserUpdate) SetNickname(s string) *UserUpdate {
 	uu.mutation.SetNickname(s)
@@ -103,6 +50,20 @@ func (uu *UserUpdate) SetAvatar(s string) *UserUpdate {
 	return uu
 }
 
+// SetNillableAvatar sets the "avatar" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAvatar(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetAvatar(*s)
+	}
+	return uu
+}
+
+// ClearAvatar clears the value of the "avatar" field.
+func (uu *UserUpdate) ClearAvatar() *UserUpdate {
+	uu.mutation.ClearAvatar()
+	return uu
+}
+
 // SetAge sets the "age" field.
 func (uu *UserUpdate) SetAge(i int) *UserUpdate {
 	uu.mutation.ResetAge()
@@ -110,9 +71,43 @@ func (uu *UserUpdate) SetAge(i int) *UserUpdate {
 	return uu
 }
 
+// SetNillableAge sets the "age" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAge(i *int) *UserUpdate {
+	if i != nil {
+		uu.SetAge(*i)
+	}
+	return uu
+}
+
 // AddAge adds i to the "age" field.
 func (uu *UserUpdate) AddAge(i int) *UserUpdate {
 	uu.mutation.AddAge(i)
+	return uu
+}
+
+// ClearAge clears the value of the "age" field.
+func (uu *UserUpdate) ClearAge() *UserUpdate {
+	uu.mutation.ClearAge()
+	return uu
+}
+
+// SetGender sets the "gender" field.
+func (uu *UserUpdate) SetGender(u user.Gender) *UserUpdate {
+	uu.mutation.SetGender(u)
+	return uu
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableGender(u *user.Gender) *UserUpdate {
+	if u != nil {
+		uu.SetGender(*u)
+	}
+	return uu
+}
+
+// ClearGender clears the value of the "gender" field.
+func (uu *UserUpdate) ClearGender() *UserUpdate {
+	uu.mutation.ClearGender()
 	return uu
 }
 
@@ -153,19 +148,6 @@ func (uu *UserUpdate) SetNillableIntroduction(s *string) *UserUpdate {
 // ClearIntroduction clears the value of the "introduction" field.
 func (uu *UserUpdate) ClearIntroduction() *UserUpdate {
 	uu.mutation.ClearIntroduction()
-	return uu
-}
-
-// SetState sets the "state" field.
-func (uu *UserUpdate) SetState(i int) *UserUpdate {
-	uu.mutation.ResetState()
-	uu.mutation.SetState(i)
-	return uu
-}
-
-// AddState adds i to the "state" field.
-func (uu *UserUpdate) AddState(i int) *UserUpdate {
-	uu.mutation.AddState(i)
 	return uu
 }
 
@@ -320,19 +302,14 @@ func (uu *UserUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (uu *UserUpdate) check() error {
-	if v, ok := uu.mutation.Creator(); ok {
-		if err := user.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "User.creator": %w`, err)}
-		}
-	}
-	if v, ok := uu.mutation.Nickname(); ok {
-		if err := user.NicknameValidator(v); err != nil {
-			return &ValidationError{Name: "nickname", err: fmt.Errorf(`ent: validator failed for field "User.nickname": %w`, err)}
-		}
-	}
 	if v, ok := uu.mutation.Age(); ok {
 		if err := user.AgeValidator(v); err != nil {
 			return &ValidationError{Name: "age", err: fmt.Errorf(`ent: validator failed for field "User.age": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.Gender(); ok {
+		if err := user.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
 		}
 	}
 	return nil
@@ -353,35 +330,29 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := uu.mutation.Creator(); ok {
-		_spec.SetField(user.FieldCreator, field.TypeString, value)
-	}
-	if uu.mutation.CreatorCleared() {
-		_spec.ClearField(user.FieldCreator, field.TypeString)
-	}
-	if value, ok := uu.mutation.Editor(); ok {
-		_spec.SetField(user.FieldEditor, field.TypeString, value)
-	}
-	if uu.mutation.EditorCleared() {
-		_spec.ClearField(user.FieldEditor, field.TypeString)
-	}
-	if value, ok := uu.mutation.Deleted(); ok {
-		_spec.SetField(user.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := uu.mutation.AddedDeleted(); ok {
-		_spec.AddField(user.FieldDeleted, field.TypeFloat64, value)
-	}
 	if value, ok := uu.mutation.Nickname(); ok {
 		_spec.SetField(user.FieldNickname, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.Avatar(); ok {
 		_spec.SetField(user.FieldAvatar, field.TypeString, value)
 	}
+	if uu.mutation.AvatarCleared() {
+		_spec.ClearField(user.FieldAvatar, field.TypeString)
+	}
 	if value, ok := uu.mutation.Age(); ok {
 		_spec.SetField(user.FieldAge, field.TypeInt, value)
 	}
 	if value, ok := uu.mutation.AddedAge(); ok {
 		_spec.AddField(user.FieldAge, field.TypeInt, value)
+	}
+	if uu.mutation.AgeCleared() {
+		_spec.ClearField(user.FieldAge, field.TypeInt)
+	}
+	if value, ok := uu.mutation.Gender(); ok {
+		_spec.SetField(user.FieldGender, field.TypeEnum, value)
+	}
+	if uu.mutation.GenderCleared() {
+		_spec.ClearField(user.FieldGender, field.TypeEnum)
 	}
 	if value, ok := uu.mutation.City(); ok {
 		_spec.SetField(user.FieldCity, field.TypeString, value)
@@ -394,12 +365,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if uu.mutation.IntroductionCleared() {
 		_spec.ClearField(user.FieldIntroduction, field.TypeString)
-	}
-	if value, ok := uu.mutation.State(); ok {
-		_spec.SetField(user.FieldState, field.TypeInt, value)
-	}
-	if value, ok := uu.mutation.AddedState(); ok {
-		_spec.AddField(user.FieldState, field.TypeInt, value)
 	}
 	if uu.mutation.GroupsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -493,10 +458,10 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if uu.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AccountsTable,
-			Columns: []string{user.AccountsColumn},
+			Columns: user.AccountsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
@@ -506,10 +471,10 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := uu.mutation.RemovedAccountsIDs(); len(nodes) > 0 && !uu.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AccountsTable,
-			Columns: []string{user.AccountsColumn},
+			Columns: user.AccountsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
@@ -522,10 +487,10 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := uu.mutation.AccountsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AccountsTable,
-			Columns: []string{user.AccountsColumn},
+			Columns: user.AccountsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
@@ -562,59 +527,6 @@ func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
 	return uuo
 }
 
-// SetCreator sets the "creator" field.
-func (uuo *UserUpdateOne) SetCreator(s string) *UserUpdateOne {
-	uuo.mutation.SetCreator(s)
-	return uuo
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableCreator(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetCreator(*s)
-	}
-	return uuo
-}
-
-// ClearCreator clears the value of the "creator" field.
-func (uuo *UserUpdateOne) ClearCreator() *UserUpdateOne {
-	uuo.mutation.ClearCreator()
-	return uuo
-}
-
-// SetEditor sets the "editor" field.
-func (uuo *UserUpdateOne) SetEditor(s string) *UserUpdateOne {
-	uuo.mutation.SetEditor(s)
-	return uuo
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableEditor(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetEditor(*s)
-	}
-	return uuo
-}
-
-// ClearEditor clears the value of the "editor" field.
-func (uuo *UserUpdateOne) ClearEditor() *UserUpdateOne {
-	uuo.mutation.ClearEditor()
-	return uuo
-}
-
-// SetDeleted sets the "deleted" field.
-func (uuo *UserUpdateOne) SetDeleted(f float64) *UserUpdateOne {
-	uuo.mutation.ResetDeleted()
-	uuo.mutation.SetDeleted(f)
-	return uuo
-}
-
-// AddDeleted adds f to the "deleted" field.
-func (uuo *UserUpdateOne) AddDeleted(f float64) *UserUpdateOne {
-	uuo.mutation.AddDeleted(f)
-	return uuo
-}
-
 // SetNickname sets the "nickname" field.
 func (uuo *UserUpdateOne) SetNickname(s string) *UserUpdateOne {
 	uuo.mutation.SetNickname(s)
@@ -627,6 +539,20 @@ func (uuo *UserUpdateOne) SetAvatar(s string) *UserUpdateOne {
 	return uuo
 }
 
+// SetNillableAvatar sets the "avatar" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAvatar(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetAvatar(*s)
+	}
+	return uuo
+}
+
+// ClearAvatar clears the value of the "avatar" field.
+func (uuo *UserUpdateOne) ClearAvatar() *UserUpdateOne {
+	uuo.mutation.ClearAvatar()
+	return uuo
+}
+
 // SetAge sets the "age" field.
 func (uuo *UserUpdateOne) SetAge(i int) *UserUpdateOne {
 	uuo.mutation.ResetAge()
@@ -634,9 +560,43 @@ func (uuo *UserUpdateOne) SetAge(i int) *UserUpdateOne {
 	return uuo
 }
 
+// SetNillableAge sets the "age" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAge(i *int) *UserUpdateOne {
+	if i != nil {
+		uuo.SetAge(*i)
+	}
+	return uuo
+}
+
 // AddAge adds i to the "age" field.
 func (uuo *UserUpdateOne) AddAge(i int) *UserUpdateOne {
 	uuo.mutation.AddAge(i)
+	return uuo
+}
+
+// ClearAge clears the value of the "age" field.
+func (uuo *UserUpdateOne) ClearAge() *UserUpdateOne {
+	uuo.mutation.ClearAge()
+	return uuo
+}
+
+// SetGender sets the "gender" field.
+func (uuo *UserUpdateOne) SetGender(u user.Gender) *UserUpdateOne {
+	uuo.mutation.SetGender(u)
+	return uuo
+}
+
+// SetNillableGender sets the "gender" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableGender(u *user.Gender) *UserUpdateOne {
+	if u != nil {
+		uuo.SetGender(*u)
+	}
+	return uuo
+}
+
+// ClearGender clears the value of the "gender" field.
+func (uuo *UserUpdateOne) ClearGender() *UserUpdateOne {
+	uuo.mutation.ClearGender()
 	return uuo
 }
 
@@ -677,19 +637,6 @@ func (uuo *UserUpdateOne) SetNillableIntroduction(s *string) *UserUpdateOne {
 // ClearIntroduction clears the value of the "introduction" field.
 func (uuo *UserUpdateOne) ClearIntroduction() *UserUpdateOne {
 	uuo.mutation.ClearIntroduction()
-	return uuo
-}
-
-// SetState sets the "state" field.
-func (uuo *UserUpdateOne) SetState(i int) *UserUpdateOne {
-	uuo.mutation.ResetState()
-	uuo.mutation.SetState(i)
-	return uuo
-}
-
-// AddState adds i to the "state" field.
-func (uuo *UserUpdateOne) AddState(i int) *UserUpdateOne {
-	uuo.mutation.AddState(i)
 	return uuo
 }
 
@@ -857,19 +804,14 @@ func (uuo *UserUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (uuo *UserUpdateOne) check() error {
-	if v, ok := uuo.mutation.Creator(); ok {
-		if err := user.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "User.creator": %w`, err)}
-		}
-	}
-	if v, ok := uuo.mutation.Nickname(); ok {
-		if err := user.NicknameValidator(v); err != nil {
-			return &ValidationError{Name: "nickname", err: fmt.Errorf(`ent: validator failed for field "User.nickname": %w`, err)}
-		}
-	}
 	if v, ok := uuo.mutation.Age(); ok {
 		if err := user.AgeValidator(v); err != nil {
 			return &ValidationError{Name: "age", err: fmt.Errorf(`ent: validator failed for field "User.age": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.Gender(); ok {
+		if err := user.GenderValidator(v); err != nil {
+			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "User.gender": %w`, err)}
 		}
 	}
 	return nil
@@ -907,35 +849,29 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := uuo.mutation.Creator(); ok {
-		_spec.SetField(user.FieldCreator, field.TypeString, value)
-	}
-	if uuo.mutation.CreatorCleared() {
-		_spec.ClearField(user.FieldCreator, field.TypeString)
-	}
-	if value, ok := uuo.mutation.Editor(); ok {
-		_spec.SetField(user.FieldEditor, field.TypeString, value)
-	}
-	if uuo.mutation.EditorCleared() {
-		_spec.ClearField(user.FieldEditor, field.TypeString)
-	}
-	if value, ok := uuo.mutation.Deleted(); ok {
-		_spec.SetField(user.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := uuo.mutation.AddedDeleted(); ok {
-		_spec.AddField(user.FieldDeleted, field.TypeFloat64, value)
-	}
 	if value, ok := uuo.mutation.Nickname(); ok {
 		_spec.SetField(user.FieldNickname, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.Avatar(); ok {
 		_spec.SetField(user.FieldAvatar, field.TypeString, value)
 	}
+	if uuo.mutation.AvatarCleared() {
+		_spec.ClearField(user.FieldAvatar, field.TypeString)
+	}
 	if value, ok := uuo.mutation.Age(); ok {
 		_spec.SetField(user.FieldAge, field.TypeInt, value)
 	}
 	if value, ok := uuo.mutation.AddedAge(); ok {
 		_spec.AddField(user.FieldAge, field.TypeInt, value)
+	}
+	if uuo.mutation.AgeCleared() {
+		_spec.ClearField(user.FieldAge, field.TypeInt)
+	}
+	if value, ok := uuo.mutation.Gender(); ok {
+		_spec.SetField(user.FieldGender, field.TypeEnum, value)
+	}
+	if uuo.mutation.GenderCleared() {
+		_spec.ClearField(user.FieldGender, field.TypeEnum)
 	}
 	if value, ok := uuo.mutation.City(); ok {
 		_spec.SetField(user.FieldCity, field.TypeString, value)
@@ -948,12 +884,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if uuo.mutation.IntroductionCleared() {
 		_spec.ClearField(user.FieldIntroduction, field.TypeString)
-	}
-	if value, ok := uuo.mutation.State(); ok {
-		_spec.SetField(user.FieldState, field.TypeInt, value)
-	}
-	if value, ok := uuo.mutation.AddedState(); ok {
-		_spec.AddField(user.FieldState, field.TypeInt, value)
 	}
 	if uuo.mutation.GroupsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1047,10 +977,10 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if uuo.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AccountsTable,
-			Columns: []string{user.AccountsColumn},
+			Columns: user.AccountsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
@@ -1060,10 +990,10 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if nodes := uuo.mutation.RemovedAccountsIDs(); len(nodes) > 0 && !uuo.mutation.AccountsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AccountsTable,
-			Columns: []string{user.AccountsColumn},
+			Columns: user.AccountsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),
@@ -1076,10 +1006,10 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if nodes := uuo.mutation.AccountsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AccountsTable,
-			Columns: []string{user.AccountsColumn},
+			Columns: user.AccountsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(account.FieldID, field.TypeUUID),

@@ -4,6 +4,7 @@ import (
 	"SWTAC/config"
 	"SWTAC/datasource"
 	"SWTAC/datasource/ent"
+	"SWTAC/handler"
 	"SWTAC/log"
 	"context"
 	"fmt"
@@ -69,6 +70,9 @@ func main() {
 	e.GET("/hello", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "hello world!!!")
 	})
+
+	// 注册用户
+	e.POST("/register", handler.Register(client))
 
 	// user
 	//e.GET("/users", handler.GetAllUsers(client))

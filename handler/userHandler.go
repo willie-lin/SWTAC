@@ -1,79 +1,75 @@
 package handler
 
-//
-//import (
-//	"SWTAC/datasource/ent"
-//	"SWTAC/datasource/ent/user"
-//	"SWTAC/utils"
-//	"context"
-//	"github.com/labstack/echo/v4"
-//	"golang.org/x/crypto/bcrypt"
-//	"net/http"
-//	"time"
-//)
-//
-//// GetAllUsers 获取所有用户
-//func GetAllUsers(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		users, err := client.User.Query().All(context.Background())
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusNotFound, err.Error())
-//		}
-//		if err != nil {
-//			return c.JSON(http.StatusInternalServerError, err.Error())
-//		}
-//		return c.JSON(http.StatusOK, users)
-//	}
-//}
-//
-//// GetUserByUsername 根据用户名查找
-//func GetUserByUsername(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//		//直接解析raw数据为json
-//		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//		//	return c.JSON(http.StatusBadRequest, err.Error())
-//		//}
-//		if err := c.Bind(u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.Query().Where(user.UsernameEQ(u.Username)).Only(context.Background())
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//		if err != nil {
-//			return c.JSON(http.StatusInternalServerError, err.Error())
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
-//
-//// GetUserById  根据ID查找
-//func GetUserById(client *ent.Client) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		u := new(ent.User)
-//		// 直接解析raw数据为json
-//		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-//		//	return c.JSON(http.StatusBadRequest, err.Error())
-//		//}
-//		if err := c.Bind(u); err != nil {
-//			return c.JSON(http.StatusBadRequest, err.Error())
-//		}
-//
-//		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
-//
-//		if ent.IsNotFound(err) {
-//			return c.JSON(http.StatusNotFound, err.Error())
-//		}
-//		if err != nil {
-//			return c.JSON(http.StatusInternalServerError, err.Error())
-//		}
-//		return c.JSON(http.StatusOK, user)
-//	}
-//}
-//
-//// GetUserByEmail 根据email 查找用户
+import (
+	"SWTAC/datasource/ent"
+	"SWTAC/datasource/ent/user"
+	"context"
+	"github.com/labstack/echo/v4"
+	"net/http"
+)
+
+// GetAllUsers 获取所有用户
+func GetAllUsers(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		users, err := client.User.Query().All(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusOK, users)
+	}
+}
+
+// GetUserByUsername 根据用户名查找
+func GetUserByUsername(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		u := new(ent.User)
+		//直接解析raw数据为json
+		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(u); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		user, err := client.User.Query().Where(user.Nickname(u.Nickname)).Only(context.Background())
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusOK, user)
+	}
+}
+
+// GetUserById  根据ID查找
+func GetUserById(client *ent.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		u := new(ent.User)
+		// 直接解析raw数据为json
+		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
+		//	return c.JSON(http.StatusBadRequest, err.Error())
+		//}
+		if err := c.Bind(u); err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		user, err := client.User.Query().Where(user.IDEQ(u.ID)).Only(context.Background())
+
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusOK, user)
+	}
+}
+
+// GetUserByEmail 根据email 查找用户
 //func GetUserByEmail(client *ent.Client) echo.HandlerFunc {
 //	return func(c echo.Context) error {
 //

@@ -331,15 +331,15 @@ func (c *AccountClient) GetX(ctx context.Context, id uuid.UUID) *Account {
 	return obj
 }
 
-// QueryUser queries the user edge of a Account.
-func (c *AccountClient) QueryUser(a *Account) *UserQuery {
+// QueryUsers queries the users edge of a Account.
+func (c *AccountClient) QueryUsers(a *Account) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(account.Table, account.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, account.UserTable, account.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, account.UsersTable, account.UsersPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
 		return fromV, nil
@@ -955,7 +955,7 @@ func (c *UserClient) QueryAccounts(u *User) *AccountQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(account.Table, account.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.AccountsTable, user.AccountsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.AccountsTable, user.AccountsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

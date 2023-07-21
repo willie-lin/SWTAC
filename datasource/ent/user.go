@@ -22,24 +22,18 @@ type User struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// Creator holds the value of the "creator" field.
-	Creator string `json:"creator,omitempty"`
-	// Editor holds the value of the "editor" field.
-	Editor string `json:"editor,omitempty"`
-	// Deleted holds the value of the "deleted" field.
-	Deleted float64 `json:"deleted,omitempty"`
 	// Nickname holds the value of the "nickname" field.
 	Nickname string `json:"nickname,omitempty"`
 	// Avatar holds the value of the "avatar" field.
 	Avatar string `json:"avatar,omitempty"`
 	// Age holds the value of the "age" field.
 	Age int `json:"age,omitempty"`
+	// Gender holds the value of the "gender" field.
+	Gender user.Gender `json:"gender,omitempty"`
 	// City holds the value of the "city" field.
 	City string `json:"city,omitempty"`
 	// Introduction holds the value of the "introduction" field.
 	Introduction string `json:"introduction,omitempty"`
-	// State holds the value of the "state" field.
-	State int `json:"state,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -92,11 +86,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldDeleted:
-			values[i] = new(sql.NullFloat64)
-		case user.FieldAge, user.FieldState:
+		case user.FieldAge:
 			values[i] = new(sql.NullInt64)
-		case user.FieldCreator, user.FieldEditor, user.FieldNickname, user.FieldAvatar, user.FieldCity, user.FieldIntroduction:
+		case user.FieldNickname, user.FieldAvatar, user.FieldGender, user.FieldCity, user.FieldIntroduction:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -137,24 +129,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.UpdatedAt = value.Time
 			}
-		case user.FieldCreator:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field creator", values[i])
-			} else if value.Valid {
-				u.Creator = value.String
-			}
-		case user.FieldEditor:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field editor", values[i])
-			} else if value.Valid {
-				u.Editor = value.String
-			}
-		case user.FieldDeleted:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted", values[i])
-			} else if value.Valid {
-				u.Deleted = value.Float64
-			}
 		case user.FieldNickname:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field nickname", values[i])
@@ -173,6 +147,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Age = int(value.Int64)
 			}
+		case user.FieldGender:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gender", values[i])
+			} else if value.Valid {
+				u.Gender = user.Gender(value.String)
+			}
 		case user.FieldCity:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field city", values[i])
@@ -184,12 +164,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field introduction", values[i])
 			} else if value.Valid {
 				u.Introduction = value.String
-			}
-		case user.FieldState:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field state", values[i])
-			} else if value.Valid {
-				u.State = int(value.Int64)
 			}
 		case user.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -255,15 +229,6 @@ func (u *User) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("creator=")
-	builder.WriteString(u.Creator)
-	builder.WriteString(", ")
-	builder.WriteString("editor=")
-	builder.WriteString(u.Editor)
-	builder.WriteString(", ")
-	builder.WriteString("deleted=")
-	builder.WriteString(fmt.Sprintf("%v", u.Deleted))
-	builder.WriteString(", ")
 	builder.WriteString("nickname=")
 	builder.WriteString(u.Nickname)
 	builder.WriteString(", ")
@@ -273,14 +238,14 @@ func (u *User) String() string {
 	builder.WriteString("age=")
 	builder.WriteString(fmt.Sprintf("%v", u.Age))
 	builder.WriteString(", ")
+	builder.WriteString("gender=")
+	builder.WriteString(fmt.Sprintf("%v", u.Gender))
+	builder.WriteString(", ")
 	builder.WriteString("city=")
 	builder.WriteString(u.City)
 	builder.WriteString(", ")
 	builder.WriteString("introduction=")
 	builder.WriteString(u.Introduction)
-	builder.WriteString(", ")
-	builder.WriteString("state=")
-	builder.WriteString(fmt.Sprintf("%v", u.State))
 	builder.WriteByte(')')
 	return builder.String()
 }

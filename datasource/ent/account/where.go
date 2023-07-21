@@ -66,21 +66,6 @@ func UpdatedAt(v time.Time) predicate.Account {
 	return predicate.Account(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// Creator applies equality check predicate on the "creator" field. It's identical to CreatorEQ.
-func Creator(v string) predicate.Account {
-	return predicate.Account(sql.FieldEQ(FieldCreator, v))
-}
-
-// Editor applies equality check predicate on the "editor" field. It's identical to EditorEQ.
-func Editor(v string) predicate.Account {
-	return predicate.Account(sql.FieldEQ(FieldEditor, v))
-}
-
-// Deleted applies equality check predicate on the "deleted" field. It's identical to DeletedEQ.
-func Deleted(v float64) predicate.Account {
-	return predicate.Account(sql.FieldEQ(FieldDeleted, v))
-}
-
 // Username applies equality check predicate on the "username" field. It's identical to UsernameEQ.
 func Username(v string) predicate.Account {
 	return predicate.Account(sql.FieldEQ(FieldUsername, v))
@@ -179,196 +164,6 @@ func UpdatedAtLT(v time.Time) predicate.Account {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Account {
 	return predicate.Account(sql.FieldLTE(FieldUpdatedAt, v))
-}
-
-// CreatorEQ applies the EQ predicate on the "creator" field.
-func CreatorEQ(v string) predicate.Account {
-	return predicate.Account(sql.FieldEQ(FieldCreator, v))
-}
-
-// CreatorNEQ applies the NEQ predicate on the "creator" field.
-func CreatorNEQ(v string) predicate.Account {
-	return predicate.Account(sql.FieldNEQ(FieldCreator, v))
-}
-
-// CreatorIn applies the In predicate on the "creator" field.
-func CreatorIn(vs ...string) predicate.Account {
-	return predicate.Account(sql.FieldIn(FieldCreator, vs...))
-}
-
-// CreatorNotIn applies the NotIn predicate on the "creator" field.
-func CreatorNotIn(vs ...string) predicate.Account {
-	return predicate.Account(sql.FieldNotIn(FieldCreator, vs...))
-}
-
-// CreatorGT applies the GT predicate on the "creator" field.
-func CreatorGT(v string) predicate.Account {
-	return predicate.Account(sql.FieldGT(FieldCreator, v))
-}
-
-// CreatorGTE applies the GTE predicate on the "creator" field.
-func CreatorGTE(v string) predicate.Account {
-	return predicate.Account(sql.FieldGTE(FieldCreator, v))
-}
-
-// CreatorLT applies the LT predicate on the "creator" field.
-func CreatorLT(v string) predicate.Account {
-	return predicate.Account(sql.FieldLT(FieldCreator, v))
-}
-
-// CreatorLTE applies the LTE predicate on the "creator" field.
-func CreatorLTE(v string) predicate.Account {
-	return predicate.Account(sql.FieldLTE(FieldCreator, v))
-}
-
-// CreatorContains applies the Contains predicate on the "creator" field.
-func CreatorContains(v string) predicate.Account {
-	return predicate.Account(sql.FieldContains(FieldCreator, v))
-}
-
-// CreatorHasPrefix applies the HasPrefix predicate on the "creator" field.
-func CreatorHasPrefix(v string) predicate.Account {
-	return predicate.Account(sql.FieldHasPrefix(FieldCreator, v))
-}
-
-// CreatorHasSuffix applies the HasSuffix predicate on the "creator" field.
-func CreatorHasSuffix(v string) predicate.Account {
-	return predicate.Account(sql.FieldHasSuffix(FieldCreator, v))
-}
-
-// CreatorIsNil applies the IsNil predicate on the "creator" field.
-func CreatorIsNil() predicate.Account {
-	return predicate.Account(sql.FieldIsNull(FieldCreator))
-}
-
-// CreatorNotNil applies the NotNil predicate on the "creator" field.
-func CreatorNotNil() predicate.Account {
-	return predicate.Account(sql.FieldNotNull(FieldCreator))
-}
-
-// CreatorEqualFold applies the EqualFold predicate on the "creator" field.
-func CreatorEqualFold(v string) predicate.Account {
-	return predicate.Account(sql.FieldEqualFold(FieldCreator, v))
-}
-
-// CreatorContainsFold applies the ContainsFold predicate on the "creator" field.
-func CreatorContainsFold(v string) predicate.Account {
-	return predicate.Account(sql.FieldContainsFold(FieldCreator, v))
-}
-
-// EditorEQ applies the EQ predicate on the "editor" field.
-func EditorEQ(v string) predicate.Account {
-	return predicate.Account(sql.FieldEQ(FieldEditor, v))
-}
-
-// EditorNEQ applies the NEQ predicate on the "editor" field.
-func EditorNEQ(v string) predicate.Account {
-	return predicate.Account(sql.FieldNEQ(FieldEditor, v))
-}
-
-// EditorIn applies the In predicate on the "editor" field.
-func EditorIn(vs ...string) predicate.Account {
-	return predicate.Account(sql.FieldIn(FieldEditor, vs...))
-}
-
-// EditorNotIn applies the NotIn predicate on the "editor" field.
-func EditorNotIn(vs ...string) predicate.Account {
-	return predicate.Account(sql.FieldNotIn(FieldEditor, vs...))
-}
-
-// EditorGT applies the GT predicate on the "editor" field.
-func EditorGT(v string) predicate.Account {
-	return predicate.Account(sql.FieldGT(FieldEditor, v))
-}
-
-// EditorGTE applies the GTE predicate on the "editor" field.
-func EditorGTE(v string) predicate.Account {
-	return predicate.Account(sql.FieldGTE(FieldEditor, v))
-}
-
-// EditorLT applies the LT predicate on the "editor" field.
-func EditorLT(v string) predicate.Account {
-	return predicate.Account(sql.FieldLT(FieldEditor, v))
-}
-
-// EditorLTE applies the LTE predicate on the "editor" field.
-func EditorLTE(v string) predicate.Account {
-	return predicate.Account(sql.FieldLTE(FieldEditor, v))
-}
-
-// EditorContains applies the Contains predicate on the "editor" field.
-func EditorContains(v string) predicate.Account {
-	return predicate.Account(sql.FieldContains(FieldEditor, v))
-}
-
-// EditorHasPrefix applies the HasPrefix predicate on the "editor" field.
-func EditorHasPrefix(v string) predicate.Account {
-	return predicate.Account(sql.FieldHasPrefix(FieldEditor, v))
-}
-
-// EditorHasSuffix applies the HasSuffix predicate on the "editor" field.
-func EditorHasSuffix(v string) predicate.Account {
-	return predicate.Account(sql.FieldHasSuffix(FieldEditor, v))
-}
-
-// EditorIsNil applies the IsNil predicate on the "editor" field.
-func EditorIsNil() predicate.Account {
-	return predicate.Account(sql.FieldIsNull(FieldEditor))
-}
-
-// EditorNotNil applies the NotNil predicate on the "editor" field.
-func EditorNotNil() predicate.Account {
-	return predicate.Account(sql.FieldNotNull(FieldEditor))
-}
-
-// EditorEqualFold applies the EqualFold predicate on the "editor" field.
-func EditorEqualFold(v string) predicate.Account {
-	return predicate.Account(sql.FieldEqualFold(FieldEditor, v))
-}
-
-// EditorContainsFold applies the ContainsFold predicate on the "editor" field.
-func EditorContainsFold(v string) predicate.Account {
-	return predicate.Account(sql.FieldContainsFold(FieldEditor, v))
-}
-
-// DeletedEQ applies the EQ predicate on the "deleted" field.
-func DeletedEQ(v float64) predicate.Account {
-	return predicate.Account(sql.FieldEQ(FieldDeleted, v))
-}
-
-// DeletedNEQ applies the NEQ predicate on the "deleted" field.
-func DeletedNEQ(v float64) predicate.Account {
-	return predicate.Account(sql.FieldNEQ(FieldDeleted, v))
-}
-
-// DeletedIn applies the In predicate on the "deleted" field.
-func DeletedIn(vs ...float64) predicate.Account {
-	return predicate.Account(sql.FieldIn(FieldDeleted, vs...))
-}
-
-// DeletedNotIn applies the NotIn predicate on the "deleted" field.
-func DeletedNotIn(vs ...float64) predicate.Account {
-	return predicate.Account(sql.FieldNotIn(FieldDeleted, vs...))
-}
-
-// DeletedGT applies the GT predicate on the "deleted" field.
-func DeletedGT(v float64) predicate.Account {
-	return predicate.Account(sql.FieldGT(FieldDeleted, v))
-}
-
-// DeletedGTE applies the GTE predicate on the "deleted" field.
-func DeletedGTE(v float64) predicate.Account {
-	return predicate.Account(sql.FieldGTE(FieldDeleted, v))
-}
-
-// DeletedLT applies the LT predicate on the "deleted" field.
-func DeletedLT(v float64) predicate.Account {
-	return predicate.Account(sql.FieldLT(FieldDeleted, v))
-}
-
-// DeletedLTE applies the LTE predicate on the "deleted" field.
-func DeletedLTE(v float64) predicate.Account {
-	return predicate.Account(sql.FieldLTE(FieldDeleted, v))
 }
 
 // UsernameEQ applies the EQ predicate on the "username" field.
@@ -631,21 +426,21 @@ func PasswordContainsFold(v string) predicate.Account {
 	return predicate.Account(sql.FieldContainsFold(FieldPassword, v))
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.Account {
+// HasUsers applies the HasEdge predicate on the "users" edge.
+func HasUsers() predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.Account {
+// HasUsersWith applies the HasEdge predicate on the "users" edge with a given conditions (other predicates).
+func HasUsersWith(preds ...predicate.User) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
-		step := newUserStep()
+		step := newUsersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

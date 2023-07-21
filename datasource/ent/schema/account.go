@@ -24,7 +24,6 @@ func (Account) Annotations() []schema.Annotation {
 func (Account) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
-		EditMixin{},
 	}
 }
 
@@ -37,9 +36,10 @@ func (Account) Fields() []ent.Field {
 		//field.String("open_code"),
 		//field.String("category"),
 		field.String("username").NotEmpty().Unique().Immutable(),
-		field.String("email").NotEmpty().Unique(),
-		field.String("phone").NotEmpty().Unique().MinLen(11).MaxLen(11),
-		field.String("password").Sensitive().MinLen(8).MinLen(120),
+		field.String("email").Unique(),
+		//field.String("phone").Unique().MinLen(11).MaxLen(11),
+		field.String("phone").Unique(),
+		field.String("password").Sensitive().MinLen(8).MaxLen(120),
 	}
 }
 
@@ -47,19 +47,14 @@ func (Account) Fields() []ent.Field {
 func (Account) Edges() []ent.Edge {
 	return []ent.Edge{
 		//edge.To("user", User.Type),
-		edge.From("user", User.Type).
-			Ref("accounts").
-			Unique(),
+		edge.From("users", User.Type).
+			Ref("accounts"),
 	}
 }
 
 func (Account) Indexes() []ent.Index {
 	return []ent.Index{
-		// 非唯一约束索引
-		//index.Fields("field1", "field2"),
 		// 唯一约束索引
-		index.Fields("id").
-			Edges("user").
-			Unique(),
+		index.Fields("username", "email", "phone").Unique(),
 	}
 }

@@ -22,8 +22,6 @@ func init() {
 	accountMixin := schema.Account{}.Mixin()
 	accountMixinFields0 := accountMixin[0].Fields()
 	_ = accountMixinFields0
-	accountMixinFields1 := accountMixin[1].Fields()
-	_ = accountMixinFields1
 	accountFields := schema.Account{}.Fields()
 	_ = accountFields
 	// accountDescCreatedAt is the schema descriptor for created_at field.
@@ -36,37 +34,10 @@ func init() {
 	account.DefaultUpdatedAt = accountDescUpdatedAt.Default.(func() time.Time)
 	// account.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	account.UpdateDefaultUpdatedAt = accountDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// accountDescCreator is the schema descriptor for creator field.
-	accountDescCreator := accountMixinFields1[0].Descriptor()
-	// account.CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
-	account.CreatorValidator = accountDescCreator.Validators[0].(func(string) error)
 	// accountDescUsername is the schema descriptor for username field.
 	accountDescUsername := accountFields[1].Descriptor()
 	// account.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	account.UsernameValidator = accountDescUsername.Validators[0].(func(string) error)
-	// accountDescEmail is the schema descriptor for email field.
-	accountDescEmail := accountFields[2].Descriptor()
-	// account.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	account.EmailValidator = accountDescEmail.Validators[0].(func(string) error)
-	// accountDescPhone is the schema descriptor for phone field.
-	accountDescPhone := accountFields[3].Descriptor()
-	// account.PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
-	account.PhoneValidator = func() func(string) error {
-		validators := accountDescPhone.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-			validators[2].(func(string) error),
-		}
-		return func(phone string) error {
-			for _, fn := range fns {
-				if err := fn(phone); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// accountDescPassword is the schema descriptor for password field.
 	accountDescPassword := accountFields[4].Descriptor()
 	// account.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
@@ -167,8 +138,6 @@ func init() {
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0
-	userMixinFields1 := userMixin[1].Fields()
-	_ = userMixinFields1
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.
@@ -181,16 +150,14 @@ func init() {
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// userDescCreator is the schema descriptor for creator field.
-	userDescCreator := userMixinFields1[0].Descriptor()
-	// user.CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
-	user.CreatorValidator = userDescCreator.Validators[0].(func(string) error)
-	// userDescNickname is the schema descriptor for nickname field.
-	userDescNickname := userFields[1].Descriptor()
-	// user.NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
-	user.NicknameValidator = userDescNickname.Validators[0].(func(string) error)
+	// userDescAvatar is the schema descriptor for avatar field.
+	userDescAvatar := userFields[2].Descriptor()
+	// user.DefaultAvatar holds the default value on creation for the avatar field.
+	user.DefaultAvatar = userDescAvatar.Default.(string)
 	// userDescAge is the schema descriptor for age field.
 	userDescAge := userFields[3].Descriptor()
+	// user.DefaultAge holds the default value on creation for the age field.
+	user.DefaultAge = userDescAge.Default.(int)
 	// user.AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	user.AgeValidator = func() func(int) error {
 		validators := userDescAge.Validators

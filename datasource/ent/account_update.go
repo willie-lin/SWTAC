@@ -36,59 +36,6 @@ func (au *AccountUpdate) SetUpdatedAt(t time.Time) *AccountUpdate {
 	return au
 }
 
-// SetCreator sets the "creator" field.
-func (au *AccountUpdate) SetCreator(s string) *AccountUpdate {
-	au.mutation.SetCreator(s)
-	return au
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (au *AccountUpdate) SetNillableCreator(s *string) *AccountUpdate {
-	if s != nil {
-		au.SetCreator(*s)
-	}
-	return au
-}
-
-// ClearCreator clears the value of the "creator" field.
-func (au *AccountUpdate) ClearCreator() *AccountUpdate {
-	au.mutation.ClearCreator()
-	return au
-}
-
-// SetEditor sets the "editor" field.
-func (au *AccountUpdate) SetEditor(s string) *AccountUpdate {
-	au.mutation.SetEditor(s)
-	return au
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (au *AccountUpdate) SetNillableEditor(s *string) *AccountUpdate {
-	if s != nil {
-		au.SetEditor(*s)
-	}
-	return au
-}
-
-// ClearEditor clears the value of the "editor" field.
-func (au *AccountUpdate) ClearEditor() *AccountUpdate {
-	au.mutation.ClearEditor()
-	return au
-}
-
-// SetDeleted sets the "deleted" field.
-func (au *AccountUpdate) SetDeleted(f float64) *AccountUpdate {
-	au.mutation.ResetDeleted()
-	au.mutation.SetDeleted(f)
-	return au
-}
-
-// AddDeleted adds f to the "deleted" field.
-func (au *AccountUpdate) AddDeleted(f float64) *AccountUpdate {
-	au.mutation.AddDeleted(f)
-	return au
-}
-
 // SetEmail sets the "email" field.
 func (au *AccountUpdate) SetEmail(s string) *AccountUpdate {
 	au.mutation.SetEmail(s)
@@ -107,23 +54,19 @@ func (au *AccountUpdate) SetPassword(s string) *AccountUpdate {
 	return au
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (au *AccountUpdate) SetUserID(id uuid.UUID) *AccountUpdate {
-	au.mutation.SetUserID(id)
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (au *AccountUpdate) AddUserIDs(ids ...uuid.UUID) *AccountUpdate {
+	au.mutation.AddUserIDs(ids...)
 	return au
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (au *AccountUpdate) SetNillableUserID(id *uuid.UUID) *AccountUpdate {
-	if id != nil {
-		au = au.SetUserID(*id)
+// AddUsers adds the "users" edges to the User entity.
+func (au *AccountUpdate) AddUsers(u ...*User) *AccountUpdate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
 	}
-	return au
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (au *AccountUpdate) SetUser(u *User) *AccountUpdate {
-	return au.SetUserID(u.ID)
+	return au.AddUserIDs(ids...)
 }
 
 // Mutation returns the AccountMutation object of the builder.
@@ -131,10 +74,25 @@ func (au *AccountUpdate) Mutation() *AccountMutation {
 	return au.mutation
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (au *AccountUpdate) ClearUser() *AccountUpdate {
-	au.mutation.ClearUser()
+// ClearUsers clears all "users" edges to the User entity.
+func (au *AccountUpdate) ClearUsers() *AccountUpdate {
+	au.mutation.ClearUsers()
 	return au
+}
+
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (au *AccountUpdate) RemoveUserIDs(ids ...uuid.UUID) *AccountUpdate {
+	au.mutation.RemoveUserIDs(ids...)
+	return au
+}
+
+// RemoveUsers removes "users" edges to User entities.
+func (au *AccountUpdate) RemoveUsers(u ...*User) *AccountUpdate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return au.RemoveUserIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -175,21 +133,6 @@ func (au *AccountUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (au *AccountUpdate) check() error {
-	if v, ok := au.mutation.Creator(); ok {
-		if err := account.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Account.creator": %w`, err)}
-		}
-	}
-	if v, ok := au.mutation.Email(); ok {
-		if err := account.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Account.email": %w`, err)}
-		}
-	}
-	if v, ok := au.mutation.Phone(); ok {
-		if err := account.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Account.phone": %w`, err)}
-		}
-	}
 	if v, ok := au.mutation.Password(); ok {
 		if err := account.PasswordValidator(v); err != nil {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Account.password": %w`, err)}
@@ -213,24 +156,6 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.UpdatedAt(); ok {
 		_spec.SetField(account.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := au.mutation.Creator(); ok {
-		_spec.SetField(account.FieldCreator, field.TypeString, value)
-	}
-	if au.mutation.CreatorCleared() {
-		_spec.ClearField(account.FieldCreator, field.TypeString)
-	}
-	if value, ok := au.mutation.Editor(); ok {
-		_spec.SetField(account.FieldEditor, field.TypeString, value)
-	}
-	if au.mutation.EditorCleared() {
-		_spec.ClearField(account.FieldEditor, field.TypeString)
-	}
-	if value, ok := au.mutation.Deleted(); ok {
-		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := au.mutation.AddedDeleted(); ok {
-		_spec.AddField(account.FieldDeleted, field.TypeFloat64, value)
-	}
 	if value, ok := au.mutation.Email(); ok {
 		_spec.SetField(account.FieldEmail, field.TypeString, value)
 	}
@@ -240,12 +165,12 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.Password(); ok {
 		_spec.SetField(account.FieldPassword, field.TypeString, value)
 	}
-	if au.mutation.UserCleared() {
+	if au.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   account.UserTable,
-			Columns: []string{account.UserColumn},
+			Table:   account.UsersTable,
+			Columns: account.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -253,12 +178,28 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := au.mutation.RemovedUsersIDs(); len(nodes) > 0 && !au.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   account.UserTable,
-			Columns: []string{account.UserColumn},
+			Table:   account.UsersTable,
+			Columns: account.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   account.UsersTable,
+			Columns: account.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -295,59 +236,6 @@ func (auo *AccountUpdateOne) SetUpdatedAt(t time.Time) *AccountUpdateOne {
 	return auo
 }
 
-// SetCreator sets the "creator" field.
-func (auo *AccountUpdateOne) SetCreator(s string) *AccountUpdateOne {
-	auo.mutation.SetCreator(s)
-	return auo
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (auo *AccountUpdateOne) SetNillableCreator(s *string) *AccountUpdateOne {
-	if s != nil {
-		auo.SetCreator(*s)
-	}
-	return auo
-}
-
-// ClearCreator clears the value of the "creator" field.
-func (auo *AccountUpdateOne) ClearCreator() *AccountUpdateOne {
-	auo.mutation.ClearCreator()
-	return auo
-}
-
-// SetEditor sets the "editor" field.
-func (auo *AccountUpdateOne) SetEditor(s string) *AccountUpdateOne {
-	auo.mutation.SetEditor(s)
-	return auo
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (auo *AccountUpdateOne) SetNillableEditor(s *string) *AccountUpdateOne {
-	if s != nil {
-		auo.SetEditor(*s)
-	}
-	return auo
-}
-
-// ClearEditor clears the value of the "editor" field.
-func (auo *AccountUpdateOne) ClearEditor() *AccountUpdateOne {
-	auo.mutation.ClearEditor()
-	return auo
-}
-
-// SetDeleted sets the "deleted" field.
-func (auo *AccountUpdateOne) SetDeleted(f float64) *AccountUpdateOne {
-	auo.mutation.ResetDeleted()
-	auo.mutation.SetDeleted(f)
-	return auo
-}
-
-// AddDeleted adds f to the "deleted" field.
-func (auo *AccountUpdateOne) AddDeleted(f float64) *AccountUpdateOne {
-	auo.mutation.AddDeleted(f)
-	return auo
-}
-
 // SetEmail sets the "email" field.
 func (auo *AccountUpdateOne) SetEmail(s string) *AccountUpdateOne {
 	auo.mutation.SetEmail(s)
@@ -366,23 +254,19 @@ func (auo *AccountUpdateOne) SetPassword(s string) *AccountUpdateOne {
 	return auo
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (auo *AccountUpdateOne) SetUserID(id uuid.UUID) *AccountUpdateOne {
-	auo.mutation.SetUserID(id)
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (auo *AccountUpdateOne) AddUserIDs(ids ...uuid.UUID) *AccountUpdateOne {
+	auo.mutation.AddUserIDs(ids...)
 	return auo
 }
 
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (auo *AccountUpdateOne) SetNillableUserID(id *uuid.UUID) *AccountUpdateOne {
-	if id != nil {
-		auo = auo.SetUserID(*id)
+// AddUsers adds the "users" edges to the User entity.
+func (auo *AccountUpdateOne) AddUsers(u ...*User) *AccountUpdateOne {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
 	}
-	return auo
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (auo *AccountUpdateOne) SetUser(u *User) *AccountUpdateOne {
-	return auo.SetUserID(u.ID)
+	return auo.AddUserIDs(ids...)
 }
 
 // Mutation returns the AccountMutation object of the builder.
@@ -390,10 +274,25 @@ func (auo *AccountUpdateOne) Mutation() *AccountMutation {
 	return auo.mutation
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (auo *AccountUpdateOne) ClearUser() *AccountUpdateOne {
-	auo.mutation.ClearUser()
+// ClearUsers clears all "users" edges to the User entity.
+func (auo *AccountUpdateOne) ClearUsers() *AccountUpdateOne {
+	auo.mutation.ClearUsers()
 	return auo
+}
+
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (auo *AccountUpdateOne) RemoveUserIDs(ids ...uuid.UUID) *AccountUpdateOne {
+	auo.mutation.RemoveUserIDs(ids...)
+	return auo
+}
+
+// RemoveUsers removes "users" edges to User entities.
+func (auo *AccountUpdateOne) RemoveUsers(u ...*User) *AccountUpdateOne {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return auo.RemoveUserIDs(ids...)
 }
 
 // Where appends a list predicates to the AccountUpdate builder.
@@ -447,21 +346,6 @@ func (auo *AccountUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (auo *AccountUpdateOne) check() error {
-	if v, ok := auo.mutation.Creator(); ok {
-		if err := account.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Account.creator": %w`, err)}
-		}
-	}
-	if v, ok := auo.mutation.Email(); ok {
-		if err := account.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Account.email": %w`, err)}
-		}
-	}
-	if v, ok := auo.mutation.Phone(); ok {
-		if err := account.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "Account.phone": %w`, err)}
-		}
-	}
 	if v, ok := auo.mutation.Password(); ok {
 		if err := account.PasswordValidator(v); err != nil {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Account.password": %w`, err)}
@@ -502,24 +386,6 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	if value, ok := auo.mutation.UpdatedAt(); ok {
 		_spec.SetField(account.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := auo.mutation.Creator(); ok {
-		_spec.SetField(account.FieldCreator, field.TypeString, value)
-	}
-	if auo.mutation.CreatorCleared() {
-		_spec.ClearField(account.FieldCreator, field.TypeString)
-	}
-	if value, ok := auo.mutation.Editor(); ok {
-		_spec.SetField(account.FieldEditor, field.TypeString, value)
-	}
-	if auo.mutation.EditorCleared() {
-		_spec.ClearField(account.FieldEditor, field.TypeString)
-	}
-	if value, ok := auo.mutation.Deleted(); ok {
-		_spec.SetField(account.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := auo.mutation.AddedDeleted(); ok {
-		_spec.AddField(account.FieldDeleted, field.TypeFloat64, value)
-	}
 	if value, ok := auo.mutation.Email(); ok {
 		_spec.SetField(account.FieldEmail, field.TypeString, value)
 	}
@@ -529,12 +395,12 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	if value, ok := auo.mutation.Password(); ok {
 		_spec.SetField(account.FieldPassword, field.TypeString, value)
 	}
-	if auo.mutation.UserCleared() {
+	if auo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   account.UserTable,
-			Columns: []string{account.UserColumn},
+			Table:   account.UsersTable,
+			Columns: account.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
@@ -542,12 +408,28 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := auo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !auo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   account.UserTable,
-			Columns: []string{account.UserColumn},
+			Table:   account.UsersTable,
+			Columns: account.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   account.UsersTable,
+			Columns: account.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),

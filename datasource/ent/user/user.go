@@ -3,6 +3,7 @@
 package user
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -19,24 +20,18 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldCreator holds the string denoting the creator field in the database.
-	FieldCreator = "creator"
-	// FieldEditor holds the string denoting the editor field in the database.
-	FieldEditor = "editor"
-	// FieldDeleted holds the string denoting the deleted field in the database.
-	FieldDeleted = "deleted"
 	// FieldNickname holds the string denoting the nickname field in the database.
 	FieldNickname = "nickname"
 	// FieldAvatar holds the string denoting the avatar field in the database.
 	FieldAvatar = "avatar"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
+	// FieldGender holds the string denoting the gender field in the database.
+	FieldGender = "gender"
 	// FieldCity holds the string denoting the city field in the database.
 	FieldCity = "city"
 	// FieldIntroduction holds the string denoting the introduction field in the database.
 	FieldIntroduction = "introduction"
-	// FieldState holds the string denoting the state field in the database.
-	FieldState = "state"
 	// EdgeGroups holds the string denoting the groups edge name in mutations.
 	EdgeGroups = "groups"
 	// EdgeRoles holds the string denoting the roles edge name in mutations.
@@ -55,13 +50,11 @@ const (
 	// RolesInverseTable is the table name for the Role entity.
 	// It exists in this package in order to avoid circular dependency with the "role" package.
 	RolesInverseTable = "roles"
-	// AccountsTable is the table that holds the accounts relation/edge.
-	AccountsTable = "accounts"
+	// AccountsTable is the table that holds the accounts relation/edge. The primary key declared below.
+	AccountsTable = "user_accounts"
 	// AccountsInverseTable is the table name for the Account entity.
 	// It exists in this package in order to avoid circular dependency with the "account" package.
 	AccountsInverseTable = "accounts"
-	// AccountsColumn is the table column denoting the accounts relation/edge.
-	AccountsColumn = "user_accounts"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -69,15 +62,12 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldCreator,
-	FieldEditor,
-	FieldDeleted,
 	FieldNickname,
 	FieldAvatar,
 	FieldAge,
+	FieldGender,
 	FieldCity,
 	FieldIntroduction,
-	FieldState,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "users"
@@ -93,6 +83,9 @@ var (
 	// RolesPrimaryKey and RolesColumn2 are the table columns denoting the
 	// primary key for the roles relation (M2M).
 	RolesPrimaryKey = []string{"user_id", "role_id"}
+	// AccountsPrimaryKey and AccountsColumn2 are the table columns denoting the
+	// primary key for the accounts relation (M2M).
+	AccountsPrimaryKey = []string{"user_id", "account_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -117,15 +110,39 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// CreatorValidator is a validator for the "creator" field. It is called by the builders before save.
-	CreatorValidator func(string) error
-	// NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
-	NicknameValidator func(string) error
+	// DefaultAvatar holds the default value on creation for the "avatar" field.
+	DefaultAvatar string
+	// DefaultAge holds the default value on creation for the "age" field.
+	DefaultAge int
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// Gender defines the type for the "gender" enum field.
+type Gender string
+
+// Gender values.
+const (
+	GenderMale   Gender = "male"
+	GenderFemale Gender = "female"
+	GenderOther  Gender = "other"
+)
+
+func (ge Gender) String() string {
+	return string(ge)
+}
+
+// GenderValidator is a validator for the "gender" field enum values. It is called by the builders before save.
+func GenderValidator(ge Gender) error {
+	switch ge {
+	case GenderMale, GenderFemale, GenderOther:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for gender field: %q", ge)
+	}
+}
 
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
@@ -145,21 +162,6 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByCreator orders the results by the creator field.
-func ByCreator(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreator, opts...).ToFunc()
-}
-
-// ByEditor orders the results by the editor field.
-func ByEditor(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEditor, opts...).ToFunc()
-}
-
-// ByDeleted orders the results by the deleted field.
-func ByDeleted(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeleted, opts...).ToFunc()
-}
-
 // ByNickname orders the results by the nickname field.
 func ByNickname(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNickname, opts...).ToFunc()
@@ -175,6 +177,11 @@ func ByAge(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAge, opts...).ToFunc()
 }
 
+// ByGender orders the results by the gender field.
+func ByGender(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGender, opts...).ToFunc()
+}
+
 // ByCity orders the results by the city field.
 func ByCity(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCity, opts...).ToFunc()
@@ -183,11 +190,6 @@ func ByCity(opts ...sql.OrderTermOption) OrderOption {
 // ByIntroduction orders the results by the introduction field.
 func ByIntroduction(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIntroduction, opts...).ToFunc()
-}
-
-// ByState orders the results by the state field.
-func ByState(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
 
 // ByGroupsCount orders the results by groups count.
@@ -249,6 +251,6 @@ func newAccountsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AccountsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, AccountsTable, AccountsColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, AccountsTable, AccountsPrimaryKey...),
 	)
 }
