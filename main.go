@@ -84,13 +84,13 @@ func main() {
 	e.DELETE("/user/id", handler.DeleteUserById(client))
 	// usergroup
 	e.GET("/usergroups", handler.GetAllUserGroups(client))
-	e.GET("/usergropu/id", handler.GetUserGroupById(client))
-	e.GET("/usergropu/name", handler.GetUserGroupByName(client))
-	e.POST("/usergropu", handler.CreateUserGroup(client))
-	e.PUT("/usergropu/id", handler.UpdateUserGroupById(client))
-	e.PUT("/usergropu", handler.UpdateUserGroup(client))
-	e.DELETE("/usergropu", handler.DeleteUserGroup(client))
-	e.DELETE("/usergropu/id", handler.DeleteUserGroupById(client))
+	e.GET("/usergroup/id", handler.GetUserGroupById(client))
+	e.GET("/usergroup/name", handler.GetUserGroupByName(client))
+	e.POST("/usergroup", handler.CreateUserGroup(client))
+	e.PUT("/usergroup/id", handler.UpdateUserGroupById(client))
+	e.PUT("/usergroup", handler.UpdateUserGroup(client))
+	e.DELETE("/usergroup", handler.DeleteUserGroup(client))
+	e.DELETE("/usergroup/id", handler.DeleteUserGroupById(client))
 
 	// role
 	e.GET("/roles", handler.GetAllRoles(client))
