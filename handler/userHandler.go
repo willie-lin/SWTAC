@@ -254,6 +254,9 @@ func DeleteUser(client *ent.Client) echo.HandlerFunc {
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 
 		err = client.User.DeleteOne(user).Exec(context.Background())
 		if err != nil {
@@ -277,7 +280,6 @@ func DeleteUserById(client *ent.Client) echo.HandlerFunc {
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
-
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
