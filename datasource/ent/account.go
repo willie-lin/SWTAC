@@ -33,9 +33,9 @@ type Account struct {
 	Password string `json:"-"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AccountQuery when eager-loading is set.
-	Edges        AccountEdges `json:"edges"`
-	user_account *uuid.UUID
-	selectValues sql.SelectValues
+	Edges         AccountEdges `json:"edges"`
+	user_accounts *uuid.UUID
+	selectValues  sql.SelectValues
 }
 
 // AccountEdges holds the relations/edges for other nodes in the graph.
@@ -71,7 +71,7 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case account.FieldID:
 			values[i] = new(uuid.UUID)
-		case account.ForeignKeys[0]: // user_account
+		case account.ForeignKeys[0]: // user_accounts
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -132,10 +132,10 @@ func (a *Account) assignValues(columns []string, values []any) error {
 			}
 		case account.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field user_account", values[i])
+				return fmt.Errorf("unexpected type %T for field user_accounts", values[i])
 			} else if value.Valid {
-				a.user_account = new(uuid.UUID)
-				*a.user_account = *value.S.(*uuid.UUID)
+				a.user_accounts = new(uuid.UUID)
+				*a.user_accounts = *value.S.(*uuid.UUID)
 			}
 		default:
 			a.selectValues.Set(columns[i], values[i])

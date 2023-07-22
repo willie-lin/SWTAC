@@ -141,11 +141,11 @@ type RegisterForm struct {
 	Email    string `json:"email" validate:"required"`
 	Phone    string `json:"phone" validate:"required"`
 	Password string `json:"password" validate:"required"`
+	Nickname string `json:"nickname" validate:"required"`
 }
 
 func Register(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
-
 		var form RegisterForm
 		if err := c.Bind(&form); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -162,9 +162,8 @@ func Register(client *ent.Client) echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		form.Password = string(pwd)
-
 		// 在 Account 表中创建一个新账户，并将其与新用户关联起来
-		a, err := client.Account.
+		a, err := tx.Account.
 			Create().
 			SetUsername(form.Username).
 			SetEmail(form.Email).
@@ -181,10 +180,10 @@ func Register(client *ent.Client) echo.HandlerFunc {
 			tx.Rollback()
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		//在 User 表中创建一个新用户
 
+		//在 User 表中创建一个新用户
 		u, err := tx.User.
-			Create().
+			Create().SetNickname(form.Nickname).
 			AddAccount(a).
 			SetCreatedAt(time.Now()).
 			SetUpdatedAt(time.Now()).
@@ -197,7 +196,6 @@ func Register(client *ent.Client) echo.HandlerFunc {
 			tx.Rollback()
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-
 		// 提交事务
 		if err := tx.Commit(); err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())

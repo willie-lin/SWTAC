@@ -15,7 +15,6 @@ import (
 	"SWTAC/datasource/ent/permission"
 	"SWTAC/datasource/ent/role"
 	"SWTAC/datasource/ent/user"
-	"SWTAC/datasource/ent/usergroup"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -39,8 +38,6 @@ type Client struct {
 	Role *RoleClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
-	// UserGroup is the client for interacting with the UserGroup builders.
-	UserGroup *UserGroupClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -59,7 +56,6 @@ func (c *Client) init() {
 	c.Permission = NewPermissionClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.User = NewUserClient(c.config)
-	c.UserGroup = NewUserGroupClient(c.config)
 }
 
 type (
@@ -147,7 +143,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Permission: NewPermissionClient(cfg),
 		Role:       NewRoleClient(cfg),
 		User:       NewUserClient(cfg),
-		UserGroup:  NewUserGroupClient(cfg),
 	}, nil
 }
 
@@ -172,7 +167,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Permission: NewPermissionClient(cfg),
 		Role:       NewRoleClient(cfg),
 		User:       NewUserClient(cfg),
-		UserGroup:  NewUserGroupClient(cfg),
 	}, nil
 }
 
@@ -201,21 +195,21 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	for _, n := range []interface{ Use(...Hook) }{
-		c.Account, c.Group, c.Permission, c.Role, c.User, c.UserGroup,
-	} {
-		n.Use(hooks...)
-	}
+	c.Account.Use(hooks...)
+	c.Group.Use(hooks...)
+	c.Permission.Use(hooks...)
+	c.Role.Use(hooks...)
+	c.User.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Account, c.Group, c.Permission, c.Role, c.User, c.UserGroup,
-	} {
-		n.Intercept(interceptors...)
-	}
+	c.Account.Intercept(interceptors...)
+	c.Group.Intercept(interceptors...)
+	c.Permission.Intercept(interceptors...)
+	c.Role.Intercept(interceptors...)
+	c.User.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -231,8 +225,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Role.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
-	case *UserGroupMutation:
-		return c.UserGroup.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -465,6 +457,22 @@ func (c *GroupClient) GetX(ctx context.Context, id uuid.UUID) *Group {
 	return obj
 }
 
+// QueryUsers queries the users edge of a Group.
+func (c *GroupClient) QueryUsers(gr *Group) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(group.Table, group.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, group.UsersTable, group.UsersPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *GroupClient) Hooks() []Hook {
 	return c.hooks.Group
@@ -581,6 +589,22 @@ func (c *PermissionClient) GetX(ctx context.Context, id uuid.UUID) *Permission {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryRoles queries the roles edge of a Permission.
+func (c *PermissionClient) QueryRoles(pe *Permission) *RoleQuery {
+	query := (&RoleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pe.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(permission.Table, permission.FieldID, id),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, permission.RolesTable, permission.RolesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pe.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -701,6 +725,38 @@ func (c *RoleClient) GetX(ctx context.Context, id uuid.UUID) *Role {
 	return obj
 }
 
+// QueryUsers queries the users edge of a Role.
+func (c *RoleClient) QueryUsers(r *Role) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(role.Table, role.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, role.UsersTable, role.UsersPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPermissions queries the permissions edge of a Role.
+func (c *RoleClient) QueryPermissions(r *Role) *PermissionQuery {
+	query := (&PermissionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(role.Table, role.FieldID, id),
+			sqlgraph.To(permission.Table, permission.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, role.PermissionsTable, role.PermissionsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *RoleClient) Hooks() []Hook {
 	return c.hooks.Role
@@ -819,15 +875,47 @@ func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 	return obj
 }
 
-// QueryAccount queries the account edge of a User.
-func (c *UserClient) QueryAccount(u *User) *AccountQuery {
+// QueryAccounts queries the accounts edge of a User.
+func (c *UserClient) QueryAccounts(u *User) *AccountQuery {
 	query := (&AccountClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(account.Table, account.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.AccountTable, user.AccountColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.AccountsTable, user.AccountsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGroups queries the groups edge of a User.
+func (c *UserClient) QueryGroups(u *User) *GroupQuery {
+	query := (&GroupClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(group.Table, group.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.GroupsTable, user.GroupsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRoles queries the roles edge of a User.
+func (c *UserClient) QueryRoles(u *User) *RoleQuery {
+	query := (&RoleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, user.RolesTable, user.RolesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil
@@ -860,130 +948,12 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 	}
 }
 
-// UserGroupClient is a client for the UserGroup schema.
-type UserGroupClient struct {
-	config
-}
-
-// NewUserGroupClient returns a client for the UserGroup from the given config.
-func NewUserGroupClient(c config) *UserGroupClient {
-	return &UserGroupClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `usergroup.Hooks(f(g(h())))`.
-func (c *UserGroupClient) Use(hooks ...Hook) {
-	c.hooks.UserGroup = append(c.hooks.UserGroup, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `usergroup.Intercept(f(g(h())))`.
-func (c *UserGroupClient) Intercept(interceptors ...Interceptor) {
-	c.inters.UserGroup = append(c.inters.UserGroup, interceptors...)
-}
-
-// Create returns a builder for creating a UserGroup entity.
-func (c *UserGroupClient) Create() *UserGroupCreate {
-	mutation := newUserGroupMutation(c.config, OpCreate)
-	return &UserGroupCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of UserGroup entities.
-func (c *UserGroupClient) CreateBulk(builders ...*UserGroupCreate) *UserGroupCreateBulk {
-	return &UserGroupCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for UserGroup.
-func (c *UserGroupClient) Update() *UserGroupUpdate {
-	mutation := newUserGroupMutation(c.config, OpUpdate)
-	return &UserGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *UserGroupClient) UpdateOne(ug *UserGroup) *UserGroupUpdateOne {
-	mutation := newUserGroupMutation(c.config, OpUpdateOne, withUserGroup(ug))
-	return &UserGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *UserGroupClient) UpdateOneID(id uuid.UUID) *UserGroupUpdateOne {
-	mutation := newUserGroupMutation(c.config, OpUpdateOne, withUserGroupID(id))
-	return &UserGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for UserGroup.
-func (c *UserGroupClient) Delete() *UserGroupDelete {
-	mutation := newUserGroupMutation(c.config, OpDelete)
-	return &UserGroupDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *UserGroupClient) DeleteOne(ug *UserGroup) *UserGroupDeleteOne {
-	return c.DeleteOneID(ug.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserGroupClient) DeleteOneID(id uuid.UUID) *UserGroupDeleteOne {
-	builder := c.Delete().Where(usergroup.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &UserGroupDeleteOne{builder}
-}
-
-// Query returns a query builder for UserGroup.
-func (c *UserGroupClient) Query() *UserGroupQuery {
-	return &UserGroupQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeUserGroup},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a UserGroup entity by its id.
-func (c *UserGroupClient) Get(ctx context.Context, id uuid.UUID) (*UserGroup, error) {
-	return c.Query().Where(usergroup.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *UserGroupClient) GetX(ctx context.Context, id uuid.UUID) *UserGroup {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *UserGroupClient) Hooks() []Hook {
-	return c.hooks.UserGroup
-}
-
-// Interceptors returns the client interceptors.
-func (c *UserGroupClient) Interceptors() []Interceptor {
-	return c.inters.UserGroup
-}
-
-func (c *UserGroupClient) mutate(ctx context.Context, m *UserGroupMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&UserGroupCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&UserGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&UserGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&UserGroupDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown UserGroup mutation op: %q", m.Op())
-	}
-}
-
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Account, Group, Permission, Role, User, UserGroup []ent.Hook
+		Account, Group, Permission, Role, User []ent.Hook
 	}
 	inters struct {
-		Account, Group, Permission, Role, User, UserGroup []ent.Interceptor
+		Account, Group, Permission, Role, User []ent.Interceptor
 	}
 )

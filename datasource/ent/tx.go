@@ -22,8 +22,6 @@ type Tx struct {
 	Role *RoleClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
-	// UserGroup is the client for interacting with the UserGroup builders.
-	UserGroup *UserGroupClient
 
 	// lazily loaded.
 	client     *Client
@@ -160,7 +158,6 @@ func (tx *Tx) init() {
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.User = NewUserClient(tx.config)
-	tx.UserGroup = NewUserGroupClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

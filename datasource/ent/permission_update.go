@@ -5,6 +5,7 @@ package ent
 import (
 	"SWTAC/datasource/ent/permission"
 	"SWTAC/datasource/ent/predicate"
+	"SWTAC/datasource/ent/role"
 	"context"
 	"errors"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // PermissionUpdate is the builder for updating Permission entities.
@@ -34,119 +36,71 @@ func (pu *PermissionUpdate) SetUpdatedAt(t time.Time) *PermissionUpdate {
 	return pu
 }
 
-// SetCreator sets the "creator" field.
-func (pu *PermissionUpdate) SetCreator(s string) *PermissionUpdate {
-	pu.mutation.SetCreator(s)
-	return pu
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (pu *PermissionUpdate) SetNillableCreator(s *string) *PermissionUpdate {
-	if s != nil {
-		pu.SetCreator(*s)
-	}
-	return pu
-}
-
-// ClearCreator clears the value of the "creator" field.
-func (pu *PermissionUpdate) ClearCreator() *PermissionUpdate {
-	pu.mutation.ClearCreator()
-	return pu
-}
-
-// SetEditor sets the "editor" field.
-func (pu *PermissionUpdate) SetEditor(s string) *PermissionUpdate {
-	pu.mutation.SetEditor(s)
-	return pu
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (pu *PermissionUpdate) SetNillableEditor(s *string) *PermissionUpdate {
-	if s != nil {
-		pu.SetEditor(*s)
-	}
-	return pu
-}
-
-// ClearEditor clears the value of the "editor" field.
-func (pu *PermissionUpdate) ClearEditor() *PermissionUpdate {
-	pu.mutation.ClearEditor()
-	return pu
-}
-
-// SetDeleted sets the "deleted" field.
-func (pu *PermissionUpdate) SetDeleted(f float64) *PermissionUpdate {
-	pu.mutation.ResetDeleted()
-	pu.mutation.SetDeleted(f)
-	return pu
-}
-
-// AddDeleted adds f to the "deleted" field.
-func (pu *PermissionUpdate) AddDeleted(f float64) *PermissionUpdate {
-	pu.mutation.AddDeleted(f)
-	return pu
-}
-
-// SetParentID sets the "parent_id" field.
-func (pu *PermissionUpdate) SetParentID(i int) *PermissionUpdate {
-	pu.mutation.ResetParentID()
-	pu.mutation.SetParentID(i)
-	return pu
-}
-
-// AddParentID adds i to the "parent_id" field.
-func (pu *PermissionUpdate) AddParentID(i int) *PermissionUpdate {
-	pu.mutation.AddParentID(i)
-	return pu
-}
-
-// SetCode sets the "code" field.
-func (pu *PermissionUpdate) SetCode(s string) *PermissionUpdate {
-	pu.mutation.SetCode(s)
-	return pu
-}
-
 // SetName sets the "name" field.
 func (pu *PermissionUpdate) SetName(s string) *PermissionUpdate {
 	pu.mutation.SetName(s)
 	return pu
 }
 
-// SetIntro sets the "intro" field.
-func (pu *PermissionUpdate) SetIntro(s string) *PermissionUpdate {
-	pu.mutation.SetIntro(s)
+// SetDescription sets the "description" field.
+func (pu *PermissionUpdate) SetDescription(s string) *PermissionUpdate {
+	pu.mutation.SetDescription(s)
 	return pu
 }
 
-// SetCategory sets the "category" field.
-func (pu *PermissionUpdate) SetCategory(i int) *PermissionUpdate {
-	pu.mutation.ResetCategory()
-	pu.mutation.SetCategory(i)
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (pu *PermissionUpdate) SetNillableDescription(s *string) *PermissionUpdate {
+	if s != nil {
+		pu.SetDescription(*s)
+	}
 	return pu
 }
 
-// AddCategory adds i to the "category" field.
-func (pu *PermissionUpdate) AddCategory(i int) *PermissionUpdate {
-	pu.mutation.AddCategory(i)
+// ClearDescription clears the value of the "description" field.
+func (pu *PermissionUpdate) ClearDescription() *PermissionUpdate {
+	pu.mutation.ClearDescription()
 	return pu
 }
 
-// SetURL sets the "url" field.
-func (pu *PermissionUpdate) SetURL(i int) *PermissionUpdate {
-	pu.mutation.ResetURL()
-	pu.mutation.SetURL(i)
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (pu *PermissionUpdate) AddRoleIDs(ids ...uuid.UUID) *PermissionUpdate {
+	pu.mutation.AddRoleIDs(ids...)
 	return pu
 }
 
-// AddURL adds i to the "url" field.
-func (pu *PermissionUpdate) AddURL(i int) *PermissionUpdate {
-	pu.mutation.AddURL(i)
-	return pu
+// AddRoles adds the "roles" edges to the Role entity.
+func (pu *PermissionUpdate) AddRoles(r ...*Role) *PermissionUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return pu.AddRoleIDs(ids...)
 }
 
 // Mutation returns the PermissionMutation object of the builder.
 func (pu *PermissionUpdate) Mutation() *PermissionMutation {
 	return pu.mutation
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (pu *PermissionUpdate) ClearRoles() *PermissionUpdate {
+	pu.mutation.ClearRoles()
+	return pu
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (pu *PermissionUpdate) RemoveRoleIDs(ids ...uuid.UUID) *PermissionUpdate {
+	pu.mutation.RemoveRoleIDs(ids...)
+	return pu
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (pu *PermissionUpdate) RemoveRoles(r ...*Role) *PermissionUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return pu.RemoveRoleIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -187,9 +141,9 @@ func (pu *PermissionUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (pu *PermissionUpdate) check() error {
-	if v, ok := pu.mutation.Creator(); ok {
-		if err := permission.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Permission.creator": %w`, err)}
+	if v, ok := pu.mutation.Name(); ok {
+		if err := permission.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Permission.name": %w`, err)}
 		}
 	}
 	return nil
@@ -210,50 +164,59 @@ func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.UpdatedAt(); ok {
 		_spec.SetField(permission.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := pu.mutation.Creator(); ok {
-		_spec.SetField(permission.FieldCreator, field.TypeString, value)
-	}
-	if pu.mutation.CreatorCleared() {
-		_spec.ClearField(permission.FieldCreator, field.TypeString)
-	}
-	if value, ok := pu.mutation.Editor(); ok {
-		_spec.SetField(permission.FieldEditor, field.TypeString, value)
-	}
-	if pu.mutation.EditorCleared() {
-		_spec.ClearField(permission.FieldEditor, field.TypeString)
-	}
-	if value, ok := pu.mutation.Deleted(); ok {
-		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := pu.mutation.AddedDeleted(); ok {
-		_spec.AddField(permission.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := pu.mutation.ParentID(); ok {
-		_spec.SetField(permission.FieldParentID, field.TypeInt, value)
-	}
-	if value, ok := pu.mutation.AddedParentID(); ok {
-		_spec.AddField(permission.FieldParentID, field.TypeInt, value)
-	}
-	if value, ok := pu.mutation.Code(); ok {
-		_spec.SetField(permission.FieldCode, field.TypeString, value)
-	}
 	if value, ok := pu.mutation.Name(); ok {
 		_spec.SetField(permission.FieldName, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.Intro(); ok {
-		_spec.SetField(permission.FieldIntro, field.TypeString, value)
+	if value, ok := pu.mutation.Description(); ok {
+		_spec.SetField(permission.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.Category(); ok {
-		_spec.SetField(permission.FieldCategory, field.TypeInt, value)
+	if pu.mutation.DescriptionCleared() {
+		_spec.ClearField(permission.FieldDescription, field.TypeString)
 	}
-	if value, ok := pu.mutation.AddedCategory(); ok {
-		_spec.AddField(permission.FieldCategory, field.TypeInt, value)
+	if pu.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   permission.RolesTable,
+			Columns: permission.RolesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := pu.mutation.URL(); ok {
-		_spec.SetField(permission.FieldURL, field.TypeInt, value)
+	if nodes := pu.mutation.RemovedRolesIDs(); len(nodes) > 0 && !pu.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   permission.RolesTable,
+			Columns: permission.RolesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := pu.mutation.AddedURL(); ok {
-		_spec.AddField(permission.FieldURL, field.TypeInt, value)
+	if nodes := pu.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   permission.RolesTable,
+			Columns: permission.RolesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -281,119 +244,71 @@ func (puo *PermissionUpdateOne) SetUpdatedAt(t time.Time) *PermissionUpdateOne {
 	return puo
 }
 
-// SetCreator sets the "creator" field.
-func (puo *PermissionUpdateOne) SetCreator(s string) *PermissionUpdateOne {
-	puo.mutation.SetCreator(s)
-	return puo
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (puo *PermissionUpdateOne) SetNillableCreator(s *string) *PermissionUpdateOne {
-	if s != nil {
-		puo.SetCreator(*s)
-	}
-	return puo
-}
-
-// ClearCreator clears the value of the "creator" field.
-func (puo *PermissionUpdateOne) ClearCreator() *PermissionUpdateOne {
-	puo.mutation.ClearCreator()
-	return puo
-}
-
-// SetEditor sets the "editor" field.
-func (puo *PermissionUpdateOne) SetEditor(s string) *PermissionUpdateOne {
-	puo.mutation.SetEditor(s)
-	return puo
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (puo *PermissionUpdateOne) SetNillableEditor(s *string) *PermissionUpdateOne {
-	if s != nil {
-		puo.SetEditor(*s)
-	}
-	return puo
-}
-
-// ClearEditor clears the value of the "editor" field.
-func (puo *PermissionUpdateOne) ClearEditor() *PermissionUpdateOne {
-	puo.mutation.ClearEditor()
-	return puo
-}
-
-// SetDeleted sets the "deleted" field.
-func (puo *PermissionUpdateOne) SetDeleted(f float64) *PermissionUpdateOne {
-	puo.mutation.ResetDeleted()
-	puo.mutation.SetDeleted(f)
-	return puo
-}
-
-// AddDeleted adds f to the "deleted" field.
-func (puo *PermissionUpdateOne) AddDeleted(f float64) *PermissionUpdateOne {
-	puo.mutation.AddDeleted(f)
-	return puo
-}
-
-// SetParentID sets the "parent_id" field.
-func (puo *PermissionUpdateOne) SetParentID(i int) *PermissionUpdateOne {
-	puo.mutation.ResetParentID()
-	puo.mutation.SetParentID(i)
-	return puo
-}
-
-// AddParentID adds i to the "parent_id" field.
-func (puo *PermissionUpdateOne) AddParentID(i int) *PermissionUpdateOne {
-	puo.mutation.AddParentID(i)
-	return puo
-}
-
-// SetCode sets the "code" field.
-func (puo *PermissionUpdateOne) SetCode(s string) *PermissionUpdateOne {
-	puo.mutation.SetCode(s)
-	return puo
-}
-
 // SetName sets the "name" field.
 func (puo *PermissionUpdateOne) SetName(s string) *PermissionUpdateOne {
 	puo.mutation.SetName(s)
 	return puo
 }
 
-// SetIntro sets the "intro" field.
-func (puo *PermissionUpdateOne) SetIntro(s string) *PermissionUpdateOne {
-	puo.mutation.SetIntro(s)
+// SetDescription sets the "description" field.
+func (puo *PermissionUpdateOne) SetDescription(s string) *PermissionUpdateOne {
+	puo.mutation.SetDescription(s)
 	return puo
 }
 
-// SetCategory sets the "category" field.
-func (puo *PermissionUpdateOne) SetCategory(i int) *PermissionUpdateOne {
-	puo.mutation.ResetCategory()
-	puo.mutation.SetCategory(i)
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (puo *PermissionUpdateOne) SetNillableDescription(s *string) *PermissionUpdateOne {
+	if s != nil {
+		puo.SetDescription(*s)
+	}
 	return puo
 }
 
-// AddCategory adds i to the "category" field.
-func (puo *PermissionUpdateOne) AddCategory(i int) *PermissionUpdateOne {
-	puo.mutation.AddCategory(i)
+// ClearDescription clears the value of the "description" field.
+func (puo *PermissionUpdateOne) ClearDescription() *PermissionUpdateOne {
+	puo.mutation.ClearDescription()
 	return puo
 }
 
-// SetURL sets the "url" field.
-func (puo *PermissionUpdateOne) SetURL(i int) *PermissionUpdateOne {
-	puo.mutation.ResetURL()
-	puo.mutation.SetURL(i)
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (puo *PermissionUpdateOne) AddRoleIDs(ids ...uuid.UUID) *PermissionUpdateOne {
+	puo.mutation.AddRoleIDs(ids...)
 	return puo
 }
 
-// AddURL adds i to the "url" field.
-func (puo *PermissionUpdateOne) AddURL(i int) *PermissionUpdateOne {
-	puo.mutation.AddURL(i)
-	return puo
+// AddRoles adds the "roles" edges to the Role entity.
+func (puo *PermissionUpdateOne) AddRoles(r ...*Role) *PermissionUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return puo.AddRoleIDs(ids...)
 }
 
 // Mutation returns the PermissionMutation object of the builder.
 func (puo *PermissionUpdateOne) Mutation() *PermissionMutation {
 	return puo.mutation
+}
+
+// ClearRoles clears all "roles" edges to the Role entity.
+func (puo *PermissionUpdateOne) ClearRoles() *PermissionUpdateOne {
+	puo.mutation.ClearRoles()
+	return puo
+}
+
+// RemoveRoleIDs removes the "roles" edge to Role entities by IDs.
+func (puo *PermissionUpdateOne) RemoveRoleIDs(ids ...uuid.UUID) *PermissionUpdateOne {
+	puo.mutation.RemoveRoleIDs(ids...)
+	return puo
+}
+
+// RemoveRoles removes "roles" edges to Role entities.
+func (puo *PermissionUpdateOne) RemoveRoles(r ...*Role) *PermissionUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return puo.RemoveRoleIDs(ids...)
 }
 
 // Where appends a list predicates to the PermissionUpdate builder.
@@ -447,9 +362,9 @@ func (puo *PermissionUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (puo *PermissionUpdateOne) check() error {
-	if v, ok := puo.mutation.Creator(); ok {
-		if err := permission.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Permission.creator": %w`, err)}
+	if v, ok := puo.mutation.Name(); ok {
+		if err := permission.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Permission.name": %w`, err)}
 		}
 	}
 	return nil
@@ -487,50 +402,59 @@ func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission,
 	if value, ok := puo.mutation.UpdatedAt(); ok {
 		_spec.SetField(permission.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := puo.mutation.Creator(); ok {
-		_spec.SetField(permission.FieldCreator, field.TypeString, value)
-	}
-	if puo.mutation.CreatorCleared() {
-		_spec.ClearField(permission.FieldCreator, field.TypeString)
-	}
-	if value, ok := puo.mutation.Editor(); ok {
-		_spec.SetField(permission.FieldEditor, field.TypeString, value)
-	}
-	if puo.mutation.EditorCleared() {
-		_spec.ClearField(permission.FieldEditor, field.TypeString)
-	}
-	if value, ok := puo.mutation.Deleted(); ok {
-		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := puo.mutation.AddedDeleted(); ok {
-		_spec.AddField(permission.FieldDeleted, field.TypeFloat64, value)
-	}
-	if value, ok := puo.mutation.ParentID(); ok {
-		_spec.SetField(permission.FieldParentID, field.TypeInt, value)
-	}
-	if value, ok := puo.mutation.AddedParentID(); ok {
-		_spec.AddField(permission.FieldParentID, field.TypeInt, value)
-	}
-	if value, ok := puo.mutation.Code(); ok {
-		_spec.SetField(permission.FieldCode, field.TypeString, value)
-	}
 	if value, ok := puo.mutation.Name(); ok {
 		_spec.SetField(permission.FieldName, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.Intro(); ok {
-		_spec.SetField(permission.FieldIntro, field.TypeString, value)
+	if value, ok := puo.mutation.Description(); ok {
+		_spec.SetField(permission.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.Category(); ok {
-		_spec.SetField(permission.FieldCategory, field.TypeInt, value)
+	if puo.mutation.DescriptionCleared() {
+		_spec.ClearField(permission.FieldDescription, field.TypeString)
 	}
-	if value, ok := puo.mutation.AddedCategory(); ok {
-		_spec.AddField(permission.FieldCategory, field.TypeInt, value)
+	if puo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   permission.RolesTable,
+			Columns: permission.RolesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := puo.mutation.URL(); ok {
-		_spec.SetField(permission.FieldURL, field.TypeInt, value)
+	if nodes := puo.mutation.RemovedRolesIDs(); len(nodes) > 0 && !puo.mutation.RolesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   permission.RolesTable,
+			Columns: permission.RolesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := puo.mutation.AddedURL(); ok {
-		_spec.AddField(permission.FieldURL, field.TypeInt, value)
+	if nodes := puo.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   permission.RolesTable,
+			Columns: permission.RolesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Permission{config: puo.config}
 	_spec.Assign = _node.assignValues

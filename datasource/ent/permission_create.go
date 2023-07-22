@@ -4,6 +4,7 @@ package ent
 
 import (
 	"SWTAC/datasource/ent/permission"
+	"SWTAC/datasource/ent/role"
 	"context"
 	"errors"
 	"fmt"
@@ -49,73 +50,23 @@ func (pc *PermissionCreate) SetNillableUpdatedAt(t *time.Time) *PermissionCreate
 	return pc
 }
 
-// SetCreator sets the "creator" field.
-func (pc *PermissionCreate) SetCreator(s string) *PermissionCreate {
-	pc.mutation.SetCreator(s)
-	return pc
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (pc *PermissionCreate) SetNillableCreator(s *string) *PermissionCreate {
-	if s != nil {
-		pc.SetCreator(*s)
-	}
-	return pc
-}
-
-// SetEditor sets the "editor" field.
-func (pc *PermissionCreate) SetEditor(s string) *PermissionCreate {
-	pc.mutation.SetEditor(s)
-	return pc
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (pc *PermissionCreate) SetNillableEditor(s *string) *PermissionCreate {
-	if s != nil {
-		pc.SetEditor(*s)
-	}
-	return pc
-}
-
-// SetDeleted sets the "deleted" field.
-func (pc *PermissionCreate) SetDeleted(f float64) *PermissionCreate {
-	pc.mutation.SetDeleted(f)
-	return pc
-}
-
-// SetParentID sets the "parent_id" field.
-func (pc *PermissionCreate) SetParentID(i int) *PermissionCreate {
-	pc.mutation.SetParentID(i)
-	return pc
-}
-
-// SetCode sets the "code" field.
-func (pc *PermissionCreate) SetCode(s string) *PermissionCreate {
-	pc.mutation.SetCode(s)
-	return pc
-}
-
 // SetName sets the "name" field.
 func (pc *PermissionCreate) SetName(s string) *PermissionCreate {
 	pc.mutation.SetName(s)
 	return pc
 }
 
-// SetIntro sets the "intro" field.
-func (pc *PermissionCreate) SetIntro(s string) *PermissionCreate {
-	pc.mutation.SetIntro(s)
+// SetDescription sets the "description" field.
+func (pc *PermissionCreate) SetDescription(s string) *PermissionCreate {
+	pc.mutation.SetDescription(s)
 	return pc
 }
 
-// SetCategory sets the "category" field.
-func (pc *PermissionCreate) SetCategory(i int) *PermissionCreate {
-	pc.mutation.SetCategory(i)
-	return pc
-}
-
-// SetURL sets the "url" field.
-func (pc *PermissionCreate) SetURL(i int) *PermissionCreate {
-	pc.mutation.SetURL(i)
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableDescription(s *string) *PermissionCreate {
+	if s != nil {
+		pc.SetDescription(*s)
+	}
 	return pc
 }
 
@@ -131,6 +82,21 @@ func (pc *PermissionCreate) SetNillableID(u *uuid.UUID) *PermissionCreate {
 		pc.SetID(*u)
 	}
 	return pc
+}
+
+// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
+func (pc *PermissionCreate) AddRoleIDs(ids ...uuid.UUID) *PermissionCreate {
+	pc.mutation.AddRoleIDs(ids...)
+	return pc
+}
+
+// AddRoles adds the "roles" edges to the Role entity.
+func (pc *PermissionCreate) AddRoles(r ...*Role) *PermissionCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return pc.AddRoleIDs(ids...)
 }
 
 // Mutation returns the PermissionMutation object of the builder.
@@ -190,31 +156,13 @@ func (pc *PermissionCreate) check() error {
 	if _, ok := pc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Permission.updated_at"`)}
 	}
-	if v, ok := pc.mutation.Creator(); ok {
-		if err := permission.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Permission.creator": %w`, err)}
-		}
-	}
-	if _, ok := pc.mutation.Deleted(); !ok {
-		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Permission.deleted"`)}
-	}
-	if _, ok := pc.mutation.ParentID(); !ok {
-		return &ValidationError{Name: "parent_id", err: errors.New(`ent: missing required field "Permission.parent_id"`)}
-	}
-	if _, ok := pc.mutation.Code(); !ok {
-		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Permission.code"`)}
-	}
 	if _, ok := pc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Permission.name"`)}
 	}
-	if _, ok := pc.mutation.Intro(); !ok {
-		return &ValidationError{Name: "intro", err: errors.New(`ent: missing required field "Permission.intro"`)}
-	}
-	if _, ok := pc.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Permission.category"`)}
-	}
-	if _, ok := pc.mutation.URL(); !ok {
-		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Permission.url"`)}
+	if v, ok := pc.mutation.Name(); ok {
+		if err := permission.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Permission.name": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -259,41 +207,29 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 		_spec.SetField(permission.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := pc.mutation.Creator(); ok {
-		_spec.SetField(permission.FieldCreator, field.TypeString, value)
-		_node.Creator = value
-	}
-	if value, ok := pc.mutation.Editor(); ok {
-		_spec.SetField(permission.FieldEditor, field.TypeString, value)
-		_node.Editor = value
-	}
-	if value, ok := pc.mutation.Deleted(); ok {
-		_spec.SetField(permission.FieldDeleted, field.TypeFloat64, value)
-		_node.Deleted = value
-	}
-	if value, ok := pc.mutation.ParentID(); ok {
-		_spec.SetField(permission.FieldParentID, field.TypeInt, value)
-		_node.ParentID = value
-	}
-	if value, ok := pc.mutation.Code(); ok {
-		_spec.SetField(permission.FieldCode, field.TypeString, value)
-		_node.Code = value
-	}
 	if value, ok := pc.mutation.Name(); ok {
 		_spec.SetField(permission.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := pc.mutation.Intro(); ok {
-		_spec.SetField(permission.FieldIntro, field.TypeString, value)
-		_node.Intro = value
+	if value, ok := pc.mutation.Description(); ok {
+		_spec.SetField(permission.FieldDescription, field.TypeString, value)
+		_node.Description = value
 	}
-	if value, ok := pc.mutation.Category(); ok {
-		_spec.SetField(permission.FieldCategory, field.TypeInt, value)
-		_node.Category = value
-	}
-	if value, ok := pc.mutation.URL(); ok {
-		_spec.SetField(permission.FieldURL, field.TypeInt, value)
-		_node.URL = value
+	if nodes := pc.mutation.RolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   permission.RolesTable,
+			Columns: permission.RolesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

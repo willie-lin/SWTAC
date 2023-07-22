@@ -30,14 +30,14 @@ const (
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the account in the database.
-	Table = "account"
+	Table = "accounts"
 	// UserTable is the table that holds the user relation/edge.
-	UserTable = "account"
+	UserTable = "accounts"
 	// UserInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "user"
+	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_account"
+	UserColumn = "user_accounts"
 )
 
 // Columns holds all SQL columns for account fields.
@@ -51,10 +51,10 @@ var Columns = []string{
 	FieldPassword,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "account"
+// ForeignKeys holds the SQL foreign-keys that are owned by the "accounts"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"user_account",
+	"user_accounts",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

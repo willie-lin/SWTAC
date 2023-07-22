@@ -8,7 +8,6 @@ import (
 	"SWTAC/datasource/ent/permission"
 	"SWTAC/datasource/ent/role"
 	"SWTAC/datasource/ent/user"
-	"SWTAC/datasource/ent/usergroup"
 	"context"
 	"errors"
 	"fmt"
@@ -83,7 +82,6 @@ func checkColumn(table, column string) error {
 			permission.Table: permission.ValidColumn,
 			role.Table:       role.ValidColumn,
 			user.Table:       user.ValidColumn,
-			usergroup.Table:  usergroup.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

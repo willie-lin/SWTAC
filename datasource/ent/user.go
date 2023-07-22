@@ -34,6 +34,8 @@ type User struct {
 	City string `json:"city,omitempty"`
 	// Introduction holds the value of the "introduction" field.
 	Introduction string `json:"introduction,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -42,20 +44,42 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// Account holds the value of the account edge.
-	Account []*Account `json:"account,omitempty"`
+	// Accounts holds the value of the accounts edge.
+	Accounts []*Account `json:"accounts,omitempty"`
+	// Groups holds the value of the groups edge.
+	Groups []*Group `json:"groups,omitempty"`
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
 }
 
-// AccountOrErr returns the Account value or an error if the edge
+// AccountsOrErr returns the Accounts value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) AccountOrErr() ([]*Account, error) {
+func (e UserEdges) AccountsOrErr() ([]*Account, error) {
 	if e.loadedTypes[0] {
-		return e.Account, nil
+		return e.Accounts, nil
 	}
-	return nil, &NotLoadedError{edge: "account"}
+	return nil, &NotLoadedError{edge: "accounts"}
+}
+
+// GroupsOrErr returns the Groups value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) GroupsOrErr() ([]*Group, error) {
+	if e.loadedTypes[1] {
+		return e.Groups, nil
+	}
+	return nil, &NotLoadedError{edge: "groups"}
+}
+
+// RolesOrErr returns the Roles value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RolesOrErr() ([]*Role, error) {
+	if e.loadedTypes[2] {
+		return e.Roles, nil
+	}
+	return nil, &NotLoadedError{edge: "roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -65,7 +89,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldAge:
 			values[i] = new(sql.NullInt64)
-		case user.FieldNickname, user.FieldAvatar, user.FieldGender, user.FieldCity, user.FieldIntroduction:
+		case user.FieldNickname, user.FieldAvatar, user.FieldGender, user.FieldCity, user.FieldIntroduction, user.FieldDescription:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -140,6 +164,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Introduction = value.String
 			}
+		case user.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				u.Description = value.String
+			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
 		}
@@ -153,9 +183,19 @@ func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
 }
 
-// QueryAccount queries the "account" edge of the User entity.
-func (u *User) QueryAccount() *AccountQuery {
-	return NewUserClient(u.config).QueryAccount(u)
+// QueryAccounts queries the "accounts" edge of the User entity.
+func (u *User) QueryAccounts() *AccountQuery {
+	return NewUserClient(u.config).QueryAccounts(u)
+}
+
+// QueryGroups queries the "groups" edge of the User entity.
+func (u *User) QueryGroups() *GroupQuery {
+	return NewUserClient(u.config).QueryGroups(u)
+}
+
+// QueryRoles queries the "roles" edge of the User entity.
+func (u *User) QueryRoles() *RoleQuery {
+	return NewUserClient(u.config).QueryRoles(u)
 }
 
 // Update returns a builder for updating this User.
@@ -204,6 +244,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("introduction=")
 	builder.WriteString(u.Introduction)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(u.Description)
 	builder.WriteByte(')')
 	return builder.String()
 }

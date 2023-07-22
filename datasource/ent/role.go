@@ -22,21 +22,43 @@ type Role struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// Creator holds the value of the "creator" field.
-	Creator string `json:"creator,omitempty"`
-	// Editor holds the value of the "editor" field.
-	Editor string `json:"editor,omitempty"`
-	// Deleted holds the value of the "deleted" field.
-	Deleted float64 `json:"deleted,omitempty"`
-	// ParentID holds the value of the "parent_id" field.
-	ParentID int `json:"parent_id,omitempty"`
-	// Code holds the value of the "code" field.
-	Code string `json:"code,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// Intro holds the value of the "intro" field.
-	Intro        string `json:"intro,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the RoleQuery when eager-loading is set.
+	Edges        RoleEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// RoleEdges holds the relations/edges for other nodes in the graph.
+type RoleEdges struct {
+	// Users holds the value of the users edge.
+	Users []*User `json:"users,omitempty"`
+	// Permissions holds the value of the permissions edge.
+	Permissions []*Permission `json:"permissions,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// UsersOrErr returns the Users value or an error if the edge
+// was not loaded in eager-loading.
+func (e RoleEdges) UsersOrErr() ([]*User, error) {
+	if e.loadedTypes[0] {
+		return e.Users, nil
+	}
+	return nil, &NotLoadedError{edge: "users"}
+}
+
+// PermissionsOrErr returns the Permissions value or an error if the edge
+// was not loaded in eager-loading.
+func (e RoleEdges) PermissionsOrErr() ([]*Permission, error) {
+	if e.loadedTypes[1] {
+		return e.Permissions, nil
+	}
+	return nil, &NotLoadedError{edge: "permissions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -44,11 +66,7 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case role.FieldDeleted:
-			values[i] = new(sql.NullFloat64)
-		case role.FieldParentID:
-			values[i] = new(sql.NullInt64)
-		case role.FieldCreator, role.FieldEditor, role.FieldCode, role.FieldName, role.FieldIntro:
+		case role.FieldName, role.FieldDescription:
 			values[i] = new(sql.NullString)
 		case role.FieldCreatedAt, role.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -87,47 +105,17 @@ func (r *Role) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.UpdatedAt = value.Time
 			}
-		case role.FieldCreator:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field creator", values[i])
-			} else if value.Valid {
-				r.Creator = value.String
-			}
-		case role.FieldEditor:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field editor", values[i])
-			} else if value.Valid {
-				r.Editor = value.String
-			}
-		case role.FieldDeleted:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted", values[i])
-			} else if value.Valid {
-				r.Deleted = value.Float64
-			}
-		case role.FieldParentID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
-			} else if value.Valid {
-				r.ParentID = int(value.Int64)
-			}
-		case role.FieldCode:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field code", values[i])
-			} else if value.Valid {
-				r.Code = value.String
-			}
 		case role.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				r.Name = value.String
 			}
-		case role.FieldIntro:
+		case role.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field intro", values[i])
+				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				r.Intro = value.String
+				r.Description = value.String
 			}
 		default:
 			r.selectValues.Set(columns[i], values[i])
@@ -140,6 +128,16 @@ func (r *Role) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (r *Role) Value(name string) (ent.Value, error) {
 	return r.selectValues.Get(name)
+}
+
+// QueryUsers queries the "users" edge of the Role entity.
+func (r *Role) QueryUsers() *UserQuery {
+	return NewRoleClient(r.config).QueryUsers(r)
+}
+
+// QueryPermissions queries the "permissions" edge of the Role entity.
+func (r *Role) QueryPermissions() *PermissionQuery {
+	return NewRoleClient(r.config).QueryPermissions(r)
 }
 
 // Update returns a builder for updating this Role.
@@ -171,26 +169,11 @@ func (r *Role) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(r.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("creator=")
-	builder.WriteString(r.Creator)
-	builder.WriteString(", ")
-	builder.WriteString("editor=")
-	builder.WriteString(r.Editor)
-	builder.WriteString(", ")
-	builder.WriteString("deleted=")
-	builder.WriteString(fmt.Sprintf("%v", r.Deleted))
-	builder.WriteString(", ")
-	builder.WriteString("parent_id=")
-	builder.WriteString(fmt.Sprintf("%v", r.ParentID))
-	builder.WriteString(", ")
-	builder.WriteString("code=")
-	builder.WriteString(r.Code)
-	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(r.Name)
 	builder.WriteString(", ")
-	builder.WriteString("intro=")
-	builder.WriteString(r.Intro)
+	builder.WriteString("description=")
+	builder.WriteString(r.Description)
 	builder.WriteByte(')')
 	return builder.String()
 }

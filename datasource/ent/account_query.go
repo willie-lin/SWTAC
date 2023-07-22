@@ -413,10 +413,10 @@ func (aq *AccountQuery) loadUser(ctx context.Context, query *UserQuery, nodes []
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Account)
 	for i := range nodes {
-		if nodes[i].user_account == nil {
+		if nodes[i].user_accounts == nil {
 			continue
 		}
-		fk := *nodes[i].user_account
+		fk := *nodes[i].user_accounts
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -433,7 +433,7 @@ func (aq *AccountQuery) loadUser(ctx context.Context, query *UserQuery, nodes []
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_account" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_accounts" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

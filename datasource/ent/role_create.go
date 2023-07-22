@@ -3,7 +3,9 @@
 package ent
 
 import (
+	"SWTAC/datasource/ent/permission"
 	"SWTAC/datasource/ent/role"
+	"SWTAC/datasource/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -49,61 +51,23 @@ func (rc *RoleCreate) SetNillableUpdatedAt(t *time.Time) *RoleCreate {
 	return rc
 }
 
-// SetCreator sets the "creator" field.
-func (rc *RoleCreate) SetCreator(s string) *RoleCreate {
-	rc.mutation.SetCreator(s)
-	return rc
-}
-
-// SetNillableCreator sets the "creator" field if the given value is not nil.
-func (rc *RoleCreate) SetNillableCreator(s *string) *RoleCreate {
-	if s != nil {
-		rc.SetCreator(*s)
-	}
-	return rc
-}
-
-// SetEditor sets the "editor" field.
-func (rc *RoleCreate) SetEditor(s string) *RoleCreate {
-	rc.mutation.SetEditor(s)
-	return rc
-}
-
-// SetNillableEditor sets the "editor" field if the given value is not nil.
-func (rc *RoleCreate) SetNillableEditor(s *string) *RoleCreate {
-	if s != nil {
-		rc.SetEditor(*s)
-	}
-	return rc
-}
-
-// SetDeleted sets the "deleted" field.
-func (rc *RoleCreate) SetDeleted(f float64) *RoleCreate {
-	rc.mutation.SetDeleted(f)
-	return rc
-}
-
-// SetParentID sets the "parent_id" field.
-func (rc *RoleCreate) SetParentID(i int) *RoleCreate {
-	rc.mutation.SetParentID(i)
-	return rc
-}
-
-// SetCode sets the "code" field.
-func (rc *RoleCreate) SetCode(s string) *RoleCreate {
-	rc.mutation.SetCode(s)
-	return rc
-}
-
 // SetName sets the "name" field.
 func (rc *RoleCreate) SetName(s string) *RoleCreate {
 	rc.mutation.SetName(s)
 	return rc
 }
 
-// SetIntro sets the "intro" field.
-func (rc *RoleCreate) SetIntro(s string) *RoleCreate {
-	rc.mutation.SetIntro(s)
+// SetDescription sets the "description" field.
+func (rc *RoleCreate) SetDescription(s string) *RoleCreate {
+	rc.mutation.SetDescription(s)
+	return rc
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableDescription(s *string) *RoleCreate {
+	if s != nil {
+		rc.SetDescription(*s)
+	}
 	return rc
 }
 
@@ -119,6 +83,36 @@ func (rc *RoleCreate) SetNillableID(u *uuid.UUID) *RoleCreate {
 		rc.SetID(*u)
 	}
 	return rc
+}
+
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (rc *RoleCreate) AddUserIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddUserIDs(ids...)
+	return rc
+}
+
+// AddUsers adds the "users" edges to the User entity.
+func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return rc.AddUserIDs(ids...)
+}
+
+// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
+func (rc *RoleCreate) AddPermissionIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddPermissionIDs(ids...)
+	return rc
+}
+
+// AddPermissions adds the "permissions" edges to the Permission entity.
+func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
+	ids := make([]uuid.UUID, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return rc.AddPermissionIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -178,25 +172,13 @@ func (rc *RoleCreate) check() error {
 	if _, ok := rc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Role.updated_at"`)}
 	}
-	if v, ok := rc.mutation.Creator(); ok {
-		if err := role.CreatorValidator(v); err != nil {
-			return &ValidationError{Name: "creator", err: fmt.Errorf(`ent: validator failed for field "Role.creator": %w`, err)}
-		}
-	}
-	if _, ok := rc.mutation.Deleted(); !ok {
-		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Role.deleted"`)}
-	}
-	if _, ok := rc.mutation.ParentID(); !ok {
-		return &ValidationError{Name: "parent_id", err: errors.New(`ent: missing required field "Role.parent_id"`)}
-	}
-	if _, ok := rc.mutation.Code(); !ok {
-		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Role.code"`)}
-	}
 	if _, ok := rc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Role.name"`)}
 	}
-	if _, ok := rc.mutation.Intro(); !ok {
-		return &ValidationError{Name: "intro", err: errors.New(`ent: missing required field "Role.intro"`)}
+	if v, ok := rc.mutation.Name(); ok {
+		if err := role.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Role.name": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -241,33 +223,45 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_spec.SetField(role.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := rc.mutation.Creator(); ok {
-		_spec.SetField(role.FieldCreator, field.TypeString, value)
-		_node.Creator = value
-	}
-	if value, ok := rc.mutation.Editor(); ok {
-		_spec.SetField(role.FieldEditor, field.TypeString, value)
-		_node.Editor = value
-	}
-	if value, ok := rc.mutation.Deleted(); ok {
-		_spec.SetField(role.FieldDeleted, field.TypeFloat64, value)
-		_node.Deleted = value
-	}
-	if value, ok := rc.mutation.ParentID(); ok {
-		_spec.SetField(role.FieldParentID, field.TypeInt, value)
-		_node.ParentID = value
-	}
-	if value, ok := rc.mutation.Code(); ok {
-		_spec.SetField(role.FieldCode, field.TypeString, value)
-		_node.Code = value
-	}
 	if value, ok := rc.mutation.Name(); ok {
 		_spec.SetField(role.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := rc.mutation.Intro(); ok {
-		_spec.SetField(role.FieldIntro, field.TypeString, value)
-		_node.Intro = value
+	if value, ok := rc.mutation.Description(); ok {
+		_spec.SetField(role.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
+	if nodes := rc.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.UsersTable,
+			Columns: role.UsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rc.mutation.PermissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.PermissionsTable,
+			Columns: role.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
