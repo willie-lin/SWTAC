@@ -141,7 +141,6 @@ type RegisterForm struct {
 	Email    string `json:"email" validate:"required"`
 	Phone    string `json:"phone" validate:"required"`
 	Password string `json:"password" validate:"required"`
-	Nickname string `json:"nickname" validate:"required"`
 }
 
 func Register(client *ent.Client) echo.HandlerFunc {
@@ -156,23 +155,8 @@ func Register(client *ent.Client) echo.HandlerFunc {
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-		//
-		// 在 User 表中创建一个新用户
-		//u, err := tx.User.
-		//	Create().
-		//	SetNickname(form.Nickname).
-		//	SetCreatedAt(time.Now()).
-		//	SetUpdatedAt(time.Now()).
-		//	Save(context.Background())
-		if ent.IsConstraintError(err) {
-			tx.Rollback()
-			return c.JSON(http.StatusConflict, err.Error())
-		}
-		if err != nil {
-			tx.Rollback()
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
 
+		//
 		pwd, err := utils.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
@@ -197,11 +181,27 @@ func Register(client *ent.Client) echo.HandlerFunc {
 			tx.Rollback()
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
+		//在 User 表中创建一个新用户
+
+		u, err := tx.User.
+			Create().
+			AddAccount(a).
+			SetCreatedAt(time.Now()).
+			SetUpdatedAt(time.Now()).
+			Save(context.Background())
+		if ent.IsConstraintError(err) {
+			tx.Rollback()
+			return c.JSON(http.StatusConflict, err.Error())
+		}
+		if err != nil {
+			tx.Rollback()
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 
 		// 提交事务
 		if err := tx.Commit(); err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusCreated, a)
+		return c.JSON(http.StatusCreated, u)
 	}
 }

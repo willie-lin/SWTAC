@@ -17,7 +17,7 @@ type User struct {
 
 func (User) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "users"},
+		entsql.Annotation{Table: "user"},
 	}
 }
 
@@ -32,7 +32,8 @@ func (User) Mixin() []ent.Mixin {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
-		field.String("nickname").Unique(),
+		field.String("nickname"),
+
 		field.String("avatar").Default("https://example.com/default-avatar.png").Optional(),
 		field.Int("age").Positive().Min(0).Max(150).Default(1).Optional(),
 		field.Enum("gender").Values("male", "female", "other").Optional(),
@@ -44,9 +45,9 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("groups", UserGroup.Type).Ref("users"),
-		edge.To("roles", Role.Type),
-		edge.To("accounts", Account.Type),
+		//edge.From("groups", UserGroup.Type).Ref("users"),
+		//edge.To("roles", Role.Type),
+		edge.To("account", Account.Type),
 	}
 }
 func (User) Index() []ent.Index {
@@ -55,6 +56,6 @@ func (User) Index() []ent.Index {
 		// 非唯一的普通索引
 		index.Fields("age"),
 		// 唯一索引
-		index.Fields("id", "nickname").Unique(),
+		index.Fields("id").Unique(),
 	}
 }

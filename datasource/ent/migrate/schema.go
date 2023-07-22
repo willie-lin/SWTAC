@@ -9,35 +9,35 @@ import (
 )
 
 var (
-	// AccountsColumns holds the columns for the "accounts" table.
-	AccountsColumns = []*schema.Column{
+	// AccountColumns holds the columns for the "account" table.
+	AccountColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "username", Type: field.TypeString, Unique: true},
-		{Name: "email", Type: field.TypeString, Unique: true},
-		{Name: "phone", Type: field.TypeString, Unique: true},
+		{Name: "email", Type: field.TypeString},
+		{Name: "phone", Type: field.TypeString},
 		{Name: "password", Type: field.TypeString, Size: 120},
-		{Name: "user_accounts", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_account", Type: field.TypeUUID, Nullable: true},
 	}
-	// AccountsTable holds the schema information for the "accounts" table.
-	AccountsTable = &schema.Table{
-		Name:       "accounts",
-		Columns:    AccountsColumns,
-		PrimaryKey: []*schema.Column{AccountsColumns[0]},
+	// AccountTable holds the schema information for the "account" table.
+	AccountTable = &schema.Table{
+		Name:       "account",
+		Columns:    AccountColumns,
+		PrimaryKey: []*schema.Column{AccountColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "accounts_users_accounts",
-				Columns:    []*schema.Column{AccountsColumns[7]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
+				Symbol:     "account_user_account",
+				Columns:    []*schema.Column{AccountColumns[7]},
+				RefColumns: []*schema.Column{UserColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "account_username_email_phone",
+				Name:    "account_username_phone",
 				Unique:  true,
-				Columns: []*schema.Column{AccountsColumns[3], AccountsColumns[4], AccountsColumns[5]},
+				Columns: []*schema.Column{AccountColumns[3], AccountColumns[5]},
 			},
 		},
 	}
@@ -93,48 +93,30 @@ var (
 		{Name: "code", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
 		{Name: "intro", Type: field.TypeString},
-		{Name: "group_roles", Type: field.TypeUUID, Nullable: true},
 	}
 	// RolesTable holds the schema information for the "roles" table.
 	RolesTable = &schema.Table{
 		Name:       "roles",
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "roles_group_roles",
-				Columns:    []*schema.Column{RolesColumns[10]},
-				RefColumns: []*schema.Column{GroupColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
-	// UsersColumns holds the columns for the "users" table.
-	UsersColumns = []*schema.Column{
+	// UserColumns holds the columns for the "user" table.
+	UserColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "nickname", Type: field.TypeString, Unique: true},
+		{Name: "nickname", Type: field.TypeString},
 		{Name: "avatar", Type: field.TypeString, Nullable: true, Default: "https://example.com/default-avatar.png"},
 		{Name: "age", Type: field.TypeInt, Nullable: true, Default: 1},
 		{Name: "gender", Type: field.TypeEnum, Nullable: true, Enums: []string{"male", "female", "other"}},
 		{Name: "city", Type: field.TypeString, Nullable: true},
 		{Name: "introduction", Type: field.TypeString, Nullable: true},
-		{Name: "group_users", Type: field.TypeUUID, Nullable: true},
 	}
-	// UsersTable holds the schema information for the "users" table.
-	UsersTable = &schema.Table{
-		Name:       "users",
-		Columns:    UsersColumns,
-		PrimaryKey: []*schema.Column{UsersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "users_group_users",
-				Columns:    []*schema.Column{UsersColumns[9]},
-				RefColumns: []*schema.Column{GroupColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
+	// UserTable holds the schema information for the "user" table.
+	UserTable = &schema.Table{
+		Name:       "user",
+		Columns:    UserColumns,
+		PrimaryKey: []*schema.Column{UserColumns[0]},
 	}
 	// UserGroupsColumns holds the columns for the "user_groups" table.
 	UserGroupsColumns = []*schema.Column{
@@ -155,125 +137,21 @@ var (
 		Columns:    UserGroupsColumns,
 		PrimaryKey: []*schema.Column{UserGroupsColumns[0]},
 	}
-	// RolePermissionsColumns holds the columns for the "role_permissions" table.
-	RolePermissionsColumns = []*schema.Column{
-		{Name: "role_id", Type: field.TypeUUID},
-		{Name: "permission_id", Type: field.TypeUUID},
-	}
-	// RolePermissionsTable holds the schema information for the "role_permissions" table.
-	RolePermissionsTable = &schema.Table{
-		Name:       "role_permissions",
-		Columns:    RolePermissionsColumns,
-		PrimaryKey: []*schema.Column{RolePermissionsColumns[0], RolePermissionsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "role_permissions_role_id",
-				Columns:    []*schema.Column{RolePermissionsColumns[0]},
-				RefColumns: []*schema.Column{RolesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "role_permissions_permission_id",
-				Columns:    []*schema.Column{RolePermissionsColumns[1]},
-				RefColumns: []*schema.Column{PermissionsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
-	// UserRolesColumns holds the columns for the "user_roles" table.
-	UserRolesColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "role_id", Type: field.TypeUUID},
-	}
-	// UserRolesTable holds the schema information for the "user_roles" table.
-	UserRolesTable = &schema.Table{
-		Name:       "user_roles",
-		Columns:    UserRolesColumns,
-		PrimaryKey: []*schema.Column{UserRolesColumns[0], UserRolesColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_roles_user_id",
-				Columns:    []*schema.Column{UserRolesColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_roles_role_id",
-				Columns:    []*schema.Column{UserRolesColumns[1]},
-				RefColumns: []*schema.Column{RolesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
-	// UserGroupUsersColumns holds the columns for the "user_group_users" table.
-	UserGroupUsersColumns = []*schema.Column{
-		{Name: "user_group_id", Type: field.TypeUUID},
-		{Name: "user_id", Type: field.TypeUUID},
-	}
-	// UserGroupUsersTable holds the schema information for the "user_group_users" table.
-	UserGroupUsersTable = &schema.Table{
-		Name:       "user_group_users",
-		Columns:    UserGroupUsersColumns,
-		PrimaryKey: []*schema.Column{UserGroupUsersColumns[0], UserGroupUsersColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_group_users_user_group_id",
-				Columns:    []*schema.Column{UserGroupUsersColumns[0]},
-				RefColumns: []*schema.Column{UserGroupsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_group_users_user_id",
-				Columns:    []*schema.Column{UserGroupUsersColumns[1]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
-	// UserGroupRolesColumns holds the columns for the "user_group_roles" table.
-	UserGroupRolesColumns = []*schema.Column{
-		{Name: "user_group_id", Type: field.TypeUUID},
-		{Name: "role_id", Type: field.TypeUUID},
-	}
-	// UserGroupRolesTable holds the schema information for the "user_group_roles" table.
-	UserGroupRolesTable = &schema.Table{
-		Name:       "user_group_roles",
-		Columns:    UserGroupRolesColumns,
-		PrimaryKey: []*schema.Column{UserGroupRolesColumns[0], UserGroupRolesColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_group_roles_user_group_id",
-				Columns:    []*schema.Column{UserGroupRolesColumns[0]},
-				RefColumns: []*schema.Column{UserGroupsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_group_roles_role_id",
-				Columns:    []*schema.Column{UserGroupRolesColumns[1]},
-				RefColumns: []*schema.Column{RolesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		AccountsTable,
+		AccountTable,
 		GroupTable,
 		PermissionsTable,
 		RolesTable,
-		UsersTable,
+		UserTable,
 		UserGroupsTable,
-		RolePermissionsTable,
-		UserRolesTable,
-		UserGroupUsersTable,
-		UserGroupRolesTable,
 	}
 )
 
 func init() {
-	AccountsTable.ForeignKeys[0].RefTable = UsersTable
-	AccountsTable.Annotation = &entsql.Annotation{
-		Table: "accounts",
+	AccountTable.ForeignKeys[0].RefTable = UserTable
+	AccountTable.Annotation = &entsql.Annotation{
+		Table: "account",
 	}
 	GroupTable.Annotation = &entsql.Annotation{
 		Table: "group",
@@ -281,23 +159,13 @@ func init() {
 	PermissionsTable.Annotation = &entsql.Annotation{
 		Table: "permissions",
 	}
-	RolesTable.ForeignKeys[0].RefTable = GroupTable
 	RolesTable.Annotation = &entsql.Annotation{
 		Table: "roles",
 	}
-	UsersTable.ForeignKeys[0].RefTable = GroupTable
-	UsersTable.Annotation = &entsql.Annotation{
-		Table: "users",
+	UserTable.Annotation = &entsql.Annotation{
+		Table: "user",
 	}
 	UserGroupsTable.Annotation = &entsql.Annotation{
 		Table: "user_groups",
 	}
-	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
-	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
-	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
-	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
-	UserGroupUsersTable.ForeignKeys[0].RefTable = UserGroupsTable
-	UserGroupUsersTable.ForeignKeys[1].RefTable = UsersTable
-	UserGroupRolesTable.ForeignKeys[0].RefTable = UserGroupsTable
-	UserGroupRolesTable.ForeignKeys[1].RefTable = RolesTable
 }

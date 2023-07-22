@@ -4,7 +4,6 @@ package ent
 
 import (
 	"SWTAC/datasource/ent/permission"
-	"SWTAC/datasource/ent/role"
 	"context"
 	"errors"
 	"fmt"
@@ -132,21 +131,6 @@ func (pc *PermissionCreate) SetNillableID(u *uuid.UUID) *PermissionCreate {
 		pc.SetID(*u)
 	}
 	return pc
-}
-
-// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (pc *PermissionCreate) AddRoleIDs(ids ...uuid.UUID) *PermissionCreate {
-	pc.mutation.AddRoleIDs(ids...)
-	return pc
-}
-
-// AddRoles adds the "roles" edges to the Role entity.
-func (pc *PermissionCreate) AddRoles(r ...*Role) *PermissionCreate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return pc.AddRoleIDs(ids...)
 }
 
 // Mutation returns the PermissionMutation object of the builder.
@@ -310,22 +294,6 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.URL(); ok {
 		_spec.SetField(permission.FieldURL, field.TypeInt, value)
 		_node.URL = value
-	}
-	if nodes := pc.mutation.RolesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   permission.RolesTable,
-			Columns: permission.RolesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

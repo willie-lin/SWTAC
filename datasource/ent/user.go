@@ -37,48 +37,25 @@ type User struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
-	group_users  *uuid.UUID
 	selectValues sql.SelectValues
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// Groups holds the value of the groups edge.
-	Groups []*UserGroup `json:"groups,omitempty"`
-	// Roles holds the value of the roles edge.
-	Roles []*Role `json:"roles,omitempty"`
-	// Accounts holds the value of the accounts edge.
-	Accounts []*Account `json:"accounts,omitempty"`
+	// Account holds the value of the account edge.
+	Account []*Account `json:"account,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [1]bool
 }
 
-// GroupsOrErr returns the Groups value or an error if the edge
+// AccountOrErr returns the Account value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) GroupsOrErr() ([]*UserGroup, error) {
+func (e UserEdges) AccountOrErr() ([]*Account, error) {
 	if e.loadedTypes[0] {
-		return e.Groups, nil
+		return e.Account, nil
 	}
-	return nil, &NotLoadedError{edge: "groups"}
-}
-
-// RolesOrErr returns the Roles value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) RolesOrErr() ([]*Role, error) {
-	if e.loadedTypes[1] {
-		return e.Roles, nil
-	}
-	return nil, &NotLoadedError{edge: "roles"}
-}
-
-// AccountsOrErr returns the Accounts value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) AccountsOrErr() ([]*Account, error) {
-	if e.loadedTypes[2] {
-		return e.Accounts, nil
-	}
-	return nil, &NotLoadedError{edge: "accounts"}
+	return nil, &NotLoadedError{edge: "account"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -94,8 +71,6 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case user.FieldID:
 			values[i] = new(uuid.UUID)
-		case user.ForeignKeys[0]: // group_users
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -165,13 +140,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Introduction = value.String
 			}
-		case user.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field group_users", values[i])
-			} else if value.Valid {
-				u.group_users = new(uuid.UUID)
-				*u.group_users = *value.S.(*uuid.UUID)
-			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
 		}
@@ -185,19 +153,9 @@ func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
 }
 
-// QueryGroups queries the "groups" edge of the User entity.
-func (u *User) QueryGroups() *UserGroupQuery {
-	return NewUserClient(u.config).QueryGroups(u)
-}
-
-// QueryRoles queries the "roles" edge of the User entity.
-func (u *User) QueryRoles() *RoleQuery {
-	return NewUserClient(u.config).QueryRoles(u)
-}
-
-// QueryAccounts queries the "accounts" edge of the User entity.
-func (u *User) QueryAccounts() *AccountQuery {
-	return NewUserClient(u.config).QueryAccounts(u)
+// QueryAccount queries the "account" edge of the User entity.
+func (u *User) QueryAccount() *AccountQuery {
+	return NewUserClient(u.config).QueryAccount(u)
 }
 
 // Update returns a builder for updating this User.

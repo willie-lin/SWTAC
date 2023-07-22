@@ -4,11 +4,8 @@ package ent
 
 import (
 	"SWTAC/datasource/ent/predicate"
-	"SWTAC/datasource/ent/role"
-	"SWTAC/datasource/ent/user"
 	"SWTAC/datasource/ent/usergroup"
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -25,8 +22,6 @@ type UserGroupQuery struct {
 	order      []usergroup.OrderOption
 	inters     []Interceptor
 	predicates []predicate.UserGroup
-	withUsers  *UserQuery
-	withRoles  *RoleQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,50 +56,6 @@ func (ugq *UserGroupQuery) Unique(unique bool) *UserGroupQuery {
 func (ugq *UserGroupQuery) Order(o ...usergroup.OrderOption) *UserGroupQuery {
 	ugq.order = append(ugq.order, o...)
 	return ugq
-}
-
-// QueryUsers chains the current query on the "users" edge.
-func (ugq *UserGroupQuery) QueryUsers() *UserQuery {
-	query := (&UserClient{config: ugq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := ugq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := ugq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usergroup.Table, usergroup.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, usergroup.UsersTable, usergroup.UsersPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(ugq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryRoles chains the current query on the "roles" edge.
-func (ugq *UserGroupQuery) QueryRoles() *RoleQuery {
-	query := (&RoleClient{config: ugq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := ugq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := ugq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usergroup.Table, usergroup.FieldID, selector),
-			sqlgraph.To(role.Table, role.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, usergroup.RolesTable, usergroup.RolesPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(ugq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first UserGroup entity from the query.
@@ -299,34 +250,10 @@ func (ugq *UserGroupQuery) Clone() *UserGroupQuery {
 		order:      append([]usergroup.OrderOption{}, ugq.order...),
 		inters:     append([]Interceptor{}, ugq.inters...),
 		predicates: append([]predicate.UserGroup{}, ugq.predicates...),
-		withUsers:  ugq.withUsers.Clone(),
-		withRoles:  ugq.withRoles.Clone(),
 		// clone intermediate query.
 		sql:  ugq.sql.Clone(),
 		path: ugq.path,
 	}
-}
-
-// WithUsers tells the query-builder to eager-load the nodes that are connected to
-// the "users" edge. The optional arguments are used to configure the query builder of the edge.
-func (ugq *UserGroupQuery) WithUsers(opts ...func(*UserQuery)) *UserGroupQuery {
-	query := (&UserClient{config: ugq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	ugq.withUsers = query
-	return ugq
-}
-
-// WithRoles tells the query-builder to eager-load the nodes that are connected to
-// the "roles" edge. The optional arguments are used to configure the query builder of the edge.
-func (ugq *UserGroupQuery) WithRoles(opts ...func(*RoleQuery)) *UserGroupQuery {
-	query := (&RoleClient{config: ugq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	ugq.withRoles = query
-	return ugq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -405,12 +332,8 @@ func (ugq *UserGroupQuery) prepareQuery(ctx context.Context) error {
 
 func (ugq *UserGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*UserGroup, error) {
 	var (
-		nodes       = []*UserGroup{}
-		_spec       = ugq.querySpec()
-		loadedTypes = [2]bool{
-			ugq.withUsers != nil,
-			ugq.withRoles != nil,
-		}
+		nodes = []*UserGroup{}
+		_spec = ugq.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*UserGroup).scanValues(nil, columns)
@@ -418,7 +341,6 @@ func (ugq *UserGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*U
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &UserGroup{config: ugq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -430,144 +352,7 @@ func (ugq *UserGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*U
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := ugq.withUsers; query != nil {
-		if err := ugq.loadUsers(ctx, query, nodes,
-			func(n *UserGroup) { n.Edges.Users = []*User{} },
-			func(n *UserGroup, e *User) { n.Edges.Users = append(n.Edges.Users, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := ugq.withRoles; query != nil {
-		if err := ugq.loadRoles(ctx, query, nodes,
-			func(n *UserGroup) { n.Edges.Roles = []*Role{} },
-			func(n *UserGroup, e *Role) { n.Edges.Roles = append(n.Edges.Roles, e) }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (ugq *UserGroupQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*UserGroup, init func(*UserGroup), assign func(*UserGroup, *User)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*UserGroup)
-	nids := make(map[uuid.UUID]map[*UserGroup]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(usergroup.UsersTable)
-		s.Join(joinT).On(s.C(user.FieldID), joinT.C(usergroup.UsersPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(usergroup.UsersPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(usergroup.UsersPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(uuid.UUID)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := *values[0].(*uuid.UUID)
-				inValue := *values[1].(*uuid.UUID)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*UserGroup]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*User](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "users" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
-	}
-	return nil
-}
-func (ugq *UserGroupQuery) loadRoles(ctx context.Context, query *RoleQuery, nodes []*UserGroup, init func(*UserGroup), assign func(*UserGroup, *Role)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*UserGroup)
-	nids := make(map[uuid.UUID]map[*UserGroup]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(usergroup.RolesTable)
-		s.Join(joinT).On(s.C(role.FieldID), joinT.C(usergroup.RolesPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(usergroup.RolesPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(usergroup.RolesPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(uuid.UUID)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := *values[0].(*uuid.UUID)
-				inValue := *values[1].(*uuid.UUID)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*UserGroup]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Role](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "roles" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
-	}
-	return nil
 }
 
 func (ugq *UserGroupQuery) sqlCount(ctx context.Context) (int, error) {

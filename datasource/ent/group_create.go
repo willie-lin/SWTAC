@@ -4,8 +4,6 @@ package ent
 
 import (
 	"SWTAC/datasource/ent/group"
-	"SWTAC/datasource/ent/role"
-	"SWTAC/datasource/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -121,36 +119,6 @@ func (gc *GroupCreate) SetNillableID(u *uuid.UUID) *GroupCreate {
 		gc.SetID(*u)
 	}
 	return gc
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (gc *GroupCreate) AddUserIDs(ids ...uuid.UUID) *GroupCreate {
-	gc.mutation.AddUserIDs(ids...)
-	return gc
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (gc *GroupCreate) AddUsers(u ...*User) *GroupCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return gc.AddUserIDs(ids...)
-}
-
-// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (gc *GroupCreate) AddRoleIDs(ids ...uuid.UUID) *GroupCreate {
-	gc.mutation.AddRoleIDs(ids...)
-	return gc
-}
-
-// AddRoles adds the "roles" edges to the Role entity.
-func (gc *GroupCreate) AddRoles(r ...*Role) *GroupCreate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return gc.AddRoleIDs(ids...)
 }
 
 // Mutation returns the GroupMutation object of the builder.
@@ -300,38 +268,6 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 	if value, ok := gc.mutation.Intro(); ok {
 		_spec.SetField(group.FieldIntro, field.TypeString, value)
 		_node.Intro = value
-	}
-	if nodes := gc.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.UsersTable,
-			Columns: []string{group.UsersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := gc.mutation.RolesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   group.RolesTable,
-			Columns: []string{group.RolesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -43,8 +42,8 @@ func (UserGroup) Fields() []ent.Field {
 // Edges of the UserGroup.
 func (UserGroup) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("users", User.Type),
-		edge.To("roles", Role.Type),
+		//edge.To("users", User.Type),
+		//edge.To("roles", Role.Type),
 	}
 }
 

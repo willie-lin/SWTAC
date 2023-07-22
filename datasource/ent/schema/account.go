@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -16,7 +17,7 @@ type Account struct {
 
 func (Account) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "accounts"},
+		entsql.Annotation{Table: "account"},
 	}
 }
 
@@ -31,8 +32,8 @@ func (Account) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		field.String("username").NotEmpty().Unique().Immutable(),
-		field.String("email").Unique(),
-		field.String("phone").Unique(),
+		field.String("email"),
+		field.String("phone"),
 		field.String("password").Sensitive().MinLen(8).MaxLen(120),
 	}
 }
@@ -40,12 +41,12 @@ func (Account) Fields() []ent.Field {
 // Edges of the Account.
 func (Account) Edges() []ent.Edge {
 	return []ent.Edge{
-		//edge.From("users", User.Type).Ref("accounts"),
+		edge.From("user", User.Type).Ref("account").Unique(),
 	}
 }
 func (Account) Indexes() []ent.Index {
 	return []ent.Index{
 		// 唯一约束索引
-		index.Fields("username", "email", "phone").Unique(),
+		index.Fields("username", "phone").Unique(),
 	}
 }

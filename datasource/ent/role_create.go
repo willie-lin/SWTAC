@@ -3,10 +3,7 @@
 package ent
 
 import (
-	"SWTAC/datasource/ent/permission"
 	"SWTAC/datasource/ent/role"
-	"SWTAC/datasource/ent/user"
-	"SWTAC/datasource/ent/usergroup"
 	"context"
 	"errors"
 	"fmt"
@@ -122,51 +119,6 @@ func (rc *RoleCreate) SetNillableID(u *uuid.UUID) *RoleCreate {
 		rc.SetID(*u)
 	}
 	return rc
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (rc *RoleCreate) AddUserIDs(ids ...uuid.UUID) *RoleCreate {
-	rc.mutation.AddUserIDs(ids...)
-	return rc
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return rc.AddUserIDs(ids...)
-}
-
-// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (rc *RoleCreate) AddPermissionIDs(ids ...uuid.UUID) *RoleCreate {
-	rc.mutation.AddPermissionIDs(ids...)
-	return rc
-}
-
-// AddPermissions adds the "permissions" edges to the Permission entity.
-func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
-	ids := make([]uuid.UUID, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return rc.AddPermissionIDs(ids...)
-}
-
-// AddGroupIDs adds the "groups" edge to the UserGroup entity by IDs.
-func (rc *RoleCreate) AddGroupIDs(ids ...uuid.UUID) *RoleCreate {
-	rc.mutation.AddGroupIDs(ids...)
-	return rc
-}
-
-// AddGroups adds the "groups" edges to the UserGroup entity.
-func (rc *RoleCreate) AddGroups(u ...*UserGroup) *RoleCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return rc.AddGroupIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -316,54 +268,6 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	if value, ok := rc.mutation.Intro(); ok {
 		_spec.SetField(role.FieldIntro, field.TypeString, value)
 		_node.Intro = value
-	}
-	if nodes := rc.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   role.UsersTable,
-			Columns: role.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := rc.mutation.PermissionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   role.PermissionsTable,
-			Columns: role.PermissionsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := rc.mutation.GroupsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   role.GroupsTable,
-			Columns: role.GroupsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

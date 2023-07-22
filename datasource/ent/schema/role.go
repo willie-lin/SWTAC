@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -47,9 +46,9 @@ func (Role) Fields() []ent.Field {
 // Edges of the Role.
 func (Role) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("users", User.Type).Ref("roles"),
-		edge.To("permissions", Permission.Type),
-		edge.From("groups", UserGroup.Type).Ref("roles"),
+		//edge.From("users", User.Type).Ref("roles"),
+		//edge.To("permissions", Permission.Type),
+		//edge.From("groups", UserGroup.Type).Ref("roles"),
 	}
 }
 

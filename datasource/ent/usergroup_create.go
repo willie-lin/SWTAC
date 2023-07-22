@@ -3,8 +3,6 @@
 package ent
 
 import (
-	"SWTAC/datasource/ent/role"
-	"SWTAC/datasource/ent/user"
 	"SWTAC/datasource/ent/usergroup"
 	"context"
 	"errors"
@@ -121,36 +119,6 @@ func (ugc *UserGroupCreate) SetNillableID(u *uuid.UUID) *UserGroupCreate {
 		ugc.SetID(*u)
 	}
 	return ugc
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (ugc *UserGroupCreate) AddUserIDs(ids ...uuid.UUID) *UserGroupCreate {
-	ugc.mutation.AddUserIDs(ids...)
-	return ugc
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (ugc *UserGroupCreate) AddUsers(u ...*User) *UserGroupCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return ugc.AddUserIDs(ids...)
-}
-
-// AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (ugc *UserGroupCreate) AddRoleIDs(ids ...uuid.UUID) *UserGroupCreate {
-	ugc.mutation.AddRoleIDs(ids...)
-	return ugc
-}
-
-// AddRoles adds the "roles" edges to the Role entity.
-func (ugc *UserGroupCreate) AddRoles(r ...*Role) *UserGroupCreate {
-	ids := make([]uuid.UUID, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return ugc.AddRoleIDs(ids...)
 }
 
 // Mutation returns the UserGroupMutation object of the builder.
@@ -300,38 +268,6 @@ func (ugc *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
 	if value, ok := ugc.mutation.Intro(); ok {
 		_spec.SetField(usergroup.FieldIntro, field.TypeString, value)
 		_node.Intro = value
-	}
-	if nodes := ugc.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   usergroup.UsersTable,
-			Columns: usergroup.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := ugc.mutation.RolesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   usergroup.RolesTable,
-			Columns: usergroup.RolesPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

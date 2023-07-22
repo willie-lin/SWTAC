@@ -35,40 +35,8 @@ type Group struct {
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
 	// Intro holds the value of the "intro" field.
-	Intro string `json:"intro,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the GroupQuery when eager-loading is set.
-	Edges        GroupEdges `json:"edges"`
+	Intro        string `json:"intro,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// GroupEdges holds the relations/edges for other nodes in the graph.
-type GroupEdges struct {
-	// Users holds the value of the users edge.
-	Users []*User `json:"users,omitempty"`
-	// Roles holds the value of the roles edge.
-	Roles []*Role `json:"roles,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// UsersOrErr returns the Users value or an error if the edge
-// was not loaded in eager-loading.
-func (e GroupEdges) UsersOrErr() ([]*User, error) {
-	if e.loadedTypes[0] {
-		return e.Users, nil
-	}
-	return nil, &NotLoadedError{edge: "users"}
-}
-
-// RolesOrErr returns the Roles value or an error if the edge
-// was not loaded in eager-loading.
-func (e GroupEdges) RolesOrErr() ([]*Role, error) {
-	if e.loadedTypes[1] {
-		return e.Roles, nil
-	}
-	return nil, &NotLoadedError{edge: "roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -170,16 +138,6 @@ func (gr *Group) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (gr *Group) Value(name string) (ent.Value, error) {
 	return gr.selectValues.Get(name)
-}
-
-// QueryUsers queries the "users" edge of the Group entity.
-func (gr *Group) QueryUsers() *UserQuery {
-	return NewGroupClient(gr.config).QueryUsers(gr)
-}
-
-// QueryRoles queries the "roles" edge of the Group entity.
-func (gr *Group) QueryRoles() *RoleQuery {
-	return NewGroupClient(gr.config).QueryRoles(gr)
 }
 
 // Update returns a builder for updating this Group.
