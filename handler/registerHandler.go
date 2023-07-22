@@ -182,9 +182,11 @@ func Register(client *ent.Client) echo.HandlerFunc {
 		}
 
 		//在 User 表中创建一个新用户
-		u, err := tx.User.
-			Create().SetNickname(form.Nickname).
-			AddAccount(a).
+		u, err := tx.User.Create().
+			SetNickname(form.Nickname).
+			AddAccounts(a).
+			AddGroups().
+			AddRoles().
 			SetCreatedAt(time.Now()).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
