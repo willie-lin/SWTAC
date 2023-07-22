@@ -1,0 +1,42 @@
+---
+kind: pipeline
+name: default
+trigger:
+  ref:
+    - refs/tags/*
+
+services:
+  - name: docker
+    image: docker:dind
+    privileged: true
+    volumes:
+      - name: dockersock
+        path: /var/run
+
+steps:
+  - name: fetch
+    image: docker:git
+    commands:
+      - git fetch --tags
+
+  - name: test
+    image: golang
+    commands:
+      - go test -race -v ./... -cover
+
+  - name: release
+    image: goreleaser/goreleaser
+    environment:
+      GITHUB_TOKEN:
+        from_secret: github_token
+    volumes:
+      - name: dockersock
+        path: /var/run
+    commands:
+      - goreleaser release
+    when:
+      event: tag
+
+volumes:
+  - name: dockersock
+    temp: {}
