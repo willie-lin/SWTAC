@@ -71,8 +71,18 @@ func main() {
 		return c.JSON(http.StatusOK, "hello world!!!")
 	})
 
-	// 注册用户
+	// 注册，登陆
 	e.POST("/register", handler.Register(client))
+
+	// user
+	e.GET("/api/users", handler.GetAllUsers(client))
+	e.GET("/api/users/id", handler.GetUserById(client))
+	e.GET("/api/users/name", handler.GetUserByUsername(client))
+	//e.POST("/api/users/", handler.CreateUser(client))
+	e.PUT("/api/users/id", handler.UpdateUserById(client))
+	e.PUT("/api/users/", handler.UpdateUser(client))
+	e.DELETE("/api/users/", handler.DeleteUser(client))
+	e.DELETE("/api/users/id", handler.DeleteUserById(client))
 
 	// user
 	//e.GET("/users", handler.GetAllUsers(client))
