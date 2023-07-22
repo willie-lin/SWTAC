@@ -18,12 +18,21 @@ var (
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "phone", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString, Size: 120},
+		{Name: "user_accounts", Type: field.TypeUUID, Nullable: true},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.
 	AccountsTable = &schema.Table{
 		Name:       "accounts",
 		Columns:    AccountsColumns,
 		PrimaryKey: []*schema.Column{AccountsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "accounts_users_accounts",
+				Columns:    []*schema.Column{AccountsColumns[7]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "account_username_email_phone",
@@ -196,31 +205,6 @@ var (
 			},
 		},
 	}
-	// UserAccountsColumns holds the columns for the "user_accounts" table.
-	UserAccountsColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "account_id", Type: field.TypeUUID},
-	}
-	// UserAccountsTable holds the schema information for the "user_accounts" table.
-	UserAccountsTable = &schema.Table{
-		Name:       "user_accounts",
-		Columns:    UserAccountsColumns,
-		PrimaryKey: []*schema.Column{UserAccountsColumns[0], UserAccountsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_accounts_user_id",
-				Columns:    []*schema.Column{UserAccountsColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_accounts_account_id",
-				Columns:    []*schema.Column{UserAccountsColumns[1]},
-				RefColumns: []*schema.Column{AccountsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// UserGroupUsersColumns holds the columns for the "user_group_users" table.
 	UserGroupUsersColumns = []*schema.Column{
 		{Name: "user_group_id", Type: field.TypeUUID},
@@ -281,13 +265,13 @@ var (
 		UserGroupsTable,
 		RolePermissionsTable,
 		UserRolesTable,
-		UserAccountsTable,
 		UserGroupUsersTable,
 		UserGroupRolesTable,
 	}
 )
 
 func init() {
+	AccountsTable.ForeignKeys[0].RefTable = UsersTable
 	AccountsTable.Annotation = &entsql.Annotation{
 		Table: "accounts",
 	}
@@ -312,8 +296,6 @@ func init() {
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
-	UserAccountsTable.ForeignKeys[0].RefTable = UsersTable
-	UserAccountsTable.ForeignKeys[1].RefTable = AccountsTable
 	UserGroupUsersTable.ForeignKeys[0].RefTable = UserGroupsTable
 	UserGroupUsersTable.ForeignKeys[1].RefTable = UsersTable
 	UserGroupRolesTable.ForeignKeys[0].RefTable = UserGroupsTable

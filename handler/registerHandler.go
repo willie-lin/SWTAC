@@ -144,36 +144,6 @@ type RegisterForm struct {
 	Nickname string `json:"nickname" validate:"required"`
 }
 
-//e.POST("/register", func(c echo.Context) error {
-//	// 从请求中获取数据并将其绑定到 RegisterForm 结构体中
-//	var form RegisterForm
-//	if err := c.Bind(&form); err != nil {
-//		return c.JSON(http.StatusBadRequest, err.Error())
-//	}
-//
-//	// 在 User 表中创建一个新用户
-//	u, err := client.User.
-//		Create().
-//		SetNickname(form.Nickname).
-//		Save(context.Background())
-//	if err != nil {
-//		return c.String(http.StatusInternalServerError, err.Error())
-//	}
-//
-//	// 在 Account 表中创建一个新账户，并将其与新用户关联起来
-//	a, err := client.Account.
-//		Create().
-//		SetUsername(form.Username).
-//		SetPassword(form.Password).
-//		SetUser(u).
-//		Save(context.Background())
-//	if err != nil {
-//		return c.String(http.StatusInternalServerError, err.Error())
-//	}
-//
-//	return c.JSON(http.StatusOK, a)
-//})
-
 func Register(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 
@@ -186,14 +156,14 @@ func Register(client *ent.Client) echo.HandlerFunc {
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-
+		//
 		// 在 User 表中创建一个新用户
-		u, err := tx.User.
-			Create().
-			SetNickname(form.Nickname).
-			SetCreatedAt(time.Now()).
-			SetUpdatedAt(time.Now()).
-			Save(context.Background())
+		//u, err := tx.User.
+		//	Create().
+		//	SetNickname(form.Nickname).
+		//	SetCreatedAt(time.Now()).
+		//	SetUpdatedAt(time.Now()).
+		//	Save(context.Background())
 		if ent.IsConstraintError(err) {
 			tx.Rollback()
 			return c.JSON(http.StatusConflict, err.Error())
@@ -216,7 +186,6 @@ func Register(client *ent.Client) echo.HandlerFunc {
 			SetEmail(form.Email).
 			SetPhone(form.Phone).
 			SetPassword(form.Password).
-			AddUsers(u).
 			SetCreatedAt(time.Now()).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())

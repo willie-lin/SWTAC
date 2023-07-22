@@ -4,7 +4,6 @@ package ent
 
 import (
 	"SWTAC/datasource/ent/account"
-	"SWTAC/datasource/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -86,21 +85,6 @@ func (ac *AccountCreate) SetNillableID(u *uuid.UUID) *AccountCreate {
 		ac.SetID(*u)
 	}
 	return ac
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (ac *AccountCreate) AddUserIDs(ids ...uuid.UUID) *AccountCreate {
-	ac.mutation.AddUserIDs(ids...)
-	return ac
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (ac *AccountCreate) AddUsers(u ...*User) *AccountCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return ac.AddUserIDs(ids...)
 }
 
 // Mutation returns the AccountMutation object of the builder.
@@ -240,22 +224,6 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.Password(); ok {
 		_spec.SetField(account.FieldPassword, field.TypeString, value)
 		_node.Password = value
-	}
-	if nodes := ac.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   account.UsersTable,
-			Columns: account.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

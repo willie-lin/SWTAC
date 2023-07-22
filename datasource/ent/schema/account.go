@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
@@ -30,14 +29,9 @@ func (Account) Mixin() []ent.Mixin {
 // Fields of the Account.
 func (Account) Fields() []ent.Field {
 	return []ent.Field{
-		//field.Int("id").Unique(),
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
-		//field.Int("user_id"),
-		//field.String("open_code"),
-		//field.String("category"),
 		field.String("username").NotEmpty().Unique().Immutable(),
 		field.String("email").Unique(),
-		//field.String("phone").Unique().MinLen(11).MaxLen(11),
 		field.String("phone").Unique(),
 		field.String("password").Sensitive().MinLen(8).MaxLen(120),
 	}
@@ -46,12 +40,9 @@ func (Account) Fields() []ent.Field {
 // Edges of the Account.
 func (Account) Edges() []ent.Edge {
 	return []ent.Edge{
-		//edge.To("user", User.Type),
-		edge.From("users", User.Type).
-			Ref("accounts"),
+		//edge.From("users", User.Type).Ref("accounts"),
 	}
 }
-
 func (Account) Indexes() []ent.Index {
 	return []ent.Index{
 		// 唯一约束索引

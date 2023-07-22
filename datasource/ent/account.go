@@ -29,29 +29,9 @@ type Account struct {
 	// Phone holds the value of the "phone" field.
 	Phone string `json:"phone,omitempty"`
 	// Password holds the value of the "password" field.
-	Password string `json:"-"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the AccountQuery when eager-loading is set.
-	Edges        AccountEdges `json:"edges"`
-	selectValues sql.SelectValues
-}
-
-// AccountEdges holds the relations/edges for other nodes in the graph.
-type AccountEdges struct {
-	// Users holds the value of the users edge.
-	Users []*User `json:"users,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
-}
-
-// UsersOrErr returns the Users value or an error if the edge
-// was not loaded in eager-loading.
-func (e AccountEdges) UsersOrErr() ([]*User, error) {
-	if e.loadedTypes[0] {
-		return e.Users, nil
-	}
-	return nil, &NotLoadedError{edge: "users"}
+	Password      string `json:"-"`
+	user_accounts *uuid.UUID
+	selectValues  sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -65,6 +45,8 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case account.FieldID:
 			values[i] = new(uuid.UUID)
+		case account.ForeignKeys[0]: // user_accounts
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -122,6 +104,13 @@ func (a *Account) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				a.Password = value.String
 			}
+		case account.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field user_accounts", values[i])
+			} else if value.Valid {
+				a.user_accounts = new(uuid.UUID)
+				*a.user_accounts = *value.S.(*uuid.UUID)
+			}
 		default:
 			a.selectValues.Set(columns[i], values[i])
 		}
@@ -133,11 +122,6 @@ func (a *Account) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (a *Account) Value(name string) (ent.Value, error) {
 	return a.selectValues.Get(name)
-}
-
-// QueryUsers queries the "users" edge of the Account entity.
-func (a *Account) QueryUsers() *UserQuery {
-	return NewAccountClient(a.config).QueryUsers(a)
 }
 
 // Update returns a builder for updating this Account.
