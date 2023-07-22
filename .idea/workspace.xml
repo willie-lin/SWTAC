@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="814a2e58-0712-4346-bae4-4719e8fade57" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handler/groupHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/groupHandler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handler/roleHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/roleHandler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handler/userHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/userHandler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handler/permissionHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/permissionHandler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,14 +119,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1688540741082</updated>
-    </task>
-    <task id="LOCAL-00003" summary="update handler">
-      <option name="closed" value="true" />
-      <created>1688558458023</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1688558458023</updated>
     </task>
     <task id="LOCAL-00004" summary="update mixins.go">
       <option name="closed" value="true" />
@@ -516,7 +504,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690021053819</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="update schema">
+      <option name="closed" value="true" />
+      <created>1690025647781</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1690025647781</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
