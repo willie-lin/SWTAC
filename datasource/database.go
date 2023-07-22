@@ -29,7 +29,6 @@ type DatabaseCfg struct {
 
 func NewClient() (*ent.Client, error) {
 
-	//fmt.Println(viper.GetString("database.username"))
 	var dfg = &DatabaseCfg{
 		User:     viper.GetString("database.username"),
 		Password: viper.GetString("database.password"),
@@ -57,35 +56,12 @@ func NewClient() (*ent.Client, error) {
 		return nil, fmt.Errorf("failed opening connection to %s: %w", dfg.Type, err)
 	}
 	return client, nil
-
-	//	client, err = ent.Open(dfg.Type, fmt.Sprintf("file:%s?_busy_timeout=100000&_fk=1", dfg.DbName))
-	//	if err != nil {
-	//		return client, fmt.Errorf("failed opening connection to sqlite: %v", err)
-	//	}
-	//case "mysql":
-	//	client, err = ent.Open(dfg.Type, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true",
-	//		dfg.User, dfg.Password, dfg.Host, dfg.Port, dfg.DbName))
-	//	if err != nil {
-	//		return client, fmt.Errorf("failed opening connection to mysql: %v", err)
-	//	}
-	//case "postgres", "postgresql":
-	//	client, err = ent.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
-	//		dfg.Host, dfg.Port, dfg.User, dfg.DbName, dfg.Password))
-	//	if err != nil {
-	//		return client, fmt.Errorf("failed opening connection to postgres: %v", err)
-	//	}
-	//default:
-	//	return client, fmt.Errorf("unknown database type")
-	//}
-	//return client, err
 }
 
 func AutoMigration(client *ent.Client, ctx context.Context) {
 	log, _ := zap.NewDevelopment()
-	//if err := client.Schema.Create(ctx); err != nil {
 	if err := client.Schema.Create(ctx, migrate.WithGlobalUniqueID(true)); err != nil {
 		log.Fatal("failed creating schema resources: %v", zap.Error(err))
-		//log.Fatalf("failed creating schema resources: %v", err)
 	}
 }
 
@@ -98,6 +74,5 @@ func DebugMode(err error, client *ent.Client, ctx context.Context) {
 	)
 	if err != nil {
 		log.Fatal("failed creating schema resources: %v", zap.Error(err))
-		//log.Fatalf("failed creating schema resources: %v", err)
 	}
 }

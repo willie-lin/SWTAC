@@ -11,7 +11,6 @@ func InitConfig() {
 	if err != nil {
 		panic(err)
 	}
-
 	viper.AddConfigPath(path)
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
