@@ -2,90 +2,91 @@ package handler
 
 import (
 	"SWTAC/datasource/ent"
-	"SWTAC/datasource/ent/role"
+	"SWTAC/datasource/ent/permission"
+	"context"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
 )
 
-// GetAllRoles 获取所有角色
-func GetAllRoles(client *ent.Client) echo.HandlerFunc {
+// GetAllPermissions 获取所有角色
+func GetAllPermissions(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		roles, err := client.Role.Query().All(context.Background())
+		permissions, err := client.Permission.Query().All(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusOK, roles)
+		return c.JSON(http.StatusOK, permissions)
 	}
 }
 
-// GetRoleByRoleName 根据角色名查找
-func GetRoleByRoleName(client *ent.Client) echo.HandlerFunc {
+// GetPermissionByName 根据角色名查找
+func GetPermissionByName(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		r := new(ent.Role)
+		p := new(ent.Permission)
 		// 直接解析raw数据为json
 		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
-		if err := c.Bind(r); err != nil {
+		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		role, err := client.Role.Query().Where(role.NameEQ(r.Name)).Only(context.Background())
+		permission, err := client.Permission.Query().Where(permission.NameEQ(p.Name)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusOK, role)
+		return c.JSON(http.StatusOK, permission)
 	}
 }
 
 // GetRoleById   根据ID查找
-func GetRoleById(client *ent.Client) echo.HandlerFunc {
+func GetPermissionById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		r := new(ent.Role)
+		p := new(ent.Permission)
 		// 直接解析raw数据为json
 		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
-		if err := c.Bind(r); err != nil {
+		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		role, err := client.Role.Query().Where(role.IDEQ(r.ID)).Only(context.Background())
+		permission, err := client.Permission.Query().Where(permission.IDEQ(p.ID)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusOK, role)
+		return c.JSON(http.StatusOK, permission)
 	}
 }
 
-// CreateRole  创建角色
-func CreateRole(client *ent.Client) echo.HandlerFunc {
+// CreatePermission   创建角色
+func CreatePermission(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 
-		r := new(ent.Role)
+		p := new(ent.Permission)
 
 		// 直接解析raw数据为json
 		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
 
-		if err := c.Bind(r); err != nil {
+		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		role, err := client.Role.Create().
-			SetName(r.Name).
-			SetDescription(r.Description).
+		permission, err := client.Permission.Create().
+			SetName(p.Name).
+			SetDescription(p.Description).
 			SetCreatedAt(time.Now()).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
@@ -95,25 +96,25 @@ func CreateRole(client *ent.Client) echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusCreated, role)
+		return c.JSON(http.StatusCreated, permission)
 	}
 }
 
-// UpdateRoleById   更新角色
-func UpdateRoleById(client *ent.Client) echo.HandlerFunc {
+// UpdatePermissionById  更新角色
+func UpdatePermissionById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		r := new(ent.Role)
+		p := new(ent.Permission)
 		// 解析json 并绑定到
 		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
-		if err := c.Bind(r); err != nil {
+		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		role, err := client.Role.UpdateOneID(r.ID).
-			SetName(r.Name).
-			SetDescription(r.Description).
+		permission, err := client.Role.UpdateOneID(p.ID).
+			SetName(p.Name).
+			SetDescription(p.Description).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		if ent.IsConstraintError(err) {
@@ -125,25 +126,25 @@ func UpdateRoleById(client *ent.Client) echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusOK, role)
+		return c.JSON(http.StatusOK, permission)
 	}
 }
 
-// UpdateRole  更新角色
-func UpdateRole(client *ent.Client) echo.HandlerFunc {
+// UpdatePermission  更新角色
+func UpdatePermission(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		r := new(ent.Role)
+		p := new(ent.Permission)
 
 		// 直接解析raw数据为json
 		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
 
-		if err := c.Bind(r); err != nil {
+		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		role, err := client.Role.Query().Where(role.IDEQ(r.ID)).Only(context.Background())
+		permission, err := client.Permission.Query().Where(permission.IDEQ(p.ID)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
@@ -151,40 +152,40 @@ func UpdateRole(client *ent.Client) echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		role, err = role.Update().
-			SetName(r.Name).
-			SetDescription(r.Description).
+		permission, err = permission.Update().
+			SetName(p.Name).
+			SetDescription(p.Description).
 			SetUpdatedAt(time.Now()).
 			Save(context.Background())
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.JSON(http.StatusOK, role)
+		return c.JSON(http.StatusOK, permission)
 	}
 
 }
 
-// DeleteRole  删除角色
-func DeleteRole(client *ent.Client) echo.HandlerFunc {
+// DeletePermission   删除角色
+func DeletePermission(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		r := new(ent.Role)
+		p := new(ent.Permission)
 
 		// 直接解析raw数据为json
 		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
 
-		if err := c.Bind(r); err != nil {
+		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		role, err := client.Role.Query().Where(role.NameEQ(r.Name)).Only(context.Background())
+		permission, err := client.Permission.Query().Where(permission.NameEQ(p.Name)).Only(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		err = client.Role.DeleteOne(role).Exec(context.Background())
+		err = client.Permission.DeleteOne(permission).Exec(context.Background())
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
@@ -192,18 +193,18 @@ func DeleteRole(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// DeleteRoleById  删除角色
-func DeleteRoleById(client *ent.Client) echo.HandlerFunc {
+// DeletePermissionById   删除角色
+func DeletePermissionById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		r := new(ent.Role)
+		p := new(ent.Permission)
 		// 直接解析raw数据为json
 		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
 		//	return c.JSON(http.StatusBadRequest, err.Error())
 		//}
-		if err := c.Bind(r); err != nil {
+		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		err := client.Role.DeleteOneID(r.ID).Exec(context.Background())
+		err := client.Permission.DeleteOneID(p.ID).Exec(context.Background())
 		if ent.IsNotFound(err) {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
