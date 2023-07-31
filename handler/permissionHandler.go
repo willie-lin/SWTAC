@@ -46,14 +46,10 @@ func GetPermissionByName(client *ent.Client) echo.HandlerFunc {
 	}
 }
 
-// GetRoleById   根据ID查找
+// GetPermissionById GetRoleById   根据ID查找
 func GetPermissionById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		p := new(ent.Permission)
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -74,11 +70,6 @@ func CreatePermission(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 
 		p := new(ent.Permission)
-
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 
 		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -104,10 +95,7 @@ func CreatePermission(client *ent.Client) echo.HandlerFunc {
 func UpdatePermissionById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		p := new(ent.Permission)
-		// 解析json 并绑定到
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
+
 		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -134,11 +122,6 @@ func UpdatePermissionById(client *ent.Client) echo.HandlerFunc {
 func UpdatePermission(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		p := new(ent.Permission)
-
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 
 		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -169,11 +152,6 @@ func UpdatePermission(client *ent.Client) echo.HandlerFunc {
 func DeletePermission(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		p := new(ent.Permission)
-
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 
 		if err := c.Bind(p); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())

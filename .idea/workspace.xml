@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="814a2e58-0712-4346-bae4-4719e8fade57" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handler/permissionHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/permissionHandler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,14 +119,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1688540741082</updated>
-    </task>
-    <task id="LOCAL-00006" summary="update mixin">
-      <option name="closed" value="true" />
-      <created>1688634081647</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1688634081647</updated>
     </task>
     <task id="LOCAL-00007" summary="update mixin">
       <option name="closed" value="true" />
@@ -511,7 +504,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690195896537</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="update handler">
+      <option name="closed" value="true" />
+      <created>1690351127383</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1690351127383</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -534,12 +535,12 @@
     <MESSAGE value="update mixins.go" />
     <MESSAGE value="go mod tify" />
     <MESSAGE value="update mixin" />
-    <MESSAGE value="update handler" />
     <MESSAGE value="update roleHandler.go" />
     <MESSAGE value="update userHandler.go" />
     <MESSAGE value="update se" />
     <MESSAGE value="update schema" />
-    <option name="LAST_COMMIT_MESSAGE" value="update schema" />
+    <MESSAGE value="update handler" />
+    <option name="LAST_COMMIT_MESSAGE" value="update handler" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
