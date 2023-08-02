@@ -198,11 +198,6 @@ func UpdateUser(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		u := new(ent.User)
 
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&u); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
-
 		if err := c.Bind(u); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}

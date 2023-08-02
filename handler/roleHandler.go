@@ -50,10 +50,7 @@ func GetRoleByRoleName(client *ent.Client) echo.HandlerFunc {
 func GetRoleById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		r := new(ent.Role)
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
+
 		if err := c.Bind(r); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -74,11 +71,6 @@ func CreateRole(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 
 		r := new(ent.Role)
-
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 
 		if err := c.Bind(r); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -104,10 +96,6 @@ func CreateRole(client *ent.Client) echo.HandlerFunc {
 func UpdateRoleById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		r := new(ent.Role)
-		// 解析json 并绑定到
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 		if err := c.Bind(r); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -134,11 +122,6 @@ func UpdateRoleById(client *ent.Client) echo.HandlerFunc {
 func UpdateRole(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		r := new(ent.Role)
-
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 
 		if err := c.Bind(r); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -170,11 +153,6 @@ func DeleteRole(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		r := new(ent.Role)
 
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
-
 		if err := c.Bind(r); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -197,10 +175,6 @@ func DeleteRole(client *ent.Client) echo.HandlerFunc {
 func DeleteRoleById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		r := new(ent.Role)
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&r); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 		if err := c.Bind(r); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
