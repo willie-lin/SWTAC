@@ -51,10 +51,6 @@ func GetGroupByName(client *ent.Client) echo.HandlerFunc {
 func GetGroupById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		g := new(ent.Group)
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 
 		if err := c.Bind(g); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -78,22 +74,9 @@ func CreateGroup(client *ent.Client) echo.HandlerFunc {
 
 		g := new(ent.Group)
 
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 		if err := c.Bind(g); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-
-		//pwd, err := utils.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-		//if err != nil {
-		//	//fmt.Println("加密密码失败", err)
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
-		//fmt.Println(pwd)
-		//u.Password = string(pwd)
-		//fmt.Println(pwd)
 
 		group, err := client.Group.Create().
 			SetName(g.Name).
@@ -115,10 +98,7 @@ func CreateGroup(client *ent.Client) echo.HandlerFunc {
 func UpdateGroupById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		g := new(ent.Group)
-		// 解析json 并绑定到u
-		//if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
+
 		if err := c.Bind(g); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -145,10 +125,6 @@ func UpdateGroupById(client *ent.Client) echo.HandlerFunc {
 func UpdateGroup(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		g := new(ent.Group)
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 
 		if err := c.Bind(g); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -178,11 +154,6 @@ func DeleteGroup(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		g := new(ent.Group)
 
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
-
 		if err := c.Bind(g); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
@@ -206,10 +177,6 @@ func DeleteGroupById(client *ent.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		g := new(ent.Group)
 
-		// 直接解析raw数据为json
-		//if err := json.NewDecoder(c.Request().Body).Decode(&g); err != nil {
-		//	return c.JSON(http.StatusBadRequest, err.Error())
-		//}
 		if err := c.Bind(g); err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}

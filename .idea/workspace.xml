@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="814a2e58-0712-4346-bae4-4719e8fade57" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handler/permissionHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/permissionHandler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handler/groupHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/groupHandler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,14 +119,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1688540741082</updated>
-    </task>
-    <task id="LOCAL-00007" summary="update mixin">
-      <option name="closed" value="true" />
-      <created>1688636957752</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1688636957752</updated>
     </task>
     <task id="LOCAL-00008" summary="update handler">
       <option name="closed" value="true" />
@@ -512,7 +504,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690351127383</updated>
     </task>
-    <option name="localTasksCounter" value="56" />
+    <task id="LOCAL-00056" summary="update handler">
+      <option name="closed" value="true" />
+      <created>1690782764082</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1690782764083</updated>
+    </task>
+    <option name="localTasksCounter" value="57" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -530,6 +530,7 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <MESSAGE value="update ent model" />
     <MESSAGE value="update account" />
     <MESSAGE value="update mixins.go" />
