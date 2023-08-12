@@ -12,7 +12,7 @@ import (
 )
 
 type RegisterForm struct {
-	Username string `json:"username" validate:"required"`
+	Username string `json:"go" validate:"required"`
 	Email    string `json:"email" validate:"required"`
 	Phone    string `json:"phone" validate:"required"`
 	Password string `json:"password" validate:"required"`
